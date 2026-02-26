@@ -203,6 +203,28 @@ export default {
       return json({ ok: true, user: userPayload(user) });
     }
 
+    if (pathname === '/api/user/profile' && req.method === 'POST') {
+      const body = await parseJson(req);
+      const username = (body?.username || '').trim();
+      const name = (body?.name || '').trim();
+      const phone = (body?.phone || '').trim();
+      const address = (body?.address || '').trim();
+      if (!username || !name || !phone || !address) {
+        return json({ ok: false, error: 'username, name, phone and address are required.' }, 400);
+      }
+
+      const result = await env.DB.prepare(
+        'UPDATE users SET full_name = ?, phone = ?, address = ? WHERE username = ?',
+      ).bind(name, phone, address, username).run();
+
+      if (!result.success || result.meta.changes === 0) {
+        return json({ ok: false, error: 'User not found.' }, 404);
+      }
+
+      const user = await env.DB.prepare('SELECT * FROM users WHERE username = ? LIMIT 1').bind(username).first();
+      return json({ ok: true, user: userPayload(user) });
+    }
+
     if (pathname === '/api/user/avatar' && req.method === 'POST') {
       const body = await parseJson(req);
       const username = (body?.username || '').trim();

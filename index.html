@@ -104,6 +104,15 @@
     z-index: 50;
   }
   .top-bar h1 { font-size: 18px; font-weight: 800; }
+  .top-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .top-title .title-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
   .top-bar .logo { font-size: 22px; }
   .avatar-btn {
     width: 36px; height: 36px;
@@ -391,8 +400,11 @@
   .finder-step.active {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 16px;
+  }
+  .finder-step:not(.results-step).active {
+    overflow: hidden;
   }
   .finder-step.results-step.active {
     justify-content: flex-start;
@@ -455,7 +467,7 @@
   }
   .finder-grid.fill {
     grid-template-rows: 1fr 1fr;
-    height: 100%;
+    height: calc(100% - 8px);
     min-height: 0;
   }
   .finder-card {
@@ -464,8 +476,8 @@
     background: var(--card);
     color: var(--text);
     border-radius: 14px;
-    padding: 24px 18px;
-    min-height: 116px;
+    padding: 16px 12px;
+    min-height: 86px;
     text-align: right;
     cursor: pointer;
     display: flex;
@@ -475,20 +487,56 @@
   }
   .finder-card strong {
     display: block;
-    font-size: 28px;
+    font-size: clamp(20px, 5.5vw, 26px);
     line-height: 1.25;
   }
   @media (max-width: 480px) {
+    .finder-step {
+      padding: 12px 10px 10px;
+      gap: 10px;
+    }
     .finder-title {
-      font-size: 22px;
+      font-size: 20px;
+      margin-top: 0;
+    }
+    .finder-subtitle {
+      font-size: 16px;
+      margin-top: -2px;
+    }
+    .wizard-progress {
+      margin-bottom: 6px;
+      gap: 6px;
     }
     .finder-card {
-      min-height: 92px;
-      padding: 16px 12px;
+      min-height: 78px;
+      padding: 12px 10px;
     }
     .finder-card strong {
-      font-size: 22px;
+      font-size: 19px;
       line-height: 1.2;
+    }
+    .step3-grid {
+      gap: 8px;
+    }
+    .step3-card {
+      padding: 10px;
+    }
+    .step3-card label {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .picker-btn {
+      min-height: 50px;
+      font-size: 16px;
+    }
+    .step3-actions {
+      gap: 8px;
+    }
+    .step3-actions .btn,
+    .step3-actions .step-back {
+      min-height: 44px;
+      font-size: 15px;
+      padding: 9px 12px;
     }
   }
   .finder-card.active {
@@ -533,9 +581,11 @@
 
   .step3-grid {
     display: grid;
-    gap: 14px;
+    gap: 10px;
     width: min(100%, 430px);
     margin: 0 auto;
+    flex: 1;
+    min-height: 0;
   }
   .step3-card {
     background: rgba(255, 255, 255, 0.92);
@@ -552,19 +602,19 @@
     color: var(--text);
   }
   .step3-card input {
-    min-height: 68px !important;
-    font-size: 22px !important;
+    min-height: 56px !important;
+    font-size: 18px !important;
     font-weight: 700;
     padding: 14px 16px !important;
   }
   .picker-btn {
     width: 100%;
-    min-height: 72px;
+    min-height: 58px;
     border-radius: 14px;
     border: 1px solid var(--border);
     background: #fff;
     color: var(--text);
-    font-size: 22px;
+    font-size: 18px;
     font-weight: 800;
     cursor: pointer;
     text-align: center;
@@ -792,13 +842,22 @@
     padding-bottom: 96px;
   }
 
-  #myRidesScreen .my-rides-wrap {
-    height: var(--between-h);
+  #myridesScreen .my-rides-wrap {
+    height: auto;
+    flex: 1;
+    min-height: 0;
     max-width: 460px;
     margin: 0 auto;
     padding: 10px 10px 90px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  #myridesScreen.active {
+    display: flex;
+    flex-direction: column;
   }
 
   .my-ride-actions {
@@ -1130,6 +1189,42 @@
     transition: background 0.2s;
   }
   .logout-btn:hover { background: rgba(239, 68, 68, 0.1); }
+
+  .edit-ride-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 17, 31, 0.62);
+    backdrop-filter: blur(4px);
+    z-index: 220;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  .edit-ride-modal-overlay.open {
+    display: flex;
+  }
+  .edit-ride-modal {
+    width: min(100%, 460px);
+    max-height: calc(var(--app-h) - 24px);
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 16px 36px rgba(20, 71, 124, 0.24);
+  }
+  .edit-ride-modal .finder-title {
+    font-size: 21px;
+    margin-bottom: 4px;
+  }
+  .edit-ride-modal .step3-card {
+    margin-bottom: 10px;
+  }
+  .edit-ride-actions {
+    display: grid;
+    gap: 8px;
+  }
 </style>
 </head>
 <body>
@@ -1213,7 +1308,7 @@
     <!-- ── HOME SCREEN ── -->
     <div id="homeScreen" class="screen active">
       <div class="top-bar">
-        <h1>מצא נסיעות</h1>
+        <h1 class="top-title"><span class="title-icon">🔎</span>מצא נסיעות</h1>
         <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
       </div>
 
@@ -1268,6 +1363,7 @@
           </div>
           <div class="step3-actions">
             <button class="btn btn-primary" onclick="applyFinderDateTime()">הצג נסיעות זמינות</button>
+            <button class="step-back" onclick="showFinderStep(2)">חזרה</button>
           </div>
         </section>
 
@@ -1288,7 +1384,7 @@
     <!-- ── ADD RIDE SCREEN ── -->
     <div id="addScreen" class="screen">
       <div class="top-bar">
-        <h1>הוספת נסיעה</h1>
+        <h1 class="top-title"><span class="title-icon">➕</span>הוספת נסיעה</h1>
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
       </div>
 
@@ -1397,7 +1493,7 @@
 
     <div id="myridesScreen" class="screen">
       <div class="top-bar">
-        <h1>הנסיעות שלי</h1>
+        <h1 class="top-title"><span class="title-icon">🗂️</span>הנסיעות שלי</h1>
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
       </div>
       <div class="my-rides-wrap" id="myRidesList"></div>
@@ -1434,13 +1530,21 @@
 
       <div style="padding: 0 16px;">
         <div class="form-group mt-16">
+          <label>עדכן שם מלא</label>
+          <input type="text" id="editName" placeholder="שם מלא">
+        </div>
+        <div class="form-group mt-16">
+          <label>עדכן טלפון</label>
+          <input type="tel" id="editPhone" placeholder="05X-XXXXXXX">
+        </div>
+        <div class="form-group mt-16">
           <label>עדכן כתובת ברירת מחדל</label>
           <div class="autocomplete-wrap">
             <input type="text" id="editAddress" placeholder="עיר, שכונה" oninput="acInput(this, 'editAddressAC')" autocomplete="off">
             <div class="autocomplete-list hidden" id="editAddressAC"></div>
           </div>
         </div>
-        <button class="btn btn-primary" onclick="saveAddress()">💾 שמור כתובת</button>
+        <button class="btn btn-primary" onclick="saveProfile()">💾 שמור פרופיל</button>
         <button class="logout-btn" onclick="logout()">🚪 התנתק</button>
       </div>
     </div>
@@ -1497,6 +1601,36 @@
     <div class="otp-actions">
       <button class="btn btn-ghost" type="button" onclick="closeOtpModal(false)">ביטול</button>
       <button class="btn btn-primary" type="button" onclick="closeOtpModal(true)">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div class="edit-ride-modal-overlay" id="editRideModal" onclick="closeEditRideModal(event)">
+  <div class="edit-ride-modal">
+    <div class="finder-title"><span class="step-icon">✏️</span>עריכת פרטי נסיעה</div>
+    <div class="step3-card">
+      <label>🕐 שעת נסיעה</label>
+      <input type="time" id="editRideTime">
+    </div>
+    <div class="step3-card">
+      <label>💶 מחיר לנוסע (€)</label>
+      <input type="number" id="editRidePrice" min="0" step="1">
+    </div>
+    <div class="step3-card">
+      <label>👥 מקומות פנויים</label>
+      <select id="editRideSeats">
+        <option value="1">1 מקום</option>
+        <option value="2">2 מקומות</option>
+        <option value="3">3 מקומות</option>
+        <option value="4">4 מקומות</option>
+        <option value="5">5 מקומות</option>
+        <option value="6">6 מקומות</option>
+        <option value="7">7 מקומות</option>
+      </select>
+    </div>
+    <div class="edit-ride-actions">
+      <button class="btn btn-primary" onclick="submitEditRide()">שמירת שינויים</button>
+      <button class="step-back" onclick="closeEditRideModal()">ביטול</button>
     </div>
   </div>
 </div>
@@ -1725,6 +1859,25 @@ function updateTripTypeUi() {
     ? 'אפשר להקליד בעברית/אנגלית או לבחור מהרשימה'
     : 'אפשר להקליד בעברית/אנגלית או לבחור מהרשימה';
   updateTimeContextUi();
+}
+
+function syncAddDefaultsFromProfile() {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const nameInput = document.getElementById('addContactName');
+  const phoneInput = document.getElementById('addContactPhone');
+  const destInput = document.getElementById('addDest');
+
+  if (nameInput) {
+    nameInput.value = (user.name || '').trim();
+  }
+  if (phoneInput) {
+    phoneInput.value = (user.phone || '').trim();
+  }
+  if (destInput) {
+    destInput.value = (user.address || '').trim();
+  }
 }
 
 function showAddStep(stepNumber) {
@@ -2065,10 +2218,7 @@ function enterApp({ firstEntry = false, targetScreen = 'home' } = {}) {
   document.getElementById('loginScreen').classList.add('hidden');
   document.getElementById('mainApp').classList.remove('hidden');
   renderHeaderAvatar();
-  const user = getCurrentUser();
-  document.getElementById('addDest').value = user?.address || '';
-  document.getElementById('addContactName').value = user?.name || '';
-  document.getElementById('addContactPhone').value = user?.phone || '';
+  syncAddDefaultsFromProfile();
   resetFinderSelection();
   renderProfile();
   applyRoleUi();
@@ -2109,6 +2259,7 @@ function navigate(screen) {
   }
   if (screen === 'add') {
     resetAddWizard();
+    syncAddDefaultsFromProfile();
   }
   if (screen === 'myrides') {
     renderMyRides();
@@ -2339,21 +2490,60 @@ async function editMyRide(rideId) {
 
   STATE.driverPhone = phone;
   localStorage.setItem('cy_driver_phone', phone);
+  openEditRideModal(current, phone);
+}
 
-  const newTime = window.prompt('שעת נסיעה חדשה (HH:MM):', current.time || '');
-  if (newTime === null) return;
-  const newPrice = window.prompt('מחיר חדש (€):', String(current.price ?? '0'));
-  if (newPrice === null) return;
-  const newSeats = window.prompt('כמות מקומות חדשה:', String(current.seats ?? '3'));
-  if (newSeats === null) return;
+let editingRideId = null;
+let editingRidePhone = '';
+
+function openEditRideModal(ride, phone) {
+  editingRideId = ride?.id || null;
+  editingRidePhone = phone || '';
+  document.getElementById('editRideTime').value = String(ride?.time || '').trim();
+  document.getElementById('editRidePrice').value = Number.isFinite(Number(ride?.price)) ? Number(ride.price) : 0;
+  document.getElementById('editRideSeats').value = Number.isFinite(Number(ride?.seats)) ? String(ride.seats) : '3';
+  document.getElementById('editRideModal').classList.add('open');
+}
+
+function closeEditRideModal(event) {
+  if (event && event.target !== document.getElementById('editRideModal')) {
+    return;
+  }
+  document.getElementById('editRideModal').classList.remove('open');
+}
+
+async function submitEditRide() {
+  const rideId = Number(editingRideId);
+  if (!rideId || !editingRidePhone) {
+    toast('לא נמצאו פרטי עריכה תקינים');
+    return;
+  }
+
+  const time = String(document.getElementById('editRideTime').value || '').trim();
+  const price = Number(document.getElementById('editRidePrice').value);
+  const seats = Number(document.getElementById('editRideSeats').value);
+
+  if (!time) {
+    toast('יש להזין שעת נסיעה');
+    return;
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    toast('מחיר לא תקין');
+    return;
+  }
+  if (!Number.isFinite(seats) || seats < 1) {
+    toast('מספר מקומות לא תקין');
+    return;
+  }
 
   try {
     await apiPut(`/api/rides/${rideId}`, {
-      phone,
-      time: String(newTime).trim(),
-      price: Number(newPrice),
-      seats: Number(newSeats),
+      phone: editingRidePhone,
+      time,
+      price,
+      seats,
     });
+    closeEditRideModal();
     toast('הנסיעה עודכנה ✅');
     await renderMyRides();
     if (finderState.tripType && finderState.airport && finderState.date) {
@@ -2522,29 +2712,36 @@ function renderProfile() {
   document.getElementById('profileLocation').querySelector('span').textContent = user.address;
   document.getElementById('profilePhone').textContent = user.phone;
   document.getElementById('profileAddress').textContent = user.address;
+  document.getElementById('editName').value = user.name || '';
+  document.getElementById('editPhone').value = user.phone || '';
   document.getElementById('editAddress').value = user.address;
   renderHeaderAvatar();
 }
 
-async function saveAddress() {
+async function saveProfile() {
   const user = getCurrentUser();
+  const name = document.getElementById('editName').value.trim();
+  const phone = document.getElementById('editPhone').value.trim();
   const address = document.getElementById('editAddress').value.trim();
-  if (!address) {
-    toast('נא להזין כתובת');
+  if (!name || !phone || !address) {
+    toast('נא להזין שם, טלפון וכתובת');
     return;
   }
 
   try {
-    const data = await apiPost('/api/user/address', {
+    const data = await apiPost('/api/user/profile', {
       username: user.username,
+      name,
+      phone,
       address,
     });
     STATE.currentUser = data.user;
     setProfileSetupDone(user.username);
     renderProfile();
-    toast('הכתובת עודכנה ✅');
+    syncAddDefaultsFromProfile();
+    toast('הפרופיל עודכן ✅');
   } catch (err) {
-    toast(`שגיאה בעדכון כתובת: ${err.message}`);
+    toast(`שגיאה בעדכון פרופיל: ${err.message}`);
   }
 }
 

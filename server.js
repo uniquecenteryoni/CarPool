@@ -494,6 +494,33 @@ Bun.serve({
       }
     }
 
+    if (pathname === '/api/user/profile' && req.method === 'POST') {
+      try {
+        const body = await req.json()
+        const username = (body?.username || '').trim()
+        const name = (body?.name || '').trim()
+        const phone = (body?.phone || '').trim()
+        const address = (body?.address || '').trim()
+
+        if (!username || !name || !phone || !address) {
+          return json({ ok: false, error: 'username, name, phone and address are required.' }, 400)
+        }
+
+        const result = db
+          .prepare('UPDATE users SET full_name = ?, phone = ?, address = ? WHERE username = ?')
+          .run(name, phone, address, username)
+
+        if (!result.changes) {
+          return json({ ok: false, error: 'User not found.' }, 404)
+        }
+
+        const user = db.prepare('SELECT * FROM users WHERE username = ? LIMIT 1').get(username)
+        return json({ ok: true, user: userPayload(user) })
+      } catch {
+        return json({ ok: false, error: 'Invalid request payload.' }, 400)
+      }
+    }
+
     if (pathname === '/api/user/avatar' && req.method === 'POST') {
       try {
         const body = await req.json()
