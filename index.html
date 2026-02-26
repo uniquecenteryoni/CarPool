@@ -472,8 +472,9 @@
   }
   .finder-grid.fill {
     grid-template-rows: 1fr 1fr;
-    height: calc(100% - 8px);
+    height: auto;
     min-height: 0;
+    flex: 1;
   }
   .finder-card {
     width: 100%;
@@ -646,11 +647,28 @@
     gap: 10px;
   }
 
+  .pick-step .finder-grid {
+    width: min(100%, 430px);
+    margin: 0 auto;
+    gap: 10px;
+  }
+
+  .pick-step .finder-card {
+    min-height: 0;
+    height: 100%;
+    border-radius: 16px;
+    padding: 14px 12px;
+  }
+
+  .pick-step .finder-card strong {
+    font-size: clamp(20px, 5.2vw, 24px);
+  }
+
   #homeScreen.active {
     display: flex;
     flex-direction: column;
     min-height: var(--app-h);
-    padding-bottom: var(--bottom-nav-h);
+    padding-bottom: 0;
   }
 
   #homeScreen .top-bar {
@@ -869,6 +887,16 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
     touch-action: pan-y;
+  }
+
+  #myridesScreen .my-rides-wrap .ride-card {
+    width: 100%;
+    margin: 0 0 12px;
+    padding: 18px;
+  }
+
+  #myridesScreen .ride-dest {
+    font-size: 22px;
   }
 
   #myridesScreen.active {
@@ -1239,6 +1267,41 @@
     min-height: 48px;
     font-size: 16px;
   }
+  .edit-ride-modal .form-group {
+    margin-bottom: 0;
+  }
+  .edit-ride-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .edit-ride-grid .full {
+    grid-column: 1 / -1;
+  }
+  .edit-ride-modal .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .edit-ride-modal .form-group input,
+  .edit-ride-modal .form-group select {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.96);
+    padding: 10px 12px;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .edit-ride-modal .choice-btn {
+    min-height: 48px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
   .edit-ride-modal .step3-card {
     margin-bottom: 10px;
   }
@@ -1340,7 +1403,7 @@
           <span class="wizard-line"></span>
           <span class="wizard-line"></span>
         </div>
-        <section id="finderStep1" class="finder-step active">
+        <section id="finderStep1" class="finder-step pick-step active">
           <div class="finder-title"><span class="step-icon">1</span>בחרו כיוון נסיעה</div>
           <div class="finder-subtitle">בחרו כיוון נסיעה</div>
           <div class="finder-grid fill">
@@ -1353,7 +1416,7 @@
           </div>
         </section>
 
-        <section id="finderStep2" class="finder-step">
+        <section id="finderStep2" class="finder-step pick-step">
           <div class="finder-title"><span class="step-icon">2</span>בחירת שדה</div>
           <div class="finder-subtitle" id="finderStep2Subtitle">בחרו לרנקה או פאפוס</div>
           <div class="finder-grid fill">
@@ -1364,7 +1427,6 @@
               <strong>🛬 פאפוס (PFO)</strong>
             </button>
           </div>
-          <button class="step-back" onclick="showFinderStep(1)">חזרה</button>
         </section>
 
         <section id="finderStep3" class="finder-step">
@@ -1629,25 +1691,70 @@
 <div class="edit-ride-modal-overlay" id="editRideModal" onclick="closeEditRideModal(event)">
   <div class="edit-ride-modal">
     <div class="finder-title"><span class="step-icon">✏️</span>עריכת פרטי נסיעה</div>
-    <div class="step3-card">
-      <label>🕐 שעת נסיעה</label>
-      <input type="time" id="editRideTime">
-    </div>
-    <div class="step3-card">
-      <label>💶 מחיר לנוסע (€)</label>
-      <input type="number" id="editRidePrice" min="0" step="1">
-    </div>
-    <div class="step3-card">
-      <label>👥 מקומות פנויים</label>
-      <select id="editRideSeats">
-        <option value="1">1 מקום</option>
-        <option value="2">2 מקומות</option>
-        <option value="3">3 מקומות</option>
-        <option value="4">4 מקומות</option>
-        <option value="5">5 מקומות</option>
-        <option value="6">6 מקומות</option>
-        <option value="7">7 מקומות</option>
-      </select>
+    <div class="edit-ride-grid">
+      <div class="form-group full">
+        <label>סוג נסיעה</label>
+        <select id="editRideTripType" onchange="updateEditRideTripTypeUi()">
+          <option value="from_airport">🛬 חזרה מהשדה</option>
+          <option value="to_airport">🛫 נסיעה לשדה</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>שדה תעופה</label>
+        <select id="editRideAirport">
+          <option value="larnaca">לרנקה (LCA)</option>
+          <option value="paphos">פאפוס (PFO)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label id="editRideDestLabel">יעד/מוצא</label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="editRideDest" oninput="acInput(this, 'editRideDestAC')" autocomplete="off">
+          <div class="autocomplete-list hidden" id="editRideDestAC"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>תאריך</label>
+        <input type="date" id="editRideDate">
+      </div>
+      <div class="form-group">
+        <label id="editRideTimeLabel">שעה</label>
+        <input type="time" id="editRideTime">
+      </div>
+      <div class="form-group">
+        <label>שם איש קשר</label>
+        <input type="text" id="editRideDriver">
+      </div>
+      <div class="form-group">
+        <label>טלפון איש קשר</label>
+        <input type="tel" id="editRidePhone">
+      </div>
+      <div class="form-group">
+        <label>👥 מקומות פנויים</label>
+        <select id="editRideSeats">
+          <option value="1">1 מקום</option>
+          <option value="2">2 מקומות</option>
+          <option value="3">3 מקומות</option>
+          <option value="4">4 מקומות</option>
+          <option value="5">5 מקומות</option>
+          <option value="6">6 מקומות</option>
+          <option value="7">7 מקומות</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>💶 מחיר לנוסע (€)</label>
+        <input type="number" id="editRidePrice" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>תא מטען לנוסעים</label>
+        <input type="hidden" id="editRideTrunkSpace" value="yes">
+        <button type="button" class="choice-btn" id="editRideTrunkBtn" onclick="toggleBinaryChoice('editRideTrunkSpace', this, '🧳 עם תא מטען', '🚫 בלי תא מטען')">🧳 עם תא מטען</button>
+      </div>
+      <div class="form-group">
+        <label>כלבים</label>
+        <input type="hidden" id="editRideDogsAllowed" value="no">
+        <button type="button" class="choice-btn" id="editRideDogsBtn" onclick="toggleBinaryChoice('editRideDogsAllowed', this, '🐶 עם כלבים', '🚫 בלי כלבים')">🚫 בלי כלבים</button>
+      </div>
     </div>
     <div class="edit-ride-actions">
       <button class="btn btn-primary" onclick="submitEditRide()">שמירת שינויים</button>
@@ -2520,10 +2627,42 @@ let editingRidePhone = '';
 function openEditRideModal(ride, phone) {
   editingRideId = ride?.id || null;
   editingRidePhone = phone || '';
+  document.getElementById('editRideTripType').value = ride?.tripType || 'from_airport';
+  document.getElementById('editRideAirport').value = ride?.airport || 'larnaca';
+  document.getElementById('editRideDest').value = String(ride?.dest || '').trim();
+  document.getElementById('editRideDate').value = String(ride?.date || '').trim();
   document.getElementById('editRideTime').value = String(ride?.time || '').trim();
+  document.getElementById('editRideDriver').value = String(ride?.driver || '').trim();
+  document.getElementById('editRidePhone').value = String(ride?.phone || '').trim();
   document.getElementById('editRidePrice').value = Number.isFinite(Number(ride?.price)) ? Number(ride.price) : 0;
   document.getElementById('editRideSeats').value = Number.isFinite(Number(ride?.seats)) ? String(ride.seats) : '3';
+
+  const trunkInput = document.getElementById('editRideTrunkSpace');
+  const trunkBtn = document.getElementById('editRideTrunkBtn');
+  trunkInput.value = ride?.trunkSpace ? 'yes' : 'no';
+  trunkBtn.textContent = trunkInput.value === 'yes' ? '🧳 עם תא מטען' : '🚫 בלי תא מטען';
+  trunkBtn.classList.toggle('active', trunkInput.value === 'yes');
+
+  const dogsInput = document.getElementById('editRideDogsAllowed');
+  const dogsBtn = document.getElementById('editRideDogsBtn');
+  dogsInput.value = ride?.dogsAllowed ? 'yes' : 'no';
+  dogsBtn.textContent = dogsInput.value === 'yes' ? '🐶 עם כלבים' : '🚫 בלי כלבים';
+  dogsBtn.classList.toggle('active', dogsInput.value === 'yes');
+
+  updateEditRideTripTypeUi();
   document.getElementById('editRideModal').classList.add('open');
+}
+
+function updateEditRideTripTypeUi() {
+  const tripType = document.getElementById('editRideTripType')?.value || 'from_airport';
+  const destLabel = document.getElementById('editRideDestLabel');
+  const timeLabel = document.getElementById('editRideTimeLabel');
+  if (destLabel) {
+    destLabel.textContent = tripType === 'to_airport' ? 'מאיפה יוצאים לשדה' : 'יעד הנסיעה (מהשדה)';
+  }
+  if (timeLabel) {
+    timeLabel.textContent = tripType === 'to_airport' ? 'שעת המראה' : 'שעת נחיתה';
+  }
 }
 
 function closeEditRideModal(event) {
@@ -2540,9 +2679,22 @@ async function submitEditRide() {
     return;
   }
 
+  const tripType = String(document.getElementById('editRideTripType').value || '').trim();
+  const airport = String(document.getElementById('editRideAirport').value || '').trim();
+  const dest = String(document.getElementById('editRideDest').value || '').trim();
+  const date = String(document.getElementById('editRideDate').value || '').trim();
   const time = String(document.getElementById('editRideTime').value || '').trim();
+  const driver = String(document.getElementById('editRideDriver').value || '').trim();
+  const contactPhone = String(document.getElementById('editRidePhone').value || '').trim();
   const price = Number(document.getElementById('editRidePrice').value);
   const seats = Number(document.getElementById('editRideSeats').value);
+  const trunkSpace = document.getElementById('editRideTrunkSpace').value === 'yes';
+  const dogsAllowed = document.getElementById('editRideDogsAllowed').value === 'yes';
+
+  if (!tripType || !airport || !dest || !date || !driver || !contactPhone) {
+    toast('נא להשלים את כל פרטי הנסיעה');
+    return;
+  }
 
   if (!time) {
     toast('יש להזין שעת נסיעה');
@@ -2559,11 +2711,21 @@ async function submitEditRide() {
 
   try {
     await apiPut(`/api/rides/${rideId}`, {
-      phone: editingRidePhone,
+      authPhone: editingRidePhone,
+      driver,
+      phone: contactPhone,
+      tripType,
+      airport,
+      dest,
+      date,
       time,
+      trunkSpace,
+      dogsAllowed,
       price,
       seats,
     });
+    STATE.driverPhone = normalizePhone(contactPhone);
+    localStorage.setItem('cy_driver_phone', STATE.driverPhone);
     closeEditRideModal();
     toast('הנסיעה עודכנה ✅');
     await renderMyRides();

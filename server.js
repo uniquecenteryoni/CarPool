@@ -736,24 +736,51 @@ Bun.serve({
         }
 
         const body = await req.json()
-        const phone = normalizePhone(body?.phone)
-        if (!phone) {
-          return json({ ok: false, error: 'phone is required.' }, 400)
+        const authPhone = normalizePhone(body?.authPhone || body?.phone)
+        if (!authPhone) {
+          return json({ ok: false, error: 'authPhone is required.' }, 400)
         }
 
         const existing = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(rideId)
         if (!existing) {
           return json({ ok: false, error: 'Ride not found.' }, 404)
         }
-        if (normalizePhone(existing.phone) !== phone) {
+        if (normalizePhone(existing.phone) !== authPhone) {
           return json({ ok: false, error: 'Not allowed to edit this ride.' }, 403)
         }
 
+        const nextDriver = String(body?.driver || existing.driver).trim()
+        const nextPhone = normalizePhone(body?.phone || existing.phone)
+        const nextTripType = String(body?.tripType || existing.trip_type).trim()
+        const nextAirport = String(body?.airport || existing.airport).trim()
+        const nextDate = String(body?.date || existing.date).trim()
         const nextTime = String(body?.time || existing.time).trim()
+        const nextDest = String(body?.dest || existing.dest).trim()
+        const nextTrunkSpace = typeof body?.trunkSpace === 'boolean' ? (body.trunkSpace ? 1 : 0) : (existing.trunk_space === 1 ? 1 : 0)
+        const nextDogsAllowed = typeof body?.dogsAllowed === 'boolean' ? (body.dogsAllowed ? 1 : 0) : (existing.dogs_allowed === 1 ? 1 : 0)
         const nextPrice = Number.isFinite(Number(body?.price)) ? Number(body.price) : Number(existing.price || 0)
         const nextSeats = Number.isFinite(Number(body?.seats)) ? Number(body.seats) : Number(existing.seats || 1)
 
-        db.prepare('UPDATE rides SET time = ?, price = ?, seats = ? WHERE id = ?').run(nextTime, nextPrice, nextSeats, rideId)
+        if (!nextDriver || !nextPhone || !nextTripType || !nextAirport || !nextDate || !nextTime || !nextDest) {
+          return json({ ok: false, error: 'Missing required ride fields.' }, 400)
+        }
+
+        db.prepare(
+          'UPDATE rides SET driver = ?, phone = ?, trip_type = ?, airport = ?, date = ?, time = ?, dest = ?, trunk_space = ?, dogs_allowed = ?, price = ?, seats = ? WHERE id = ?',
+        ).run(
+          nextDriver,
+          nextPhone,
+          nextTripType,
+          nextAirport,
+          nextDate,
+          nextTime,
+          nextDest,
+          nextTrunkSpace,
+          nextDogsAllowed,
+          nextPrice,
+          nextSeats,
+          rideId,
+        )
         const updated = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(rideId)
         return json({ ok: true, ride: ridePayload(updated) })
       } catch {
