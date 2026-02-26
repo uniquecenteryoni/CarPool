@@ -92,21 +92,41 @@ Current frontend uses same-origin `/api` by default, so recommended setup:
 ## Important manual tasks still required
 
 1. **SMS provider integration (critical)**
-	- Current OTP endpoint returns `devCode` for testing.
-	- Replace with real SMS sending (Twilio/Vonage/etc).
+	- Worker now supports Twilio SMS directly.
+	- If Twilio is not configured, API returns `devCode` for test-only flow.
+	- In production keep `OTP_DEBUG="0"` so real users do not see `devCode`.
 
 2. **Security hardening**
 	- Hash user passwords (currently plain for compatibility with existing flow)
 	- Add stronger rate limiting (IP + phone)
 	- Remove `devCode` response in production
 
-3. **Cloudflare secrets**
-	- Add SMS API keys via Wrangler secrets:
+3. **Cloudflare secrets (Twilio)**
+	- Add required secrets via Wrangler:
 
 ```bash
-bunx wrangler secret put SMS_API_KEY
-bunx wrangler secret put SMS_API_SECRET
+bunx wrangler secret put TWILIO_ACCOUNT_SID
+bunx wrangler secret put TWILIO_AUTH_TOKEN
+bunx wrangler secret put TWILIO_FROM_NUMBER
 ```
+
+	- Then redeploy:
+
+```bash
+bun run cf:deploy
+```
+
+	- Quick OTP test:
+
+```bash
+curl -X POST 'https://<your-worker-domain>/api/driver/send-code' \
+  -H 'Content-Type: application/json' \
+  -d '{"phone":"0501234567"}'
+```
+
+	- Expected:
+	  - `smsSent: true` when Twilio is configured and sending works
+	  - `smsSent: false` + `devCode` when Twilio is not configured
 
 4. **Domain routing**
 	- Ensure frontend and worker API are routed correctly (`/api/*`)

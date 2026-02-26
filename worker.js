@@ -18,6 +18,56 @@ function normalizePhone(phone) {
   return String(phone || '').replace(/[^\d+]/g, '');
 }
 
+function toE164Phone(phone, defaultCountryCode = '+972') {
+  const normalized = normalizePhone(phone);
+  if (!normalized) return '';
+  if (normalized.startsWith('+')) return normalized;
+  if (normalized.startsWith('00')) return `+${normalized.slice(2)}`;
+  if (normalized.startsWith('0')) {
+    return `${defaultCountryCode}${normalized.slice(1)}`;
+  }
+  return `${defaultCountryCode}${normalized}`;
+}
+
+function twilioConfigured(env) {
+  return Boolean(env.TWILIO_ACCOUNT_SID && env.TWILIO_AUTH_TOKEN && env.TWILIO_FROM_NUMBER);
+}
+
+async function sendOtpWithTwilio(env, to, code) {
+  const accountSid = env.TWILIO_ACCOUNT_SID;
+  const authToken = env.TWILIO_AUTH_TOKEN;
+  const from = env.TWILIO_FROM_NUMBER;
+
+  const payload = new URLSearchParams({
+    To: to,
+    From: from,
+    Body: `קוד האימות שלך הוא: ${code}`,
+  });
+
+  const response = await fetch(
+    `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+    {
+      method: 'POST',
+      headers: {
+        Authorization: `Basic ${btoa(`${accountSid}:${authToken}`)}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: payload.toString(),
+    },
+  );
+
+  if (!response.ok) {
+    let msg = `Twilio request failed (${response.status})`;
+    try {
+      const body = await response.json();
+      msg = body?.message || msg;
+    } catch {
+      // keep fallback message
+    }
+    throw new Error(msg);
+  }
+}
+
 async function hashOtp(code) {
   const raw = new TextEncoder().encode(String(code));
   const digest = await crypto.subtle.digest('SHA-256', raw);
@@ -199,11 +249,35 @@ export default {
           last_sent_at = excluded.last_sent_at
       `).bind(phone, codeHash, expiresAt, now).run();
 
+      let smsSent = false;
+      let provider = 'none';
+      const destination = toE164Phone(phone, env.SMS_DEFAULT_COUNTRY_CODE || '+972');
+
+      if (twilioConfigured(env)) {
+        try {
+          await sendOtpWithTwilio(env, destination, code);
+          smsSent = true;
+          provider = 'twilio';
+        } catch (err) {
+          return json({
+            ok: false,
+            error: 'Failed to send SMS code.',
+            details: err.message,
+          }, 502);
+        }
+      }
+
+      const debugEnabled = env.OTP_DEBUG === '1';
       return json({
         ok: true,
-        message: 'OTP generated. Connect SMS provider for production.',
-        devCode: code,
+        message: smsSent
+          ? 'OTP sent by SMS.'
+          : 'SMS provider not configured. Use devCode for testing.',
+        smsSent,
+        provider,
+        to: destination,
         expiresInSeconds: 300,
+        ...(debugEnabled || !smsSent ? { devCode: code } : {}),
       });
     }
 

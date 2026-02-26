@@ -684,6 +684,65 @@
     min-height: 54px;
     font-size: 18px;
   }
+  .add-step3-grid {
+    display: grid;
+    gap: 10px;
+  }
+  .add-step3-actions {
+    display: grid;
+    gap: 8px;
+  }
+  #addStep3.active {
+    grid-template-rows: auto 1fr auto;
+    align-content: stretch;
+  }
+  @media (max-width: 480px) {
+    #addStep3 {
+      padding: 12px;
+      gap: 8px;
+    }
+    #addStep3 .finder-title {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    #addStep3 .finder-title .step-icon {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+    #addStep3 .add-step3-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    #addStep3 .form-group {
+      margin-bottom: 0;
+    }
+    #addStep3 .form-group label {
+      font-size: 11px;
+      margin-bottom: 4px;
+      line-height: 1.2;
+    }
+    #addStep3 .form-group input,
+    #addStep3 .form-group select,
+    #addStep3 .form-group textarea {
+      min-height: 42px;
+      font-size: 14px;
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+    #addStep3 .choice-btn {
+      padding: 8px;
+      font-size: 12px;
+      min-height: 42px;
+    }
+    #addStep3 .add-step3-actions .btn,
+    #addStep3 .add-step3-actions .step-back {
+      min-height: 44px;
+      font-size: 15px;
+      padding: 8px 12px;
+    }
+  }
   #addConfirmCard {
     margin: 0 0 12px;
     padding: 16px;
@@ -790,6 +849,55 @@
     white-space: nowrap;
   }
   .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .otp-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 17, 31, 0.66);
+    backdrop-filter: blur(4px);
+    z-index: 210;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .otp-modal-overlay.open {
+    display: flex;
+  }
+  .otp-modal {
+    width: min(100%, 420px);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 18px 40px rgba(14, 53, 95, 0.25);
+  }
+  .otp-title {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .otp-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .otp-devcode {
+    margin-top: 8px;
+    font-size: 13px;
+    text-align: center;
+    color: var(--sky-dark);
+    font-weight: 700;
+  }
+  .otp-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
 
   /* ── Date filter input ── */
   .date-filter-wrap {
@@ -1124,46 +1232,50 @@
 
         <section id="addStep3" class="add-step">
           <div class="finder-title"><span class="step-icon">3</span>פרטי התקשרות ונסיעה</div>
-          <div class="form-group">
-            <label>שם איש קשר</label>
-            <input type="text" id="addContactName" placeholder="שם מלא">
-          </div>
-          <div class="form-group">
-            <label>טלפון איש קשר</label>
-            <input type="tel" id="addContactPhone" placeholder="05X-XXXXXXX">
-          </div>
-          <div class="form-group">
-            <label>מקומות פנויים</label>
-            <select id="addSeats">
-              <option value="1">1 מקום</option>
-              <option value="2">2 מקומות</option>
-              <option value="3" selected>3 מקומות</option>
-              <option value="4">4 מקומות</option>
-              <option value="5">5 מקומות</option>
-              <option value="6">6 מקומות</option>
-              <option value="7">7 מקומות</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label>מחיר לנוסע (€)</label>
-            <input type="number" id="addPrice" placeholder="0 = חינם" min="0" value="">
-          </div>
-          <div class="form-group">
-            <label>תא מטען לנוסעים</label>
-            <input type="hidden" id="addTrunkSpace" value="yes">
-            <div class="choice-toggle">
-              <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addTrunkSpace', this, '🧳 עם תא מטען', '🚫 בלי תא מטען')">🧳 עם תא מטען</button>
+          <div class="add-step3-grid">
+            <div class="form-group">
+              <label>שם איש קשר</label>
+              <input type="text" id="addContactName" placeholder="שם מלא">
+            </div>
+            <div class="form-group">
+              <label>טלפון איש קשר</label>
+              <input type="tel" id="addContactPhone" placeholder="05X-XXXXXXX">
+            </div>
+            <div class="form-group">
+              <label>מקומות פנויים</label>
+              <select id="addSeats">
+                <option value="1">1 מקום</option>
+                <option value="2">2 מקומות</option>
+                <option value="3" selected>3 מקומות</option>
+                <option value="4">4 מקומות</option>
+                <option value="5">5 מקומות</option>
+                <option value="6">6 מקומות</option>
+                <option value="7">7 מקומות</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>מחיר לנוסע (€)</label>
+              <input type="number" id="addPrice" placeholder="0 = חינם" min="0" value="">
+            </div>
+            <div class="form-group">
+              <label>תא מטען לנוסעים</label>
+              <input type="hidden" id="addTrunkSpace" value="yes">
+              <div class="choice-toggle">
+                <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addTrunkSpace', this, '🧳 עם תא מטען', '🚫 בלי תא מטען')">🧳 עם תא מטען</button>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>כלבים</label>
+              <input type="hidden" id="addDogsAllowed" value="no">
+              <div class="choice-toggle">
+                <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addDogsAllowed', this, '🐶 עם כלבים', '🚫 בלי כלבים')">🚫 בלי כלבים</button>
+              </div>
             </div>
           </div>
-          <div class="form-group">
-            <label>כלבים</label>
-            <input type="hidden" id="addDogsAllowed" value="no">
-            <div class="choice-toggle">
-              <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addDogsAllowed', this, '🐶 עם כלבים', '🚫 בלי כלבים')">🚫 בלי כלבים</button>
-            </div>
+          <div class="add-step3-actions">
+            <button class="btn btn-primary" onclick="nextAddStep(4)">המשך לאישור</button>
+            <button class="step-back" onclick="showAddStep(2)">חזרה</button>
           </div>
-          <button class="btn btn-primary" onclick="nextAddStep(4)">המשך לאישור</button>
-          <button class="step-back" onclick="showAddStep(2)">חזרה</button>
         </section>
 
         <section id="addStep4" class="add-step">
@@ -1251,6 +1363,23 @@
 
 <!-- ══ TOAST ══ -->
 <div class="toast" id="toast"></div>
+
+<!-- ══ OTP MODAL ══ -->
+<div class="otp-modal-overlay" id="otpModal">
+  <div class="otp-modal">
+    <div class="otp-title">אימות נהג</div>
+    <div class="otp-subtitle" id="otpSubtitle">שלחנו קוד חד פעמי לטלפון שלך</div>
+    <div class="form-group" style="margin-bottom:0;">
+      <label>קוד אימות</label>
+      <input id="otpInput" type="tel" inputmode="numeric" maxlength="6" placeholder="הכנס/י 6 ספרות">
+    </div>
+    <div class="otp-devcode" id="otpDevCode"></div>
+    <div class="otp-actions">
+      <button class="btn btn-ghost" type="button" onclick="closeOtpModal(false)">ביטול</button>
+      <button class="btn btn-primary" type="button" onclick="closeOtpModal(true)">אישור</button>
+    </div>
+  </div>
+</div>
 
 <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
 <script>
@@ -1730,15 +1859,56 @@ function markDriverPhoneVerified(phone, ttlSeconds = 60 * 60 * 24 * 7) {
   localStorage.setItem(driverVerifiedKey(phone), String(expiresAt));
 }
 
+let otpModalResolver = null;
+
+function openOtpModal({ subtitle = '', devCode = '' } = {}) {
+  const modal = document.getElementById('otpModal');
+  const subtitleEl = document.getElementById('otpSubtitle');
+  const input = document.getElementById('otpInput');
+  const devCodeEl = document.getElementById('otpDevCode');
+
+  subtitleEl.textContent = subtitle;
+  devCodeEl.textContent = devCode ? `קוד בדיקה זמני: ${devCode}` : '';
+  input.value = '';
+  modal.classList.add('open');
+
+  setTimeout(() => input.focus(), 30);
+
+  return new Promise((resolve) => {
+    otpModalResolver = resolve;
+  });
+}
+
+function closeOtpModal(confirm) {
+  const modal = document.getElementById('otpModal');
+  const input = document.getElementById('otpInput');
+  modal.classList.remove('open');
+
+  if (!otpModalResolver) {
+    return;
+  }
+
+  const resolve = otpModalResolver;
+  otpModalResolver = null;
+  resolve(confirm ? input.value.trim() : '');
+}
+
 async function ensureDriverOtpVerified(phone) {
   if (isDriverPhoneVerified(phone)) {
     return true;
   }
 
-  await apiPost('/api/driver/send-code', { phone });
-  toast('שלחנו קוד אימות לטלפון. הזינו אותו כדי לפרסם נסיעה.');
+  const sendData = await apiPost('/api/driver/send-code', { phone });
+  if (sendData.smsSent) {
+    toast('שלחנו קוד אימות לטלפון. הזינו אותו כדי לפרסם נסיעה.');
+  } else {
+    toast('SMS לא הוגדר עדיין. מוצג קוד בדיקה זמני.');
+  }
 
-  const code = window.prompt('הכנס/י קוד אימות (OTP) בן 6 ספרות');
+  const code = await openOtpModal({
+    subtitle: sendData.smsSent ? 'שלחנו קוד חד פעמי לטלפון שהזנת' : 'מצב בדיקה: השתמשו בקוד הזמני',
+    devCode: sendData.devCode || '',
+  });
   if (!code) {
     toast('האימות בוטל.');
     return false;
@@ -2124,6 +2294,11 @@ async function restoreSession() {
 }
 
 document.getElementById('addDate').value = new Date().toISOString().split('T')[0];
+document.getElementById('otpInput').addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    closeOtpModal(true);
+  }
+});
 initEntryAnimation();
 updateTripTypeUi();
 updateFinderPickerLabels();
