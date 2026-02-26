@@ -1254,7 +1254,27 @@
 
 <script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
 <script>
-const API_BASE = location.protocol === 'file:' ? 'http://localhost:3001' : '';
+const queryApiBase = new URLSearchParams(location.search).get('api');
+if (queryApiBase) {
+  localStorage.setItem('cy_api_base', queryApiBase);
+}
+
+const API_BASE = (() => {
+  const explicitBase = (window.CARPOOL_API_BASE || localStorage.getItem('cy_api_base') || '').trim();
+  if (explicitBase) {
+    return explicitBase.replace(/\/$/, '');
+  }
+  if (location.protocol === 'file:') {
+    return 'http://localhost:3001';
+  }
+  return '';
+})();
+
+function assertApiConfigured() {
+  if (!API_BASE && location.hostname.endsWith('github.io')) {
+    throw new Error('שרת API לא מוגדר. הגדר כתובת Worker דרך ?api=... או localStorage: cy_api_base');
+  }
+}
 
 function initEntryAnimation() {
   if (!window.lottie) {
@@ -1267,7 +1287,7 @@ function initEntryAnimation() {
     renderer: 'svg',
     loop: true,
     autoplay: true,
-    path: '/airplane.json',
+    path: 'airplane.json',
   });
 }
 
@@ -1320,6 +1340,7 @@ function openAvatarPicker() {
 }
 
 async function apiGet(path) {
+  assertApiConfigured();
   const res = await fetch(`${API_BASE}${path}`);
   const data = await res.json();
   if (!res.ok || data.ok === false) {
@@ -1329,6 +1350,7 @@ async function apiGet(path) {
 }
 
 async function apiPost(path, body) {
+  assertApiConfigured();
   const res = await fetch(`${API_BASE}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
