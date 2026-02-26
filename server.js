@@ -245,6 +245,33 @@ db.exec(`
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name TEXT NOT NULL UNIQUE
   );
+
+  CREATE TABLE IF NOT EXISTS rides (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    driver TEXT NOT NULL,
+    phone TEXT NOT NULL,
+    trip_type TEXT NOT NULL,
+    airport TEXT NOT NULL,
+    date TEXT NOT NULL,
+    time TEXT NOT NULL,
+    dest TEXT NOT NULL,
+    seats INTEGER NOT NULL,
+    trunk_space INTEGER NOT NULL DEFAULT 0,
+    dogs_allowed INTEGER NOT NULL DEFAULT 0,
+    price INTEGER NOT NULL DEFAULT 0,
+    uid TEXT,
+    driver_avatar TEXT,
+    created_at INTEGER NOT NULL
+  );
+
+  CREATE TABLE IF NOT EXISTS driver_otp_codes (
+    phone TEXT PRIMARY KEY,
+    code_hash TEXT NOT NULL,
+    expires_at INTEGER NOT NULL,
+    attempts INTEGER NOT NULL DEFAULT 0,
+    verified_until INTEGER NOT NULL DEFAULT 0,
+    last_sent_at INTEGER NOT NULL DEFAULT 0
+  );
 `)
 
 function ensureUserColumn(name, definition) {
@@ -288,6 +315,39 @@ function userPayload(user) {
     address: user.address || '',
     avatarDataUrl: user.avatar_data_url || '',
   }
+}
+
+function ridePayload(ride) {
+  return {
+    id: ride.id,
+    driver: ride.driver,
+    phone: ride.phone,
+    tripType: ride.trip_type,
+    airport: ride.airport,
+    date: ride.date,
+    time: ride.time,
+    dest: ride.dest,
+    seats: ride.seats,
+    trunkSpace: ride.trunk_space === 1,
+    dogsAllowed: ride.dogs_allowed === 1,
+    price: ride.price,
+    uid: ride.uid || '',
+    driverAvatar: ride.driver_avatar || '',
+  }
+}
+
+function normalizePhone(phone) {
+  return String(phone || '').replace(/[^\d+]/g, '')
+}
+
+async function hashOtp(code) {
+  const raw = new TextEncoder().encode(String(code))
+  const digest = await crypto.subtle.digest('SHA-256', raw)
+  return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('')
+}
+
+function generateOtpCode() {
+  return String(Math.floor(100000 + Math.random() * 900000))
 }
 
 function json(data, status = 200) {
@@ -462,6 +522,167 @@ Bun.serve({
 
         const user = db.prepare('SELECT * FROM users WHERE username = ? LIMIT 1').get(username)
         return json({ ok: true, user: userPayload(user) })
+      } catch {
+        return json({ ok: false, error: 'Invalid request payload.' }, 400)
+      }
+    }
+
+    if (pathname === '/api/driver/send-code' && req.method === 'POST') {
+      try {
+        const body = await req.json()
+        const phone = normalizePhone(body?.phone)
+
+        if (!phone || phone.length < 8) {
+          return json({ ok: false, error: 'Phone is required.' }, 400)
+        }
+
+        const now = Date.now()
+        const existing = db.prepare('SELECT * FROM driver_otp_codes WHERE phone = ? LIMIT 1').get(phone)
+        if (existing && now - Number(existing.last_sent_at || 0) < 60_000) {
+          return json({ ok: false, error: 'Please wait before requesting a new code.' }, 429)
+        }
+
+        const code = generateOtpCode()
+        const codeHash = await hashOtp(code)
+        const expiresAt = now + 5 * 60_000
+
+        db.prepare(`
+          INSERT INTO driver_otp_codes (phone, code_hash, expires_at, attempts, verified_until, last_sent_at)
+          VALUES (?, ?, ?, 0, 0, ?)
+          ON CONFLICT(phone) DO UPDATE SET
+            code_hash = excluded.code_hash,
+            expires_at = excluded.expires_at,
+            attempts = 0,
+            verified_until = 0,
+            last_sent_at = excluded.last_sent_at
+        `).run(phone, codeHash, expiresAt, now)
+
+        return json({
+          ok: true,
+          message: 'OTP code created. Connect SMS provider to deliver it.',
+          devCode: code,
+          expiresInSeconds: 300,
+        })
+      } catch {
+        return json({ ok: false, error: 'Invalid request payload.' }, 400)
+      }
+    }
+
+    if (pathname === '/api/driver/verify-code' && req.method === 'POST') {
+      try {
+        const body = await req.json()
+        const phone = normalizePhone(body?.phone)
+        const code = String(body?.code || '').trim()
+
+        if (!phone || !code) {
+          return json({ ok: false, error: 'phone and code are required.' }, 400)
+        }
+
+        const row = db.prepare('SELECT * FROM driver_otp_codes WHERE phone = ? LIMIT 1').get(phone)
+        if (!row) {
+          return json({ ok: false, error: 'No verification request found.' }, 404)
+        }
+
+        const now = Date.now()
+        if (now > Number(row.expires_at)) {
+          return json({ ok: false, error: 'Code expired. Please request a new code.' }, 410)
+        }
+
+        if (Number(row.attempts) >= 5) {
+          return json({ ok: false, error: 'Too many attempts. Request a new code.' }, 429)
+        }
+
+        const codeHash = await hashOtp(code)
+        if (codeHash !== row.code_hash) {
+          db.prepare('UPDATE driver_otp_codes SET attempts = attempts + 1 WHERE phone = ?').run(phone)
+          return json({ ok: false, error: 'Invalid code.' }, 401)
+        }
+
+        const verifiedUntil = now + 7 * 24 * 60 * 60_000
+        db.prepare('UPDATE driver_otp_codes SET verified_until = ?, attempts = 0 WHERE phone = ?').run(verifiedUntil, phone)
+        return json({ ok: true, verifiedUntil, ttlSeconds: 7 * 24 * 60 * 60 })
+      } catch {
+        return json({ ok: false, error: 'Invalid request payload.' }, 400)
+      }
+    }
+
+    if (pathname === '/api/rides' && req.method === 'GET') {
+      const tripType = (url.searchParams.get('tripType') || '').trim()
+      const airport = (url.searchParams.get('airport') || '').trim()
+      const date = (url.searchParams.get('date') || '').trim()
+      const time = (url.searchParams.get('time') || '').trim()
+
+      if (!tripType || !airport || !date) {
+        return json({ ok: false, error: 'tripType, airport, and date are required.' }, 400)
+      }
+
+      let rides = db
+        .prepare('SELECT * FROM rides WHERE trip_type = ? AND airport = ? AND date = ? ORDER BY date ASC, time ASC, id DESC')
+        .all(tripType, airport, date)
+
+      if (time) {
+        const [hh, mm] = String(time).split(':').map(Number)
+        const selectedMinutes = hh * 60 + mm
+        rides = rides.filter((ride) => {
+          const [rh, rm] = String(ride.time || '00:00').split(':').map(Number)
+          const rideMinutes = rh * 60 + rm
+          return Math.abs(rideMinutes - selectedMinutes) <= 180
+        })
+      }
+
+      return json({ ok: true, rides: rides.map(ridePayload) })
+    }
+
+    if (pathname === '/api/rides' && req.method === 'POST') {
+      try {
+        const body = await req.json()
+        const phone = normalizePhone(body?.phone)
+
+        const required = ['driver', 'tripType', 'airport', 'date', 'time', 'dest']
+        for (const field of required) {
+          if (!String(body?.[field] ?? '').trim()) {
+            return json({ ok: false, error: `${field} is required.` }, 400)
+          }
+        }
+
+        if (!phone) {
+          return json({ ok: false, error: 'phone is required.' }, 400)
+        }
+
+        const otpRow = db.prepare('SELECT verified_until FROM driver_otp_codes WHERE phone = ? LIMIT 1').get(phone)
+        if (!otpRow || Date.now() > Number(otpRow.verified_until || 0)) {
+          return json({ ok: false, error: 'Driver phone must be OTP verified before publishing.' }, 401)
+        }
+
+        const seats = Number(body?.seats || 0)
+        const price = Number(body?.price || 0)
+        const trunkSpace = body?.trunkSpace ? 1 : 0
+        const dogsAllowed = body?.dogsAllowed ? 1 : 0
+
+        const result = db.prepare(`
+          INSERT INTO rides (
+            driver, phone, trip_type, airport, date, time, dest,
+            seats, trunk_space, dogs_allowed, price, uid, driver_avatar, created_at
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `).run(
+          String(body.driver).trim(),
+          phone,
+          String(body.tripType).trim(),
+          String(body.airport).trim(),
+          String(body.date).trim(),
+          String(body.time).trim(),
+          String(body.dest).trim(),
+          seats,
+          trunkSpace,
+          dogsAllowed,
+          price,
+          String(body?.uid || '').trim(),
+          String(body?.driverAvatar || ''),
+          Date.now(),
+        )
+
+        const ride = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(result.lastInsertRowid)
+        return json({ ok: true, ride: ridePayload(ride) }, 201)
       } catch {
         return json({ ok: false, error: 'Invalid request payload.' }, 400)
       }

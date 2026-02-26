@@ -1,0 +1,8 @@
+name = "carpool-api"
+main = "worker.js"
+compatibility_date = "2026-02-26"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "carpool-db"
+database_id = "36202b25-48e6-44a0-b0c7-92961397d2fb"

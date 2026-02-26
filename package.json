@@ -6,10 +6,14 @@
   "scripts": {
     "dev": "bunx --bun vite",
     "dev:server": "bun --hot server.js",
+    "dev:worker": "bunx wrangler dev",
     "build": "bunx --bun vite build",
     "lint": "eslint .",
     "preview": "bunx --bun vite preview",
-    "start": "bun server.js"
+    "start": "bun server.js",
+    "cf:deploy": "bunx wrangler deploy",
+    "cf:d1:migrate:local": "bunx wrangler d1 migrations apply carpool-db --local",
+    "cf:d1:migrate:remote": "bunx wrangler d1 migrations apply carpool-db --remote"
   },
   "dependencies": {
     "react": "^19.2.0",
