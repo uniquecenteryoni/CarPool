@@ -9,4 +9,4 @@ database_id = "36202b25-48e6-44a0-b0c7-92961397d2fb"
 
 [vars]
 SMS_DEFAULT_COUNTRY_CODE = "+972"
-OTP_DEBUG = "0"
+OTP_DEBUG = "1"
