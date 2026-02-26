@@ -497,18 +497,26 @@ Bun.serve({
     if (pathname === '/api/user/profile' && req.method === 'POST') {
       try {
         const body = await req.json()
+        const currentUsername = (body?.currentUsername || body?.username || '').trim()
         const username = (body?.username || '').trim()
         const name = (body?.name || '').trim()
         const phone = (body?.phone || '').trim()
         const address = (body?.address || '').trim()
 
-        if (!username || !name || !phone || !address) {
-          return json({ ok: false, error: 'username, name, phone and address are required.' }, 400)
+        if (!currentUsername || !username || !name || !phone || !address) {
+          return json({ ok: false, error: 'currentUsername, username, name, phone and address are required.' }, 400)
+        }
+
+        if (currentUsername !== username) {
+          const exists = db.prepare('SELECT id FROM users WHERE username = ? LIMIT 1').get(username)
+          if (exists) {
+            return json({ ok: false, error: 'Username already exists.' }, 409)
+          }
         }
 
         const result = db
-          .prepare('UPDATE users SET full_name = ?, phone = ?, address = ? WHERE username = ?')
-          .run(name, phone, address, username)
+          .prepare('UPDATE users SET username = ?, full_name = ?, phone = ?, address = ? WHERE username = ?')
+          .run(username, name, phone, address, currentUsername)
 
         if (!result.changes) {
           return json({ ok: false, error: 'User not found.' }, 404)

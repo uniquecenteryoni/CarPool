@@ -1613,6 +1613,10 @@
 
       <div style="padding: 0 16px;">
         <div class="form-group mt-16">
+          <label>עדכן שם משתמש</label>
+          <input type="text" id="editUsername" placeholder="שם משתמש">
+        </div>
+        <div class="form-group mt-16">
           <label>עדכן שם מלא</label>
           <input type="text" id="editName" placeholder="שם מלא">
         </div>
@@ -2356,6 +2360,17 @@ function enterApp({ firstEntry = false, targetScreen = 'home' } = {}) {
   }
 }
 
+function clearDriverVerificationCache() {
+  const keysToDelete = [];
+  for (let index = 0; index < localStorage.length; index += 1) {
+    const key = localStorage.key(index);
+    if (key && key.startsWith('cy_driver_verified_')) {
+      keysToDelete.push(key);
+    }
+  }
+  keysToDelete.forEach((key) => localStorage.removeItem(key));
+}
+
 function logout() {
   STATE.session = null;
   STATE.currentUser = null;
@@ -2363,6 +2378,7 @@ function logout() {
   localStorage.removeItem('cy_session');
   localStorage.removeItem('cy_role');
   localStorage.removeItem('cy_driver_phone');
+  clearDriverVerificationCache();
   document.getElementById('mainApp').classList.add('hidden');
   document.getElementById('entryScreen').classList.remove('hidden');
   document.getElementById('entryScreen').classList.add('active');
@@ -2895,6 +2911,7 @@ function renderProfile() {
   document.getElementById('profileLocation').querySelector('span').textContent = user.address;
   document.getElementById('profilePhone').textContent = user.phone;
   document.getElementById('profileAddress').textContent = user.address;
+  document.getElementById('editUsername').value = user.username || '';
   document.getElementById('editName').value = user.name || '';
   document.getElementById('editPhone').value = user.phone || '';
   document.getElementById('editAddress').value = user.address;
@@ -2903,23 +2920,37 @@ function renderProfile() {
 
 async function saveProfile() {
   const user = getCurrentUser();
+  if (!user || user.username === 'guest') {
+    toast('כדי לערוך פרופיל צריך להתחבר עם משתמש רשום');
+    return;
+  }
+
+  const username = document.getElementById('editUsername').value.trim();
   const name = document.getElementById('editName').value.trim();
   const phone = document.getElementById('editPhone').value.trim();
   const address = document.getElementById('editAddress').value.trim();
-  if (!name || !phone || !address) {
-    toast('נא להזין שם, טלפון וכתובת');
+  if (!username || !name || !phone || !address) {
+    toast('נא להזין שם משתמש, שם, טלפון וכתובת');
     return;
   }
 
   try {
     const data = await apiPost('/api/user/profile', {
-      username: user.username,
+      currentUsername: user.username,
+      username,
       name,
       phone,
       address,
     });
+
+    const previousUsername = user.username;
     STATE.currentUser = data.user;
-    setProfileSetupDone(user.username);
+    STATE.session = data.user.username;
+    localStorage.setItem('cy_session', STATE.session);
+    setProfileSetupDone(data.user.username);
+    if (previousUsername && previousUsername !== data.user.username) {
+      localStorage.removeItem(profileSetupKey(previousUsername));
+    }
     renderProfile();
     syncAddDefaultsFromProfile();
     toast('הפרופיל עודכן ✅');
@@ -2932,6 +2963,11 @@ async function uploadAvatar(event) {
   const file = event.target.files?.[0];
   const user = getCurrentUser();
   if (!file || !user) {
+    return;
+  }
+  if (user.username === 'guest') {
+    toast('כדי להעלות תמונת פרופיל צריך להתחבר עם משתמש רשום');
+    event.target.value = '';
     return;
   }
   if (!file.type.startsWith('image/')) {

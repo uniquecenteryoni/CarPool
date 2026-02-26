@@ -205,17 +205,25 @@ export default {
 
     if (pathname === '/api/user/profile' && req.method === 'POST') {
       const body = await parseJson(req);
+      const currentUsername = (body?.currentUsername || body?.username || '').trim();
       const username = (body?.username || '').trim();
       const name = (body?.name || '').trim();
       const phone = (body?.phone || '').trim();
       const address = (body?.address || '').trim();
-      if (!username || !name || !phone || !address) {
-        return json({ ok: false, error: 'username, name, phone and address are required.' }, 400);
+      if (!currentUsername || !username || !name || !phone || !address) {
+        return json({ ok: false, error: 'currentUsername, username, name, phone and address are required.' }, 400);
+      }
+
+      if (currentUsername !== username) {
+        const existing = await env.DB.prepare('SELECT id FROM users WHERE username = ? LIMIT 1').bind(username).first();
+        if (existing) {
+          return json({ ok: false, error: 'Username already exists.' }, 409);
+        }
       }
 
       const result = await env.DB.prepare(
-        'UPDATE users SET full_name = ?, phone = ?, address = ? WHERE username = ?',
-      ).bind(name, phone, address, username).run();
+        'UPDATE users SET username = ?, full_name = ?, phone = ?, address = ? WHERE username = ?',
+      ).bind(username, name, phone, address, currentUsername).run();
 
       if (!result.success || result.meta.changes === 0) {
         return json({ ok: false, error: 'User not found.' }, 404);
