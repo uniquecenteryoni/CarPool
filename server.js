@@ -356,7 +356,7 @@ function json(data, status = 200) {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   })
@@ -373,7 +373,7 @@ Bun.serve({
         status: 204,
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+          'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         },
       })
@@ -683,6 +683,52 @@ Bun.serve({
 
         const ride = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(result.lastInsertRowid)
         return json({ ok: true, ride: ridePayload(ride) }, 201)
+      } catch {
+        return json({ ok: false, error: 'Invalid request payload.' }, 400)
+      }
+    }
+
+    if (pathname === '/api/rides/mine' && req.method === 'GET') {
+      const phone = normalizePhone(url.searchParams.get('phone'))
+      if (!phone) {
+        return json({ ok: false, error: 'phone is required.' }, 400)
+      }
+
+      const rides = db
+        .prepare('SELECT * FROM rides WHERE phone = ? ORDER BY created_at DESC, id DESC')
+        .all(phone)
+
+      return json({ ok: true, rides: rides.map(ridePayload) })
+    }
+
+    if (pathname.startsWith('/api/rides/') && req.method === 'PUT') {
+      try {
+        const rideId = Number(pathname.split('/').pop())
+        if (!Number.isFinite(rideId) || rideId <= 0) {
+          return json({ ok: false, error: 'Invalid ride id.' }, 400)
+        }
+
+        const body = await req.json()
+        const phone = normalizePhone(body?.phone)
+        if (!phone) {
+          return json({ ok: false, error: 'phone is required.' }, 400)
+        }
+
+        const existing = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(rideId)
+        if (!existing) {
+          return json({ ok: false, error: 'Ride not found.' }, 404)
+        }
+        if (normalizePhone(existing.phone) !== phone) {
+          return json({ ok: false, error: 'Not allowed to edit this ride.' }, 403)
+        }
+
+        const nextTime = String(body?.time || existing.time).trim()
+        const nextPrice = Number.isFinite(Number(body?.price)) ? Number(body.price) : Number(existing.price || 0)
+        const nextSeats = Number.isFinite(Number(body?.seats)) ? Number(body.seats) : Number(existing.seats || 1)
+
+        db.prepare('UPDATE rides SET time = ?, price = ?, seats = ? WHERE id = ?').run(nextTime, nextPrice, nextSeats, rideId)
+        const updated = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(rideId)
+        return json({ ok: true, ride: ridePayload(updated) })
       } catch {
         return json({ ok: false, error: 'Invalid request payload.' }, 400)
       }

@@ -8,6 +8,9 @@
 <style>
   :root {
     --app-h: 100dvh;
+    --top-bar-h: 68px;
+    --bottom-nav-h: 64px;
+    --between-h: calc(var(--app-h) - var(--top-bar-h) - var(--bottom-nav-h));
     --sky: #1d9bf0;
     --sky-dark: #0077c8;
     --night: #f4f9ff;
@@ -364,15 +367,15 @@
   }
 
   .finder-wizard {
-    min-height: calc(var(--app-h) - 128px);
-    height: calc(var(--app-h) - 128px);
+    min-height: var(--between-h);
+    height: var(--between-h);
     max-width: 460px;
     margin: 0 auto;
     width: 100%;
   }
   .finder-step {
     display: none;
-    min-height: calc(var(--app-h) - 128px);
+    min-height: var(--between-h);
     max-width: 460px;
     width: 100%;
     margin: 0 auto;
@@ -659,8 +662,8 @@
   }
 
   .add-wizard {
-    min-height: calc(var(--app-h) - 128px);
-    height: calc(var(--app-h) - 128px);
+    min-height: var(--between-h);
+    height: var(--between-h);
     padding: 18px;
     overflow: hidden;
     max-width: 460px;
@@ -703,7 +706,10 @@
   }
   .add-step3-grid {
     display: grid;
-    gap: 10px;
+    gap: 8px;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: minmax(0, 1fr);
+    flex: 1;
   }
   .add-step3-actions {
     display: grid;
@@ -712,6 +718,8 @@
   #addStep3.active {
     grid-template-rows: auto 1fr auto;
     align-content: stretch;
+    height: 100%;
+    min-height: 0;
   }
   @media (max-width: 480px) {
     #addStep3 {
@@ -728,10 +736,7 @@
       height: 28px;
       font-size: 14px;
     }
-    #addStep3 .add-step3-grid {
-      grid-template-columns: 1fr 1fr;
-      gap: 8px;
-    }
+    #addStep3 .add-step3-grid { gap: 8px; }
     #addStep3 .form-group {
       margin-bottom: 0;
     }
@@ -765,9 +770,33 @@
     padding: 16px;
   }
   #addStep4.active {
-    max-height: calc(var(--app-h) - 146px);
+    max-height: var(--between-h);
     overflow-y: auto;
     padding-bottom: 96px;
+  }
+
+  #myRidesScreen .my-rides-wrap {
+    height: var(--between-h);
+    max-width: 460px;
+    margin: 0 auto;
+    padding: 10px 10px 90px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .my-ride-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .driver-only {
+    display: none;
+  }
+
+  .driver-mode .driver-only {
+    display: flex;
   }
 
   @media (max-width: 480px) {
@@ -1162,7 +1191,7 @@
     <!-- ── HOME SCREEN ── -->
     <div id="homeScreen" class="screen active">
       <div class="top-bar">
-        <h1>נסיעות קרובות</h1>
+        <h1>מצא נסיעות</h1>
         <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
       </div>
 
@@ -1217,7 +1246,6 @@
           </div>
           <div class="step3-actions">
             <button class="btn btn-primary" onclick="applyFinderDateTime()">הצג נסיעות זמינות</button>
-            <button class="step-back" onclick="goFinderPrevStep()">חזרה</button>
           </div>
         </section>
 
@@ -1287,7 +1315,6 @@
             <input type="time" id="addTime">
           </div>
           <button class="btn btn-primary" onclick="nextAddStep(3)">המשך</button>
-          <button class="step-back" onclick="goAddPrevStep()">חזרה</button>
         </section>
 
         <section id="addStep3" class="add-step">
@@ -1334,7 +1361,6 @@
           </div>
           <div class="add-step3-actions">
             <button class="btn btn-primary" onclick="nextAddStep(4)">המשך לאישור</button>
-            <button class="step-back" onclick="goAddPrevStep()">חזרה</button>
           </div>
         </section>
 
@@ -1345,6 +1371,14 @@
           <button class="step-back" onclick="goAddPrevStep()">חזרה לעריכה</button>
         </section>
       </div>
+    </div>
+
+    <div id="myridesScreen" class="screen">
+      <div class="top-bar">
+        <h1>הנסיעות שלי</h1>
+        <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
+      </div>
+      <div class="my-rides-wrap" id="myRidesList"></div>
     </div>
 
     <!-- ── PROFILE SCREEN ── -->
@@ -1393,11 +1427,15 @@
     <nav class="bottom-nav">
       <button class="nav-btn active" id="navHome" onclick="goFindRide()">
         <span class="icon">🚗</span>
-        <span>מצא נסיעה</span>
+        <span>מצא נסיעות</span>
       </button>
       <button class="nav-btn" id="navAdd" onclick="navigate('add')">
         <span class="icon">➕</span>
         <span>הוסף נסיעה</span>
+      </button>
+      <button class="nav-btn driver-only" id="navMyrides" onclick="navigate('myrides')">
+        <span class="icon">🗂️</span>
+        <span>הנסיעות שלי</span>
       </button>
     </nav>
   </div>
@@ -1483,6 +1521,7 @@ function initEntryAnimation() {
 const STATE = {
   session: localStorage.getItem('cy_session') || null,
   role: localStorage.getItem('cy_role') || null,
+  driverPhone: localStorage.getItem('cy_driver_phone') || '',
   currentUser: null,
   rides: [],
 };
@@ -1552,6 +1591,20 @@ async function apiPost(path, body) {
   return data;
 }
 
+async function apiPut(path, body) {
+  assertApiConfigured();
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await res.json();
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || 'Server error');
+  }
+  return data;
+}
+
 function toggleBinaryChoice(fieldId, btnEl, yesLabel, noLabel) {
   const input = document.getElementById(fieldId);
   input.value = input.value === 'yes' ? 'no' : 'yes';
@@ -1580,6 +1633,7 @@ async function startAppEntry() {
 function chooseUserRole(role) {
   STATE.role = role;
   localStorage.setItem('cy_role', role);
+  applyRoleUi();
   ensureGuestUser();
   enterApp({ firstEntry: false, targetScreen: role === 'driver' ? 'add' : 'home' });
   if (role === 'passenger') {
@@ -1887,31 +1941,26 @@ function setupWizardGestures(wizardId, getCurrentStep, onPrev, onNext) {
     }
 
     const deltaX = touch.clientX - startX;
-    const deltaY = touch.clientY - startY;
     const absX = Math.abs(deltaX);
-    const absY = Math.abs(deltaY);
     const threshold = 52;
 
-    if (absX < threshold && absY < threshold) return;
+    if (absX < threshold) return;
 
     const current = getCurrentStep();
     if (!current) return;
 
-    if (absX >= absY) {
-      if (deltaX > threshold) {
-        onNext();
-      } else if (deltaX < -threshold) {
-        onPrev();
-      }
-      return;
-    }
-
-    if (deltaY > threshold) {
+    if (deltaX < -threshold) {
       onNext();
-    } else if (deltaY < -threshold) {
+    } else if (deltaX > threshold) {
       onPrev();
     }
   }, { passive: true });
+}
+
+function applyRoleUi() {
+  const app = document.getElementById('mainApp');
+  if (!app) return;
+  app.classList.toggle('driver-mode', STATE.role === 'driver');
 }
 
 function switchAuthTab(tab, eventRef) {
@@ -1986,6 +2035,7 @@ function enterApp({ firstEntry = false, targetScreen = 'home' } = {}) {
   document.getElementById('addContactPhone').value = user?.phone || '';
   resetFinderSelection();
   renderProfile();
+  applyRoleUi();
   navigate(firstEntry ? 'profile' : targetScreen);
   if (firstEntry) {
     toast('ברוכים הבאים! קודם משלימים הגדרת פרופיל 👤');
@@ -1998,6 +2048,7 @@ function logout() {
   STATE.role = null;
   localStorage.removeItem('cy_session');
   localStorage.removeItem('cy_role');
+  localStorage.removeItem('cy_driver_phone');
   document.getElementById('mainApp').classList.add('hidden');
   document.getElementById('entryScreen').classList.remove('hidden');
   document.getElementById('entryScreen').classList.add('active');
@@ -2007,6 +2058,9 @@ function logout() {
 }
 
 function navigate(screen) {
+  if (screen === 'myrides' && STATE.role !== 'driver') {
+    screen = 'home';
+  }
   document.querySelectorAll('#mainApp .screen').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   document.getElementById(screen + 'Screen').classList.add('active');
@@ -2019,6 +2073,9 @@ function navigate(screen) {
   }
   if (screen === 'add') {
     resetAddWizard();
+  }
+  if (screen === 'myrides') {
+    renderMyRides();
   }
 }
 
@@ -2046,6 +2103,8 @@ function isDriverPhoneVerified(phone) {
 function markDriverPhoneVerified(phone, ttlSeconds = 60 * 60 * 24 * 7) {
   const expiresAt = Date.now() + ttlSeconds * 1000;
   localStorage.setItem(driverVerifiedKey(phone), String(expiresAt));
+  STATE.driverPhone = normalizePhone(phone);
+  localStorage.setItem('cy_driver_phone', STATE.driverPhone);
 }
 
 let otpModalResolver = null;
@@ -2159,6 +2218,98 @@ async function fetchRidesFromApi() {
   const data = await apiGet(`/api/rides?${params.toString()}`);
   STATE.rides = Array.isArray(data.rides) ? data.rides : [];
   return STATE.rides;
+}
+
+async function fetchMyRides() {
+  const phone = STATE.driverPhone || normalizePhone(document.getElementById('addContactPhone').value);
+  if (!phone) {
+    return [];
+  }
+
+  const data = await apiGet(`/api/rides/mine?phone=${encodeURIComponent(phone)}`);
+  return Array.isArray(data.rides) ? data.rides : [];
+}
+
+async function renderMyRides() {
+  const container = document.getElementById('myRidesList');
+  if (!container) return;
+
+  if (STATE.role !== 'driver') {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">🚫</span><p>מסך זה זמין לנהגים בלבד</p></div>';
+    return;
+  }
+
+  container.innerHTML = '<div class="empty-state"><span class="emoji">⏳</span><p>טוען נסיעות שלך...</p></div>';
+  let rides = [];
+
+  try {
+    rides = await fetchMyRides();
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><span class="emoji">⚠️</span><p>${escapeHtml(err.message || 'שגיאה בטעינת נסיעות')}</p></div>`;
+    return;
+  }
+
+  if (!rides.length) {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">🗂️</span><p>עדיין לא פרסמת נסיעות</p></div>';
+    return;
+  }
+
+  STATE.rides = rides;
+
+  container.innerHTML = rides.map((r) => {
+    const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
+    const tripTypeLine = r.tripType === 'to_airport' ? '🛫 נסיעה לשדה' : '🛬 חזרה מהשדה';
+    const dateStr = formatDate(r.date);
+    return `
+      <div class="ride-card">
+        <div class="ride-header">
+          <span class="airport-badge ${r.airport === 'larnaca' ? 'larnaca' : 'paphos'}">${tripTypeLine}</span>
+          <span class="seats-badge">👥 ${r.seats} מקומות</span>
+        </div>
+        <div class="ride-dest">${escapeHtml(r.dest)} • ${airportName}</div>
+        <div class="ride-meta">
+          <span>📅 ${dateStr}</span>
+          <span>🕐 ${escapeHtml(r.time)}</span>
+          <span>💶 €${r.price}</span>
+        </div>
+        <div class="my-ride-actions">
+          <button class="btn btn-sm btn-primary" onclick="editMyRide(${r.id})">ערוך</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function editMyRide(rideId) {
+  const phone = STATE.driverPhone;
+  if (!phone) {
+    toast('חסר טלפון נהג מאומת לעריכה');
+    return;
+  }
+
+  const current = STATE.rides.find((r) => r.id === rideId) || {};
+  const newTime = window.prompt('שעת נסיעה חדשה (HH:MM):', current.time || '');
+  if (newTime === null) return;
+  const newPrice = window.prompt('מחיר חדש (€):', String(current.price ?? '0'));
+  if (newPrice === null) return;
+  const newSeats = window.prompt('כמות מקומות חדשה:', String(current.seats ?? '3'));
+  if (newSeats === null) return;
+
+  try {
+    await apiPut(`/api/rides/${rideId}`, {
+      phone,
+      time: String(newTime).trim(),
+      price: Number(newPrice),
+      seats: Number(newSeats),
+    });
+    toast('הנסיעה עודכנה ✅');
+    await renderMyRides();
+    if (finderState.tripType && finderState.airport && finderState.date) {
+      renderRides();
+    }
+  } catch (err) {
+    toast(`שגיאה בעדכון נסיעה: ${err.message}`);
+  }
 }
 
 async function renderRides() {

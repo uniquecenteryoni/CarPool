@@ -1,6 +1,6 @@
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
@@ -385,6 +385,51 @@ export default {
       ).first();
 
       return json({ ok: true, ride: ridePayload(inserted) }, 201);
+    }
+
+    if (pathname === '/api/rides/mine' && req.method === 'GET') {
+      const phone = normalizePhone(url.searchParams.get('phone'));
+      if (!phone) {
+        return json({ ok: false, error: 'phone is required.' }, 400);
+      }
+
+      const { results } = await env.DB.prepare(
+        'SELECT * FROM rides WHERE phone = ? ORDER BY created_at DESC, id DESC',
+      ).bind(phone).all();
+
+      return json({ ok: true, rides: (results || []).map(ridePayload) });
+    }
+
+    if (pathname.startsWith('/api/rides/') && req.method === 'PUT') {
+      const rideId = Number(pathname.split('/').pop());
+      if (!Number.isFinite(rideId) || rideId <= 0) {
+        return json({ ok: false, error: 'Invalid ride id.' }, 400);
+      }
+
+      const body = await parseJson(req);
+      const phone = normalizePhone(body?.phone);
+      if (!phone) {
+        return json({ ok: false, error: 'phone is required.' }, 400);
+      }
+
+      const existing = await env.DB.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').bind(rideId).first();
+      if (!existing) {
+        return json({ ok: false, error: 'Ride not found.' }, 404);
+      }
+      if (normalizePhone(existing.phone) !== phone) {
+        return json({ ok: false, error: 'Not allowed to edit this ride.' }, 403);
+      }
+
+      const nextTime = String(body?.time || existing.time).trim();
+      const nextPrice = Number.isFinite(Number(body?.price)) ? Number(body.price) : Number(existing.price || 0);
+      const nextSeats = Number.isFinite(Number(body?.seats)) ? Number(body.seats) : Number(existing.seats || 1);
+
+      await env.DB.prepare(
+        'UPDATE rides SET time = ?, price = ?, seats = ? WHERE id = ?',
+      ).bind(nextTime, nextPrice, nextSeats, rideId).run();
+
+      const updated = await env.DB.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').bind(rideId).first();
+      return json({ ok: true, ride: ridePayload(updated) });
     }
 
     return json({ ok: false, error: 'Not found' }, 404);
