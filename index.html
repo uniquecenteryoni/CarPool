@@ -376,17 +376,22 @@
   }
 
   .finder-wizard {
-    min-height: var(--between-h);
-    height: var(--between-h);
+    min-height: 0;
+    height: auto;
+    flex: 1;
     max-width: 460px;
     margin: 0 auto;
     width: 100%;
     padding: 10px 10px 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
   .finder-step {
     display: none;
-    min-height: var(--between-h);
-    height: calc(var(--between-h) - 10px);
+    min-height: 0;
+    height: auto;
+    flex: 1;
     max-width: 460px;
     width: 100%;
     margin: 0 auto;
@@ -639,6 +644,17 @@
     margin: 0 auto;
     display: grid;
     gap: 10px;
+  }
+
+  #homeScreen.active {
+    display: flex;
+    flex-direction: column;
+    min-height: var(--app-h);
+    padding-bottom: var(--bottom-nav-h);
+  }
+
+  #homeScreen .top-bar {
+    flex: 0 0 auto;
   }
 
   .ride-card {
@@ -1218,6 +1234,11 @@
     font-size: 21px;
     margin-bottom: 4px;
   }
+  .edit-ride-modal .step3-card input,
+  .edit-ride-modal .step3-card select {
+    min-height: 48px;
+    font-size: 16px;
+  }
   .edit-ride-modal .step3-card {
     margin-bottom: 10px;
   }
@@ -1308,7 +1329,7 @@
     <!-- ── HOME SCREEN ── -->
     <div id="homeScreen" class="screen active">
       <div class="top-bar">
-        <h1 class="top-title"><span class="title-icon">🔎</span>מצא נסיעות</h1>
+        <h1 class="top-title"><span class="title-icon">🚗</span>מצא נסיעות</h1>
         <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
       </div>
 
@@ -1502,7 +1523,7 @@
     <!-- ── PROFILE SCREEN ── -->
     <div id="profileScreen" class="screen">
       <div class="top-bar">
-        <h1>הפרופיל שלי</h1>
+        <h1 class="top-title"><span class="title-icon">👤</span>הפרופיל שלי</h1>
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
       </div>
 
