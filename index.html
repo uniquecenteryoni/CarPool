@@ -425,6 +425,23 @@
     font-size: 18px;
     margin-top: -6px;
   }
+  .wizard-progress {
+    width: min(100%, 430px);
+    margin: 0 auto 8px;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 8px;
+  }
+  .wizard-line {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(15, 42, 68, 0.15);
+    transition: background-color 0.2s ease;
+  }
+  .wizard-line.active {
+    background: var(--sky);
+  }
   .finder-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -747,6 +764,33 @@
     margin: 0 0 12px;
     padding: 16px;
   }
+  #addStep4.active {
+    max-height: calc(var(--app-h) - 146px);
+    overflow-y: auto;
+    padding-bottom: 96px;
+  }
+
+  @media (max-width: 480px) {
+    #addStep4.active {
+      padding: 12px 12px 112px;
+      gap: 8px;
+    }
+    #addStep4 .finder-title {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 4px;
+    }
+    #addConfirmCard {
+      margin: 0;
+      padding: 12px;
+    }
+    #addStep4 .btn,
+    #addStep4 .step-back {
+      min-height: 46px;
+      font-size: 15px;
+      padding: 9px 12px;
+    }
+  }
 
   /* ── Profile Screen ── */
   .profile-header {
@@ -992,7 +1036,7 @@
   .choice-btn.active {
     border-color: var(--sky);
     background: rgba(14, 165, 233, 0.2);
-    color: #e0f2fe;
+    color: var(--text);
   }
 
   /* ── Autocomplete ── */
@@ -1072,7 +1116,7 @@
     </div>
 
     <!-- Login Form -->
-    <div id="loginForm">
+    <form id="loginForm" onsubmit="event.preventDefault(); doLogin();">
       <div class="form-group">
         <label>שם משתמש</label>
         <input type="text" id="loginName" placeholder="הכנס שם משתמש">
@@ -1081,11 +1125,11 @@
         <label>סיסמה</label>
         <input type="password" id="loginPass" placeholder="הכנס סיסמה">
       </div>
-      <button class="btn btn-primary" onclick="doLogin()">כניסה</button>
-    </div>
+      <button class="btn btn-primary" type="submit">כניסה</button>
+    </form>
 
     <!-- Register Form -->
-    <div id="registerForm" class="hidden">
+    <form id="registerForm" class="hidden" onsubmit="event.preventDefault(); doRegister();">
       <div class="form-group">
         <label>שם משתמש</label>
         <input type="text" id="regUsername" placeholder="למשל: yossi88">
@@ -1109,8 +1153,8 @@
           <div class="autocomplete-list hidden" id="regAddressAC"></div>
         </div>
       </div>
-      <button class="btn btn-primary" onclick="doRegister()">הרשמה</button>
-    </div>
+      <button class="btn btn-primary" type="submit">הרשמה</button>
+    </form>
   </div>
 
   <!-- ══ MAIN APP ══ -->
@@ -1123,6 +1167,12 @@
       </div>
 
       <div id="finderWizard" class="finder-wizard">
+        <div class="wizard-progress" id="finderProgress" aria-hidden="true">
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+        </div>
         <section id="finderStep1" class="finder-step active">
           <div class="finder-title"><span class="step-icon">1</span>בחרו כיוון נסיעה</div>
           <div class="finder-subtitle">בחרו כיוון נסיעה</div>
@@ -1160,13 +1210,14 @@
               <input class="hidden-picker" type="date" id="finderDate" onchange="updateFinderPickerLabels()">
             </div>
             <div class="step3-card">
-              <label>🕐 שעת נחיתה (אופציונלי)</label>
+              <label id="finderTimeLabel">🕐 שעת נחיתה (אופציונלי)</label>
               <button id="finderTimeBtn" class="picker-btn empty" type="button" onclick="openFinderTimePicker()">בחירת שעה</button>
               <input class="hidden-picker" type="time" id="finderTime" onchange="updateFinderPickerLabels()">
             </div>
           </div>
           <div class="step3-actions">
             <button class="btn btn-primary" onclick="applyFinderDateTime()">הצג נסיעות זמינות</button>
+            <button class="step-back" onclick="goFinderPrevStep()">חזרה</button>
           </div>
         </section>
 
@@ -1174,7 +1225,10 @@
           <div class="finder-title"><span class="step-icon">4</span>נסיעות זמינות</div>
           <div id="resultsToolbar" class="results-toolbar">
             <div class="results-summary" id="resultsSummary"></div>
-            <button class="mini-btn" onclick="resetFinderSelection()">חיפוש חדש</button>
+            <div style="display:flex;gap:6px;">
+              <button class="mini-btn" onclick="goFinderPrevStep()">חזור</button>
+              <button class="mini-btn" onclick="resetFinderSelection()">חיפוש חדש</button>
+            </div>
           </div>
           <div id="ridesList"></div>
         </section>
@@ -1188,7 +1242,13 @@
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
       </div>
 
-      <div class="add-wizard">
+      <div class="add-wizard" id="addWizard">
+        <div class="wizard-progress" id="addProgress" aria-hidden="true">
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+        </div>
         <section id="addStep1" class="add-step active">
           <div class="finder-title"><span class="step-icon">1</span>פרטי מסלול</div>
           <div class="form-group">
@@ -1223,11 +1283,11 @@
             <input type="date" id="addDate">
           </div>
           <div class="form-group">
-            <label>שעת נחיתה</label>
+            <label id="addTimeLabel">שעת נחיתה</label>
             <input type="time" id="addTime">
           </div>
           <button class="btn btn-primary" onclick="nextAddStep(3)">המשך</button>
-          <button class="step-back" onclick="showAddStep(1)">חזרה</button>
+          <button class="step-back" onclick="goAddPrevStep()">חזרה</button>
         </section>
 
         <section id="addStep3" class="add-step">
@@ -1274,7 +1334,7 @@
           </div>
           <div class="add-step3-actions">
             <button class="btn btn-primary" onclick="nextAddStep(4)">המשך לאישור</button>
-            <button class="step-back" onclick="showAddStep(2)">חזרה</button>
+            <button class="step-back" onclick="goAddPrevStep()">חזרה</button>
           </div>
         </section>
 
@@ -1282,7 +1342,7 @@
           <div class="finder-title"><span class="step-icon">4</span>אישור פרטי נסיעה</div>
           <div class="card" id="addConfirmCard"></div>
           <button class="btn btn-gold" onclick="addRide()">✅ אישור ופרסום נסיעה</button>
-          <button class="step-back" onclick="showAddStep(3)">חזרה לעריכה</button>
+          <button class="step-back" onclick="goAddPrevStep()">חזרה לעריכה</button>
         </section>
       </div>
     </div>
@@ -1536,6 +1596,35 @@ const finderState = {
   time: '',
 }
 
+function timeLabelByTripType(tripType, optional = false) {
+  const suffix = optional ? ' (אופציונלי)' : '';
+  return tripType === 'to_airport' ? `🕐 שעת המראה${suffix}` : `🕐 שעת נחיתה${suffix}`;
+}
+
+function updateTimeContextUi() {
+  const addTripType = document.getElementById('addTripType')?.value || 'from_airport';
+  const finderTripType = finderState.tripType || 'from_airport';
+
+  const addTimeLabel = document.getElementById('addTimeLabel');
+  if (addTimeLabel) {
+    addTimeLabel.textContent = addTripType === 'to_airport' ? 'שעת המראה' : 'שעת נחיתה';
+  }
+
+  const finderTimeLabel = document.getElementById('finderTimeLabel');
+  if (finderTimeLabel) {
+    finderTimeLabel.textContent = timeLabelByTripType(finderTripType, true);
+  }
+}
+
+function updateWizardProgress(progressId, currentStep, totalSteps = 4) {
+  const progressEl = document.getElementById(progressId);
+  if (!progressEl) return;
+  const lines = progressEl.querySelectorAll('.wizard-line');
+  lines.forEach((line, index) => {
+    line.classList.toggle('active', index < Math.min(currentStep, totalSteps));
+  });
+}
+
 function updateTripTypeUi() {
   const tripType = document.getElementById('addTripType').value;
   const isFromAirport = tripType === 'from_airport';
@@ -1545,11 +1634,53 @@ function updateTripTypeUi() {
   document.getElementById('addDest').placeholder = isFromAirport
     ? 'אפשר להקליד בעברית/אנגלית או לבחור מהרשימה'
     : 'אפשר להקליד בעברית/אנגלית או לבחור מהרשימה';
+  updateTimeContextUi();
 }
 
 function showAddStep(stepNumber) {
   document.querySelectorAll('.add-step').forEach((step) => step.classList.remove('active'));
   document.getElementById(`addStep${stepNumber}`).classList.add('active');
+  updateWizardProgress('addProgress', stepNumber, 4);
+}
+
+function currentAddStepNumber() {
+  const active = document.querySelector('#addWizard .add-step.active');
+  if (!active?.id) return 1;
+  return Number(active.id.replace('addStep', '')) || 1;
+}
+
+function currentFinderStepNumber() {
+  const active = document.querySelector('#finderWizard .finder-step.active');
+  if (!active?.id) return 1;
+  return Number(active.id.replace('finderStep', '')) || 1;
+}
+
+function goAddPrevStep() {
+  const current = currentAddStepNumber();
+  if (current > 1) {
+    showAddStep(current - 1);
+  }
+}
+
+function goAddNextStep() {
+  const current = currentAddStepNumber();
+  if (current < 4) {
+    showAddStep(current + 1);
+  }
+}
+
+function goFinderPrevStep() {
+  const current = currentFinderStepNumber();
+  if (current > 1) {
+    showFinderStep(current - 1);
+  }
+}
+
+function goFinderNextStep() {
+  const current = currentFinderStepNumber();
+  if (current < 4) {
+    showFinderStep(current + 1);
+  }
 }
 
 function getAddFormData() {
@@ -1625,6 +1756,7 @@ function selectTripType(type, el) {
   document.getElementById('finderStep2Subtitle').textContent = type === 'from_airport'
     ? 'בחרו מאיזה שדה אתם חוזרים'
     : 'בחרו מאיזה שדה אתם נוסעים';
+  updateTimeContextUi();
   document.querySelectorAll('#finderWizard #tripTypeFromCard, #finderWizard #tripTypeToCard').forEach((card) => card.classList.remove('active'));
   el.classList.add('active');
   showFinderStep(2);
@@ -1640,6 +1772,7 @@ function selectAirport(airport, el) {
 function showFinderStep(stepNumber) {
   document.querySelectorAll('#finderWizard .finder-step').forEach((step) => step.classList.remove('active'));
   document.getElementById(`finderStep${stepNumber}`).classList.add('active');
+  updateWizardProgress('finderProgress', stepNumber, 4);
 }
 
 function openFinderDatePicker() {
@@ -1709,6 +1842,7 @@ function resetFinderSelection() {
   updateFinderPickerLabels();
   document.getElementById('finderStep2Subtitle').textContent = 'בחרו לרנקה או פאפוס';
   document.querySelectorAll('#finderWizard .finder-card').forEach((card) => card.classList.remove('active'));
+  updateTimeContextUi();
   showFinderStep(1);
   document.getElementById('ridesList').innerHTML = '';
 }
@@ -1721,8 +1855,63 @@ function goFindRide() {
 function finderSummaryText() {
   const trip = finderState.tripType === 'to_airport' ? '🛫 נסיעה לשדה' : '🛬 חזרה מהשדה';
   const airport = finderState.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
-  const timePart = finderState.time ? `, משעה ${finderState.time}` : '';
+  const timePart = finderState.time
+    ? finderState.tripType === 'to_airport'
+      ? `, משעת המראה ${finderState.time}`
+      : `, משעת נחיתה ${finderState.time}`
+    : '';
   return `${trip} • ${airport} • ${finderState.date}${timePart}`;
+}
+
+function setupWizardGestures(wizardId, getCurrentStep, onPrev, onNext) {
+  const wizard = document.getElementById(wizardId);
+  if (!wizard) return;
+
+  let startX = 0;
+  let startY = 0;
+  let startTarget = null;
+
+  wizard.addEventListener('touchstart', (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startTarget = event.target;
+  }, { passive: true });
+
+  wizard.addEventListener('touchend', (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    if (startTarget?.closest('input,select,textarea,button,.autocomplete-list,#ridesList')) {
+      return;
+    }
+
+    const deltaX = touch.clientX - startX;
+    const deltaY = touch.clientY - startY;
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    const threshold = 52;
+
+    if (absX < threshold && absY < threshold) return;
+
+    const current = getCurrentStep();
+    if (!current) return;
+
+    if (absX >= absY) {
+      if (deltaX > threshold) {
+        onNext();
+      } else if (deltaX < -threshold) {
+        onPrev();
+      }
+      return;
+    }
+
+    if (deltaY > threshold) {
+      onNext();
+    } else if (deltaY < -threshold) {
+      onPrev();
+    }
+  }, { passive: true });
 }
 
 function switchAuthTab(tab, eventRef) {
@@ -2334,6 +2523,10 @@ document.getElementById('otpInput').addEventListener('keydown', (event) => {
 document.getElementById('otpInput').addEventListener('input', (event) => {
   event.target.value = event.target.value.replace(/\D/g, '').slice(0, 6);
 });
+updateWizardProgress('finderProgress', 1, 4);
+updateWizardProgress('addProgress', 1, 4);
+setupWizardGestures('finderWizard', currentFinderStepNumber, goFinderPrevStep, goFinderNextStep);
+setupWizardGestures('addWizard', currentAddStepNumber, goAddPrevStep, goAddNextStep);
 initEntryAnimation();
 updateTripTypeUi();
 updateFinderPickerLabels();
