@@ -356,7 +356,7 @@ function json(data, status = 200) {
     headers: {
       'Content-Type': 'application/json',
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     },
   })
@@ -373,7 +373,7 @@ Bun.serve({
         status: 204,
         headers: {
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+          'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
           'Access-Control-Allow-Headers': 'Content-Type',
         },
       })
@@ -729,6 +729,34 @@ Bun.serve({
         db.prepare('UPDATE rides SET time = ?, price = ?, seats = ? WHERE id = ?').run(nextTime, nextPrice, nextSeats, rideId)
         const updated = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(rideId)
         return json({ ok: true, ride: ridePayload(updated) })
+      } catch {
+        return json({ ok: false, error: 'Invalid request payload.' }, 400)
+      }
+    }
+
+    if (pathname.startsWith('/api/rides/') && req.method === 'DELETE') {
+      try {
+        const rideId = Number(pathname.split('/').pop())
+        if (!Number.isFinite(rideId) || rideId <= 0) {
+          return json({ ok: false, error: 'Invalid ride id.' }, 400)
+        }
+
+        const body = await req.json()
+        const phone = normalizePhone(body?.phone)
+        if (!phone) {
+          return json({ ok: false, error: 'phone is required.' }, 400)
+        }
+
+        const existing = db.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').get(rideId)
+        if (!existing) {
+          return json({ ok: false, error: 'Ride not found.' }, 404)
+        }
+        if (normalizePhone(existing.phone) !== phone) {
+          return json({ ok: false, error: 'Not allowed to delete this ride.' }, 403)
+        }
+
+        db.prepare('DELETE FROM rides WHERE id = ?').run(rideId)
+        return json({ ok: true, deletedId: rideId })
       } catch {
         return json({ ok: false, error: 'Invalid request payload.' }, 400)
       }

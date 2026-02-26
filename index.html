@@ -372,18 +372,21 @@
     max-width: 460px;
     margin: 0 auto;
     width: 100%;
+    padding: 10px 10px 0;
   }
   .finder-step {
     display: none;
     min-height: var(--between-h);
+    height: calc(var(--between-h) - 10px);
     max-width: 460px;
     width: 100%;
     margin: 0 auto;
-    padding: 18px 16px 16px;
+    padding: 14px 12px 14px;
     border-radius: 18px;
     background:
       linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(235, 245, 255, 0.82) 100%);
     box-shadow: 0 10px 30px rgba(24, 84, 145, 0.12);
+    overflow: hidden;
   }
   .finder-step.active {
     display: flex;
@@ -452,7 +455,8 @@
   }
   .finder-grid.fill {
     grid-template-rows: 1fr 1fr;
-    height: min(62vh, 560px);
+    height: 100%;
+    min-height: 0;
   }
   .finder-card {
     width: 100%;
@@ -473,6 +477,19 @@
     display: block;
     font-size: 28px;
     line-height: 1.25;
+  }
+  @media (max-width: 480px) {
+    .finder-title {
+      font-size: 22px;
+    }
+    .finder-card {
+      min-height: 92px;
+      padding: 16px 12px;
+    }
+    .finder-card strong {
+      font-size: 22px;
+      line-height: 1.2;
+    }
   }
   .finder-card.active {
     border-color: var(--sky);
@@ -789,6 +806,11 @@
     display: flex;
     justify-content: flex-end;
     gap: 8px;
+  }
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.16);
+    color: #b91c1c;
+    border: 1px solid rgba(239, 68, 68, 0.3);
   }
 
   .driver-only {
@@ -1605,6 +1627,20 @@ async function apiPut(path, body) {
   return data;
 }
 
+async function apiDelete(path, body) {
+  assertApiConfigured();
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {}),
+  });
+  const data = await res.json();
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || 'Server error');
+  }
+  return data;
+}
+
 function toggleBinaryChoice(fieldId, btnEl, yesLabel, noLabel) {
   const input = document.getElementById(fieldId);
   input.value = input.value === 'yes' ? 'no' : 'yes';
@@ -2221,7 +2257,19 @@ async function fetchRidesFromApi() {
 }
 
 async function fetchMyRides() {
-  const phone = STATE.driverPhone || normalizePhone(document.getElementById('addContactPhone').value);
+  const fallbackPhone = normalizePhone(document.getElementById('addContactPhone')?.value || '');
+  const profilePhone = normalizePhone(STATE.currentUser?.phone || '');
+  let phone = STATE.driverPhone || profilePhone || fallbackPhone;
+
+  if (!phone) {
+    const entered = window.prompt('הזינו מספר טלפון של הנהג כדי לטעון נסיעות');
+    phone = normalizePhone(entered || '');
+    if (phone) {
+      STATE.driverPhone = phone;
+      localStorage.setItem('cy_driver_phone', phone);
+    }
+  }
+
   if (!phone) {
     return [];
   }
@@ -2274,6 +2322,7 @@ async function renderMyRides() {
         </div>
         <div class="my-ride-actions">
           <button class="btn btn-sm btn-primary" onclick="editMyRide(${r.id})">ערוך</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteMyRide(${r.id})">מחק</button>
         </div>
       </div>
     `;
@@ -2281,13 +2330,16 @@ async function renderMyRides() {
 }
 
 async function editMyRide(rideId) {
-  const phone = STATE.driverPhone;
+  const current = STATE.rides.find((r) => r.id === rideId) || {};
+  const phone = STATE.driverPhone || normalizePhone(current.phone);
   if (!phone) {
     toast('חסר טלפון נהג מאומת לעריכה');
     return;
   }
 
-  const current = STATE.rides.find((r) => r.id === rideId) || {};
+  STATE.driverPhone = phone;
+  localStorage.setItem('cy_driver_phone', phone);
+
   const newTime = window.prompt('שעת נסיעה חדשה (HH:MM):', current.time || '');
   if (newTime === null) return;
   const newPrice = window.prompt('מחיר חדש (€):', String(current.price ?? '0'));
@@ -2309,6 +2361,29 @@ async function editMyRide(rideId) {
     }
   } catch (err) {
     toast(`שגיאה בעדכון נסיעה: ${err.message}`);
+  }
+}
+
+async function deleteMyRide(rideId) {
+  const current = STATE.rides.find((r) => r.id === rideId) || {};
+  const phone = STATE.driverPhone || normalizePhone(current.phone);
+  if (!phone) {
+    toast('חסר טלפון נהג מאומת למחיקה');
+    return;
+  }
+
+  const ok = window.confirm('למחוק את הנסיעה הזו?');
+  if (!ok) return;
+
+  try {
+    await apiDelete(`/api/rides/${rideId}`, { phone });
+    toast('הנסיעה נמחקה ✅');
+    await renderMyRides();
+    if (finderState.tripType && finderState.airport && finderState.date) {
+      renderRides();
+    }
+  } catch (err) {
+    toast(`שגיאה במחיקת נסיעה: ${err.message}`);
   }
 }
 

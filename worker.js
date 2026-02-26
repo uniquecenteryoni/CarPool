@@ -1,6 +1,6 @@
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'GET,POST,PUT,OPTIONS',
+  'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
@@ -430,6 +430,30 @@ export default {
 
       const updated = await env.DB.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').bind(rideId).first();
       return json({ ok: true, ride: ridePayload(updated) });
+    }
+
+    if (pathname.startsWith('/api/rides/') && req.method === 'DELETE') {
+      const rideId = Number(pathname.split('/').pop());
+      if (!Number.isFinite(rideId) || rideId <= 0) {
+        return json({ ok: false, error: 'Invalid ride id.' }, 400);
+      }
+
+      const body = await parseJson(req);
+      const phone = normalizePhone(body?.phone);
+      if (!phone) {
+        return json({ ok: false, error: 'phone is required.' }, 400);
+      }
+
+      const existing = await env.DB.prepare('SELECT * FROM rides WHERE id = ? LIMIT 1').bind(rideId).first();
+      if (!existing) {
+        return json({ ok: false, error: 'Ride not found.' }, 404);
+      }
+      if (normalizePhone(existing.phone) !== phone) {
+        return json({ ok: false, error: 'Not allowed to delete this ride.' }, 403);
+      }
+
+      await env.DB.prepare('DELETE FROM rides WHERE id = ?').bind(rideId).run();
+      return json({ ok: true, deletedId: rideId });
     }
 
     return json({ ok: false, error: 'Not found' }, 404);
