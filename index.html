@@ -2808,8 +2808,8 @@ async function renderRides() {
     const airportLabel = r.tripType === 'to_airport' ? `🛫 ${airportName}` : `🛬 ${airportName}`;
     const airportClass = r.airport === 'larnaca' ? 'larnaca' : 'paphos';
     const routeLine = r.tripType === 'to_airport'
-      ? `📍 ${escapeHtml(r.dest)} <span style="color:var(--muted);">←</span> ${airportLabel}`
-      : `${airportLabel} <span style="color:var(--muted);">←</span> 📍 ${escapeHtml(r.dest)}`;
+      ? `📍 ${escapeHtml(r.dest)} <span style="color:var(--muted);font-weight:900;">→</span> ${airportLabel}`
+      : `${airportLabel} <span style="color:var(--muted);font-weight:900;">→</span> 📍 ${escapeHtml(r.dest)}`;
     const tripTypeLine = r.tripType === 'to_airport' ? 'נסיעה לשדה' : 'חזרה מהשדה';
     const priceHtml = r.price == 0
       ? `<span class="price-tag free">🆓 חינם</span>`
