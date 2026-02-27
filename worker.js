@@ -41,7 +41,7 @@ async function sendOtpWithTwilio(env, to, code) {
   const payload = new URLSearchParams({
     To: to,
     From: from,
-    Body: `קוד האימות שלך הוא: ${code}`,
+    Body: `קוד האימות החד-פעמי שלך למכשיר זה הוא: ${code}`,
   });
 
   const response = await fetch(
@@ -336,9 +336,9 @@ export default {
         return json({ ok: false, error: 'Invalid code.' }, 401);
       }
 
-      const verifiedUntil = now + 7 * 24 * 60 * 60_000;
+      const verifiedUntil = now + 5 * 365 * 24 * 60 * 60_000;
       await env.DB.prepare('UPDATE driver_otp_codes SET verified_until = ?, attempts = 0 WHERE phone = ?').bind(verifiedUntil, phone).run();
-      return json({ ok: true, verifiedUntil, ttlSeconds: 7 * 24 * 60 * 60 });
+      return json({ ok: true, verifiedUntil, ttlSeconds: 5 * 365 * 24 * 60 * 60 });
     }
 
     if (pathname === '/api/rides' && req.method === 'GET') {

@@ -633,9 +633,9 @@ Bun.serve({
           return json({ ok: false, error: 'Invalid code.' }, 401)
         }
 
-        const verifiedUntil = now + 7 * 24 * 60 * 60_000
+        const verifiedUntil = now + 5 * 365 * 24 * 60 * 60_000
         db.prepare('UPDATE driver_otp_codes SET verified_until = ?, attempts = 0 WHERE phone = ?').run(verifiedUntil, phone)
-        return json({ ok: true, verifiedUntil, ttlSeconds: 7 * 24 * 60 * 60 })
+        return json({ ok: true, verifiedUntil, ttlSeconds: 5 * 365 * 24 * 60 * 60 })
       } catch {
         return json({ ok: false, error: 'Invalid request payload.' }, 400)
       }

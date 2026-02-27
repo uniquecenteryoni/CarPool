@@ -549,7 +549,11 @@
 
   @media (min-width: 1024px) {
     :root {
-      --app-max-w: 1120px;
+      --app-max-w: 100vw;
+    }
+
+    #app {
+      margin: 0;
     }
 
     .top-bar h1 {
@@ -568,13 +572,13 @@
     .finder-wizard,
     .add-wizard,
     #myridesScreen .my-rides-wrap {
-      max-width: 980px;
+      max-width: none;
     }
 
     .finder-step,
     .add-step,
     .edit-ride-modal {
-      max-width: 980px;
+      max-width: none;
     }
 
     .pick-step .finder-card strong {
@@ -693,7 +697,7 @@
   }
 
   .pick-step .finder-card {
-    min-height: 86px;
+    min-height: 72px;
     border-radius: 16px;
     padding: 14px 12px;
   }
@@ -706,7 +710,7 @@
     display: flex;
     flex-direction: column;
     min-height: var(--app-h);
-    padding-bottom: 0;
+    padding-bottom: var(--bottom-nav-h);
   }
 
   #homeScreen .top-bar {
@@ -964,6 +968,28 @@
   }
 
   @media (max-width: 480px) {
+    .pick-step {
+      gap: 8px !important;
+    }
+    .pick-step .finder-title {
+      font-size: 19px;
+    }
+    .pick-step .finder-subtitle {
+      font-size: 14px;
+      margin-top: -4px;
+    }
+    .pick-step .finder-grid {
+      gap: 8px;
+    }
+    .pick-step .finder-card {
+      min-height: 58px;
+      padding: 10px;
+    }
+    .pick-step .finder-card strong {
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
     #addStep4.active {
       padding: 12px 12px 112px;
       gap: 8px;
@@ -2602,13 +2628,13 @@ async function ensureDriverOtpVerified(phone) {
 
   const sendData = await apiPost('/api/driver/send-code', { phone });
   if (sendData.smsSent) {
-    toast('שלחנו קוד אימות לטלפון. הזינו אותו כדי לפרסם נסיעה.');
+    toast('שלחנו קוד אימות חד פעמי למכשיר הזה. הזינו אותו כדי לפרסם נסיעה.');
   } else {
-    toast('SMS לא הוגדר עדיין. מוצג קוד בדיקה זמני.');
+    toast('SMS לא הוגדר עדיין. מוצג קוד בדיקה חד פעמי למכשיר זה.');
   }
 
   const code = await openOtpModal({
-    subtitle: sendData.smsSent ? 'שלחנו קוד חד פעמי לטלפון שהזנת' : 'מצב בדיקה: השתמשו בקוד הזמני',
+    subtitle: sendData.smsSent ? 'שלחנו קוד חד פעמי למכשיר הזה בטלפון שהזנת' : 'מצב בדיקה: השתמשו בקוד הזמני החד פעמי למכשיר',
     devCode: sendData.devCode || '',
   });
   if (!code) {
@@ -2621,7 +2647,8 @@ async function ensureDriverOtpVerified(phone) {
     code: String(code).trim(),
   });
 
-  markDriverPhoneVerified(phone, data.ttlSeconds || (60 * 60 * 24 * 7));
+  const deviceRememberSeconds = 60 * 60 * 24 * 365 * 5;
+  markDriverPhoneVerified(phone, Math.max(Number(data.ttlSeconds || 0), deviceRememberSeconds));
   toast('האימות הצליח ✅');
   return true;
 }
@@ -2896,11 +2923,12 @@ async function renderRides() {
 
   container.innerHTML = rides.map(r => {
     const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
-    const airportLabel = r.tripType === 'to_airport' ? `🛫 ${airportName}` : `🛬 ${airportName}`;
     const airportClass = r.airport === 'larnaca' ? 'larnaca' : 'paphos';
+    const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
+    const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
     const routeLine = r.tripType === 'to_airport'
-      ? `📍 ${escapeHtml(r.dest)} <span style="color:var(--muted);font-weight:900;">→</span> ${airportLabel}`
-      : `${airportLabel} <span style="color:var(--muted);font-weight:900;">→</span> 📍 ${escapeHtml(r.dest)}`;
+      ? `📍 ${routeStart} <span style="color:var(--muted);font-weight:900;">→</span> ${routeEnd}`
+      : `${routeStart} <span style="color:var(--muted);font-weight:900;">→</span> 📍 ${routeEnd}`;
     const tripTypeLine = r.tripType === 'to_airport' ? 'נסיעה לשדה' : 'חזרה מהשדה';
     const priceHtml = r.price == 0
       ? `<span class="price-tag free">🆓 חינם</span>`
