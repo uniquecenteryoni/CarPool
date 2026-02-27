@@ -8,6 +8,7 @@
 <style>
   :root {
     --app-h: 100dvh;
+    --app-max-w: 480px;
     --top-bar-h: 68px;
     --bottom-nav-h: 64px;
     --between-h: calc(var(--app-h) - var(--top-bar-h) - var(--bottom-nav-h));
@@ -73,7 +74,7 @@
   /* ── App Shell ── */
   #app {
     width: 100%;
-    max-width: 480px;
+    max-width: var(--app-max-w);
     height: var(--app-h);
     margin: 0 auto;
     position: relative;
@@ -136,7 +137,7 @@
     position: fixed;
     bottom: 0; left: 50%;
     transform: translateX(-50%);
-    width: 100%; max-width: 480px;
+    width: 100%; max-width: var(--app-max-w);
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
     border-top: 1px solid var(--border);
@@ -545,6 +546,41 @@
       padding: 9px 12px;
     }
   }
+
+  @media (min-width: 1024px) {
+    :root {
+      --app-max-w: 1120px;
+    }
+
+    .top-bar h1 {
+      font-size: 22px;
+    }
+
+    .nav-btn {
+      font-size: 13px;
+      gap: 4px;
+    }
+
+    .nav-btn .icon {
+      font-size: 22px;
+    }
+
+    .finder-wizard,
+    .add-wizard,
+    #myridesScreen .my-rides-wrap {
+      max-width: 980px;
+    }
+
+    .finder-step,
+    .add-step,
+    .edit-ride-modal {
+      max-width: 980px;
+    }
+
+    .pick-step .finder-card strong {
+      font-size: 28px;
+    }
+  }
   .finder-card.active {
     border-color: var(--sky);
     box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.28) inset;
@@ -651,11 +687,13 @@
     width: min(100%, 430px);
     margin: 0 auto;
     gap: 10px;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    flex: 1;
+    min-height: 0;
   }
 
   .pick-step .finder-card {
-    min-height: 0;
-    height: 100%;
+    min-height: 86px;
     border-radius: 16px;
     padding: 14px 12px;
   }
@@ -880,9 +918,10 @@
     height: auto;
     flex: 1;
     min-height: 0;
-    max-width: 460px;
-    margin: 0 auto;
-    padding: 10px 10px 90px;
+    max-width: none;
+    margin: 0;
+    width: 100%;
+    padding: 12px 16px 90px;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
@@ -891,7 +930,7 @@
 
   #myridesScreen .my-rides-wrap .ride-card {
     width: 100%;
-    margin: 0 0 12px;
+    margin: 0 0 14px;
     padding: 18px;
   }
 
@@ -981,6 +1020,12 @@
   }
   .info-row:last-child { border-bottom: none; }
   .info-label { color: var(--muted); }
+  .profile-info-card {
+    cursor: pointer;
+  }
+  .profile-info-card:active {
+    transform: scale(0.99);
+  }
 
   /* ── Contact Modal ── */
   .modal-overlay {
@@ -1309,6 +1354,41 @@
     display: grid;
     gap: 8px;
   }
+
+  .profile-edit-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 17, 31, 0.62);
+    backdrop-filter: blur(4px);
+    z-index: 230;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  .profile-edit-modal-overlay.open {
+    display: flex;
+  }
+  .profile-edit-modal {
+    width: min(100%, 520px);
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 16px 36px rgba(20, 71, 124, 0.24);
+  }
+  .profile-edit-grid {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .profile-edit-grid .form-group {
+    margin-bottom: 0;
+  }
+  .profile-edit-actions {
+    display: grid;
+    gap: 8px;
+  }
 </style>
 </head>
 <body>
@@ -1596,7 +1676,7 @@
         <div class="profile-location" id="profileLocation">📍 <span></span></div>
       </div>
 
-      <div class="card">
+      <div class="card profile-info-card" id="profileInfoCard" onclick="openProfileEditModal()">
         <div class="info-row">
           <span class="info-label">👤 שם משתמש</span>
           <span id="profileUsername"></span>
@@ -1612,26 +1692,6 @@
       </div>
 
       <div style="padding: 0 16px;">
-        <div class="form-group mt-16">
-          <label>עדכן שם משתמש</label>
-          <input type="text" id="editUsername" placeholder="שם משתמש">
-        </div>
-        <div class="form-group mt-16">
-          <label>עדכן שם מלא</label>
-          <input type="text" id="editName" placeholder="שם מלא">
-        </div>
-        <div class="form-group mt-16">
-          <label>עדכן טלפון</label>
-          <input type="tel" id="editPhone" placeholder="05X-XXXXXXX">
-        </div>
-        <div class="form-group mt-16">
-          <label>עדכן כתובת ברירת מחדל</label>
-          <div class="autocomplete-wrap">
-            <input type="text" id="editAddress" placeholder="עיר, שכונה" oninput="acInput(this, 'editAddressAC')" autocomplete="off">
-            <div class="autocomplete-list hidden" id="editAddressAC"></div>
-          </div>
-        </div>
-        <button class="btn btn-primary" onclick="saveProfile()">💾 שמור פרופיל</button>
         <button class="logout-btn" onclick="logout()">🚪 התנתק</button>
       </div>
     </div>
@@ -1763,6 +1823,37 @@
     <div class="edit-ride-actions">
       <button class="btn btn-primary" onclick="submitEditRide()">שמירת שינויים</button>
       <button class="step-back" onclick="closeEditRideModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<div class="profile-edit-modal-overlay" id="profileEditModal" onclick="closeProfileEditModal(event)">
+  <div class="profile-edit-modal">
+    <div class="finder-title"><span class="step-icon">👤</span>עריכת פרופיל</div>
+    <div class="profile-edit-grid">
+      <div class="form-group">
+        <label>שם משתמש</label>
+        <input type="text" id="profileEditUsername" placeholder="שם משתמש">
+      </div>
+      <div class="form-group">
+        <label>שם מלא</label>
+        <input type="text" id="profileEditName" placeholder="שם מלא">
+      </div>
+      <div class="form-group">
+        <label>טלפון</label>
+        <input type="tel" id="profileEditPhone" placeholder="05X-XXXXXXX">
+      </div>
+      <div class="form-group">
+        <label>כתובת ברירת מחדל</label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="profileEditAddress" placeholder="עיר, שכונה" oninput="acInput(this, 'profileEditAddressAC')" autocomplete="off">
+          <div class="autocomplete-list hidden" id="profileEditAddressAC"></div>
+        </div>
+      </div>
+    </div>
+    <div class="profile-edit-actions">
+      <button class="btn btn-primary" onclick="saveProfile()">💾 שמור פרופיל</button>
+      <button class="step-back" onclick="closeProfileEditModal()">ביטול</button>
     </div>
   </div>
 </div>
@@ -2911,11 +3002,23 @@ function renderProfile() {
   document.getElementById('profileLocation').querySelector('span').textContent = user.address;
   document.getElementById('profilePhone').textContent = user.phone;
   document.getElementById('profileAddress').textContent = user.address;
-  document.getElementById('editUsername').value = user.username || '';
-  document.getElementById('editName').value = user.name || '';
-  document.getElementById('editPhone').value = user.phone || '';
-  document.getElementById('editAddress').value = user.address;
+  document.getElementById('profileEditUsername').value = user.username || '';
+  document.getElementById('profileEditName').value = user.name || '';
+  document.getElementById('profileEditPhone').value = user.phone || '';
+  document.getElementById('profileEditAddress').value = user.address || '';
   renderHeaderAvatar();
+}
+
+function openProfileEditModal() {
+  renderProfile();
+  document.getElementById('profileEditModal').classList.add('open');
+}
+
+function closeProfileEditModal(event) {
+  if (event && event.target !== document.getElementById('profileEditModal')) {
+    return;
+  }
+  document.getElementById('profileEditModal').classList.remove('open');
 }
 
 async function saveProfile() {
@@ -2925,10 +3028,10 @@ async function saveProfile() {
     return;
   }
 
-  const username = document.getElementById('editUsername').value.trim();
-  const name = document.getElementById('editName').value.trim();
-  const phone = document.getElementById('editPhone').value.trim();
-  const address = document.getElementById('editAddress').value.trim();
+  const username = document.getElementById('profileEditUsername').value.trim();
+  const name = document.getElementById('profileEditName').value.trim();
+  const phone = document.getElementById('profileEditPhone').value.trim();
+  const address = document.getElementById('profileEditAddress').value.trim();
   if (!username || !name || !phone || !address) {
     toast('נא להזין שם משתמש, שם, טלפון וכתובת');
     return;
@@ -2951,6 +3054,7 @@ async function saveProfile() {
     if (previousUsername && previousUsername !== data.user.username) {
       localStorage.removeItem(profileSetupKey(previousUsername));
     }
+    closeProfileEditModal();
     renderProfile();
     syncAddDefaultsFromProfile();
     toast('הפרופיל עודכן ✅');
