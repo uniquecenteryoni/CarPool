@@ -767,6 +767,17 @@
     font-weight: 800;
     margin-bottom: 6px;
   }
+  .route-flow {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    direction: rtl;
+  }
+  .route-arrow {
+    color: var(--muted);
+    font-weight: 900;
+  }
   .ride-meta {
     display: flex;
     gap: 16px;
@@ -1506,7 +1517,7 @@
       <div class="top-bar">
         <h1 class="top-title"><span class="title-icon">🚗</span>מצא נסיעות</h1>
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="mini-btn role-switch-btn hidden" id="switchToDriverBtn" onclick="switchToDriverMode()">🚗 אני הנהג</button>
+          <button class="mini-btn role-switch-btn hidden" id="switchToDriverBtn" onclick="switchToDriverMode()">🧑‍✈️ אני הנהג</button>
           <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
         </div>
       </div>
@@ -1520,7 +1531,6 @@
         </div>
         <section id="finderStep1" class="finder-step pick-step active">
           <div class="finder-title"><span class="step-icon">1</span>בחרו כיוון נסיעה</div>
-          <div class="finder-subtitle">בחרו כיוון נסיעה</div>
           <div class="finder-grid fill">
             <button class="finder-card" id="tripTypeFromCard" onclick="selectTripType('from_airport', this)">
               <strong>🛬 חוזרים מהשדה</strong>
@@ -1532,8 +1542,7 @@
         </section>
 
         <section id="finderStep2" class="finder-step pick-step">
-          <div class="finder-title"><span class="step-icon">2</span>בחירת שדה</div>
-          <div class="finder-subtitle" id="finderStep2Subtitle">בחרו לרנקה או פאפוס</div>
+          <div class="finder-title" id="finderStep2Title"><span class="step-icon">2</span>מאיזה שדה אתם חוזרים?</div>
           <div class="finder-grid fill">
             <button class="finder-card" id="airportLarnacaCard" onclick="selectAirport('larnaca', this)">
               <strong>🛬 לרנקה (LCA)</strong>
@@ -1545,8 +1554,7 @@
         </section>
 
         <section id="finderStep3" class="finder-step">
-          <div class="finder-title"><span class="step-icon">3</span>בחרו תאריך ושעה רצויים</div>
-          <div class="finder-subtitle">בחרו תאריך ושעה רצויים.</div>
+          <div class="finder-title" id="finderStep3Title"><span class="step-icon">3</span>תאריך ושעת נחיתה</div>
           <div class="step3-grid">
             <div class="step3-card">
               <label>📅 יום נסיעה</label>
@@ -2250,11 +2258,27 @@ function resetAddWizard() {
   showAddStep(1)
 }
 
+function updateFinderTitlesByTripType(type) {
+  const step2Title = document.getElementById('finderStep2Title');
+  const step3Title = document.getElementById('finderStep3Title');
+  const normalized = type || 'from_airport';
+
+  if (step2Title) {
+    step2Title.innerHTML = normalized === 'to_airport'
+      ? '<span class="step-icon">2</span>לאיזה שדה אתם נוסעים?'
+      : '<span class="step-icon">2</span>מאיזה שדה אתם חוזרים?';
+  }
+
+  if (step3Title) {
+    step3Title.innerHTML = normalized === 'to_airport'
+      ? '<span class="step-icon">3</span>תאריך ושעת המראה'
+      : '<span class="step-icon">3</span>תאריך ושעת נחיתה';
+  }
+}
+
 function selectTripType(type, el) {
   finderState.tripType = type;
-  document.getElementById('finderStep2Subtitle').textContent = type === 'from_airport'
-    ? 'בחרו מאיזה שדה אתם חוזרים'
-    : 'בחרו מאיזה שדה אתם נוסעים';
+  updateFinderTitlesByTripType(type);
   updateTimeContextUi();
   document.querySelectorAll('#finderWizard #tripTypeFromCard, #finderWizard #tripTypeToCard').forEach((card) => card.classList.remove('active'));
   el.classList.add('active');
@@ -2339,7 +2363,7 @@ function resetFinderSelection() {
   document.getElementById('finderDate').value = '';
   document.getElementById('finderTime').value = '';
   updateFinderPickerLabels();
-  document.getElementById('finderStep2Subtitle').textContent = 'בחרו לרנקה או פאפוס';
+  updateFinderTitlesByTripType('from_airport');
   document.querySelectorAll('#finderWizard .finder-card').forEach((card) => card.classList.remove('active'));
   updateTimeContextUi();
   showFinderStep(1);
@@ -2745,7 +2769,7 @@ async function renderMyRides() {
           <span class="airport-badge ${r.airport === 'larnaca' ? 'larnaca' : 'paphos'}">${tripTypeLine}</span>
           <span class="seats-badge">👥 ${r.seats} מקומות</span>
         </div>
-        <div class="ride-dest">${routeStart} <span style="color:var(--muted);font-weight:900;">→</span> ${routeEnd}</div>
+        <div class="ride-dest route-flow"><span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span></div>
         <div class="ride-meta">
           <span>📅 ${dateStr}</span>
           <span>🕐 ${escapeHtml(r.time)}</span>
@@ -2945,8 +2969,8 @@ async function renderRides() {
     const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
     const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
     const routeLine = r.tripType === 'to_airport'
-      ? `📍 ${routeStart} <span style="color:var(--muted);font-weight:900;">→</span> ${routeEnd}`
-      : `${routeStart} <span style="color:var(--muted);font-weight:900;">→</span> 📍 ${routeEnd}`;
+      ? `<span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span>`
+      : `<span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span>`;
     const tripTypeLine = r.tripType === 'to_airport' ? 'נסיעה לשדה' : 'חזרה מהשדה';
     const priceHtml = r.price == 0
       ? `<span class="price-tag free">🆓 חינם</span>`
@@ -2970,7 +2994,7 @@ async function renderRides() {
           <span class="airport-badge ${airportClass}">${tripTypeLine}</span>
           <span class="seats-badge">👥 ${r.seats} מקומות</span>
         </div>
-        <div class="ride-dest">${routeLine}</div>
+        <div class="ride-dest route-flow">${routeLine}</div>
         <div class="ride-meta">
           <span>📅 ${dateStr}</span>
           <span>🕐 ${escapeHtml(r.time)}</span>
