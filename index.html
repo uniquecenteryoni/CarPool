@@ -88,6 +88,7 @@
     min-height: var(--app-h);
     padding: 0 0 80px;
     overflow: hidden;
+    position: relative;
   }
   .screen.active { display: block; }
 
@@ -135,13 +136,18 @@
   /* ── Bottom Nav ── */
   .bottom-nav {
     position: fixed;
-    bottom: 8px; left: 50%;
+    bottom: 0; left: 50%;
     transform: translateX(-50%);
-    width: calc(100% - 16px); max-width: calc(var(--app-max-w) - 16px);
-    background: rgba(255, 255, 255, 0.92);
+    width: 100%; max-width: var(--app-max-w);
+    min-height: 70px;
+    background: rgba(255, 255, 255, 0.98);
     backdrop-filter: blur(20px);
-    border: 1px solid var(--border);
-    border-radius: 14px;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -8px 24px rgba(15, 42, 68, 0.08);
     overflow: hidden;
     display: flex;
     z-index: 50;
@@ -153,11 +159,11 @@
     display: flex; flex-direction: column;
     align-items: center; gap: 3px;
     font-family: 'Heebo', sans-serif;
-    font-size: 11px; font-weight: 500;
+    font-size: 13px; font-weight: 700;
     transition: color 0.2s;
   }
   .nav-btn.active { color: var(--sky); }
-  .nav-btn .icon { font-size: 20px; }
+  .nav-btn .icon { font-size: 24px; }
 
   /* ── Cards ── */
   .card {
@@ -255,6 +261,8 @@
     min-height: var(--app-h);
     text-align: center;
     align-items: center;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .entry-hero {
     margin: 0 auto 28px;
@@ -300,6 +308,8 @@
     max-width: 460px;
     margin: 0 auto;
     width: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .login-hero {
     text-align: center;
@@ -496,8 +506,18 @@
   }
   .finder-card strong {
     display: block;
-    font-size: clamp(20px, 5.5vw, 26px);
+    font-size: clamp(24px, 6.2vw, 32px);
     line-height: 1.25;
+  }
+  .finder-card .trip-emoji {
+    font-size: clamp(34px, 8vw, 44px);
+    line-height: 1;
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: -2px;
+  }
+  .finder-card .trip-label {
+    vertical-align: middle;
   }
   @media (max-width: 480px) {
     .finder-step {
@@ -614,6 +634,17 @@
     font-size: 12px;
     cursor: pointer;
   }
+  .home-circle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+  }
   .role-switch-btn {
     min-width: 96px;
     font-weight: 700;
@@ -643,7 +674,7 @@
     background: rgba(255, 255, 255, 0.92);
     border: 1px solid var(--border);
     border-radius: 16px;
-    padding: 14px;
+    padding: 12px;
     box-shadow: 0 8px 24px rgba(17, 74, 128, 0.1);
   }
   .step3-card label {
@@ -661,7 +692,7 @@
   }
   .picker-btn {
     width: 100%;
-    min-height: 58px;
+    min-height: 54px;
     border-radius: 14px;
     border: 1px solid var(--border);
     background: #fff;
@@ -688,9 +719,18 @@
   }
   .step3-actions {
     width: min(100%, 430px);
-    margin: 0 auto;
+    margin: 0 auto 8px;
     display: grid;
     gap: 10px;
+    padding-bottom: 6px;
+  }
+
+  .driver-mode #finderStep3 .step3-card {
+    padding: 10px;
+  }
+  .driver-mode #finderStep3 .picker-btn {
+    min-height: 50px;
+    font-size: 16px;
   }
 
   .pick-step .finder-grid {
@@ -700,6 +740,8 @@
     grid-template-rows: repeat(2, minmax(0, 1fr));
     flex: 1;
     min-height: 0;
+    padding-top: 6px;
+    padding-bottom: 14px;
   }
 
   .pick-step .finder-card {
@@ -709,7 +751,7 @@
   }
 
   .pick-step .finder-card strong {
-    font-size: clamp(20px, 5.2vw, 24px);
+    font-size: clamp(24px, 5.8vw, 30px);
   }
 
   #homeScreen.active {
@@ -753,17 +795,25 @@
   }
   .airport-badge.larnaca { background: rgba(14, 165, 233, 0.2); color: var(--sky); }
   .airport-badge.paphos { background: rgba(245, 158, 11, 0.2); color: var(--gold); }
+  .airport-badge.trip-to {
+    background: rgba(245, 158, 11, 0.18);
+    color: #b45309;
+  }
+  .airport-badge.trip-from {
+    background: rgba(14, 165, 233, 0.18);
+    color: #0369a1;
+  }
 
   .seats-badge {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    font-size: 13px;
+    font-size: 16px;
     color: var(--green);
-    font-weight: 600;
+    font-weight: 800;
   }
   .ride-dest {
-    font-size: 20px;
+    font-size: 24px;
     font-weight: 800;
     margin-bottom: 6px;
   }
@@ -823,9 +873,10 @@
 
   .add-wizard {
     min-height: var(--between-h);
-    height: var(--between-h);
+    height: auto;
+    max-height: var(--between-h);
     padding: 18px;
-    overflow: hidden;
+    overflow-y: auto;
     max-width: 460px;
     margin: 0 auto;
     width: 100%;
@@ -845,7 +896,7 @@
     gap: 12px;
   }
   .add-step .form-group {
-    margin-bottom: 2px;
+    margin-bottom: 0;
   }
   .add-step .form-group label {
     font-size: 14px;
@@ -866,28 +917,205 @@
   }
   .add-step3-grid {
     display: grid;
-    gap: 8px;
+    gap: 6px;
     grid-template-columns: 1fr 1fr;
-    grid-auto-rows: minmax(0, 1fr);
+    grid-auto-rows: auto;
     flex: 1;
+  }
+
+  #profileScreen {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-height: 760px) {
+    #entryScreen,
+    #loginScreen {
+      padding-top: max(18px, calc(env(safe-area-inset-top) + 8px));
+      padding-bottom: calc(var(--bottom-nav-h) + 20px);
+    }
+
+    #entryAnimation {
+      width: 170px;
+      height: 170px;
+      margin-bottom: 4px;
+    }
+
+    .entry-hero {
+      margin-bottom: 16px;
+    }
+
+    .entry-hero h1 {
+      font-size: 34px;
+      margin: 4px 0 8px;
+    }
+
+    .entry-hero p {
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .entry-role-grid {
+      gap: 10px;
+    }
+
+    .add-wizard {
+      padding: 12px;
+    }
+
+    .add-step {
+      padding: 12px;
+    }
+
+    .add-step .form-group input,
+    .add-step .form-group select,
+    .add-step .form-group textarea {
+      min-height: 50px;
+      font-size: 16px;
+      padding: 10px 12px;
+    }
+
+    .add-step .btn {
+      min-height: 48px;
+      font-size: 16px;
+    }
   }
   .add-step3-actions {
     display: grid;
-    gap: 8px;
+    gap: 6px;
   }
-  #addStep3.active {
-    grid-template-rows: auto 1fr auto;
-    align-content: stretch;
+
+  .screen-side-nav {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    transform: translateY(-50%);
+    pointer-events: none;
+    z-index: 55;
+  }
+  .side-arrow {
+    pointer-events: auto;
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.25);
+    background: var(--sky);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 900;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 20px rgba(16, 64, 111, 0.2);
+    cursor: pointer;
+  }
+  .side-arrow.left {
+    left: 8px;
+  }
+  .side-arrow.right {
+    right: 8px;
+  }
+  #addStep3 {
     height: 100%;
     min-height: 0;
+    padding: 8px;
+    overflow: hidden;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  #addStep3.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  #addStep3 .add-step3-panel {
+    height: 100%;
+    min-height: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(239,245,252,0.92) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 24px;
+    box-shadow: 0 10px 24px rgba(15, 42, 68, 0.09);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    overflow: hidden;
+  }
+  #addStep3 .finder-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  #addStep3 .add-step3-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0;
+  }
+  #addStep3 .form-group.full-row {
+    grid-column: 1 / -1;
+  }
+  #addStep3 .form-group {
+    margin: 0;
+    background: rgba(235, 243, 253, 0.66);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 16px;
+    padding: 8px;
+  }
+  #addStep3 .form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  #addStep3 .form-group input,
+  #addStep3 .form-group select,
+  #addStep3 .form-group textarea {
+    min-height: 44px;
+    font-size: 15px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+  #addStep3 .choice-btn {
+    min-height: 44px;
+    padding: 8px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+  #addStep3 .add-step3-actions {
+    margin-top: auto;
+    padding-top: 4px;
+    padding-bottom: calc(var(--bottom-nav-h) + 8px);
+    background: transparent;
+  }
+  #addStep3 .add-step3-actions .btn {
+    min-height: 52px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #2f95e9, #2178cb);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .driver-mode #addStep2 .form-group input,
+  .driver-mode #addStep2 .form-group select {
+    min-height: 50px;
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+  .driver-mode #addStep2 .btn {
+    min-height: 48px;
+    font-size: 16px;
   }
   @media (max-width: 480px) {
     #addStep3 {
-      padding: 12px;
-      gap: 8px;
+      padding: 6px;
+      gap: 6px;
     }
     #addStep3 .finder-title {
-      font-size: 20px;
+      font-size: 18px;
       margin-top: 0;
       margin-bottom: 0;
     }
@@ -896,34 +1124,96 @@
       height: 28px;
       font-size: 14px;
     }
-    #addStep3 .add-step3-grid { gap: 8px; }
+    #addStep3 .add-step3-grid { gap: 6px; }
+    #addStep3 .form-group.full-row {
+      grid-column: 1 / -1;
+    }
     #addStep3 .form-group {
       margin-bottom: 0;
+      padding: 6px;
     }
     #addStep3 .form-group label {
-      font-size: 11px;
-      margin-bottom: 4px;
+      font-size: 12px;
+      margin-bottom: 3px;
       line-height: 1.2;
     }
     #addStep3 .form-group input,
     #addStep3 .form-group select,
     #addStep3 .form-group textarea {
-      min-height: 42px;
-      font-size: 14px;
-      padding: 8px 10px;
+      min-height: 40px;
+      font-size: 15px;
+      padding: 6px 8px;
       border-radius: 10px;
     }
     #addStep3 .choice-btn {
-      padding: 8px;
-      font-size: 12px;
-      min-height: 42px;
+      padding: 6px;
+      font-size: 14px;
+      min-height: 40px;
     }
     #addStep3 .add-step3-actions .btn,
     #addStep3 .add-step3-actions .step-back {
-      min-height: 44px;
-      font-size: 15px;
-      padding: 8px 12px;
+      min-height: 52px;
+      font-size: 18px;
+      padding: 10px 12px;
     }
+  }
+
+  .app-alert-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 17, 31, 0.66);
+    backdrop-filter: blur(4px);
+    z-index: 260;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .app-alert-overlay.open {
+    display: flex;
+  }
+  .app-alert-box {
+    width: min(100%, 460px);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 18px 36px rgba(20, 71, 124, 0.25);
+    text-align: center;
+  }
+  .app-alert-title {
+    font-size: 24px;
+    font-weight: 900;
+    margin: 0 0 10px;
+  }
+  .app-alert-text {
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+  }
+  .time-picker-box {
+    text-align: right;
+  }
+  .time-picker-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    direction: ltr;
+  }
+  .date-picker-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    direction: ltr;
+  }
+  .time-picker-grid .form-group,
+  .date-picker-grid .form-group {
+    text-align: left;
+  }
+  .time-picker-grid select,
+  .date-picker-grid select {
+    direction: ltr;
+    text-align: left;
   }
   #addConfirmCard {
     margin: 0 0 12px;
@@ -982,6 +1272,121 @@
 
   .driver-mode .driver-only {
     display: flex;
+  }
+
+  .passenger-only {
+    display: none;
+  }
+
+  .passenger-mode .passenger-only {
+    display: flex;
+  }
+
+  #availableScreen.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .available-wrap {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    padding: 10px 16px calc(var(--bottom-nav-h) + 18px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .available-panel {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(18, 79, 137, 0.12);
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .available-controls {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    gap: 8px;
+    align-items: center;
+    direction: ltr;
+  }
+
+  .day-nav-btn {
+    min-height: 44px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, #2f95e9, #2178cb);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(33, 120, 203, 0.24);
+  }
+  .day-nav-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .available-date-pill {
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(235, 243, 253, 0.95);
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+  }
+
+  .available-date-icon {
+    font-size: 18px;
+    color: var(--sky-dark);
+    text-align: center;
+  }
+
+  .available-controls input[type="date"] {
+    min-height: 38px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 0;
+    color: var(--text);
+  }
+  .available-controls input[type="date"]:focus {
+    border: none;
+    outline: none;
+  }
+
+  .available-summary {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  #availableRidesList .ride-card {
+    margin: 0 0 12px;
+    border-radius: 20px;
+    padding: 14px;
+    background: rgba(255,255,255,0.93);
+    box-shadow: 0 10px 24px rgba(18, 79, 137, 0.11);
+  }
+  #availableRidesList .ride-header {
+    margin-bottom: 10px;
+  }
+  #availableRidesList .ride-meta {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #availableRidesList .ride-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    padding-top: 10px;
   }
 
   @media (max-width: 480px) {
@@ -1064,10 +1469,50 @@
   .info-row:last-child { border-bottom: none; }
   .info-label { color: var(--muted); }
   .profile-info-card {
+    cursor: default;
+  }
+  .profile-editable-row {
     cursor: pointer;
   }
-  .profile-info-card:active {
-    transform: scale(0.99);
+  .profile-editable-row.editing {
+    background: rgba(14, 165, 233, 0.08);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 4px 0;
+    border-bottom-color: transparent;
+  }
+  .profile-inline-value-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .profile-inline-input {
+    min-height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    font-size: 15px;
+    width: min(64vw, 220px);
+    text-align: right;
+  }
+  .profile-inline-actions {
+    padding: 10px 0 0;
+    display: grid;
+    gap: 8px;
+  }
+  .profile-inline-msg {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
+  }
+  .profile-inline-msg.error {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
   }
 
   /* ── Contact Modal ── */
@@ -1171,12 +1616,34 @@
     margin-bottom: 12px;
     line-height: 1.5;
   }
-  .otp-devcode {
-    margin-top: 8px;
+  .otp-verify-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .otp-info-row {
+    background: var(--night2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
     font-size: 13px;
-    text-align: center;
-    color: var(--sky-dark);
-    font-weight: 700;
+  }
+  .otp-info-label {
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+  .otp-note {
+    background: #f8fbff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.5;
   }
   .otp-actions {
     display: grid;
@@ -1261,6 +1728,12 @@
     background: rgba(239, 68, 68, 0.16);
     color: #f87171;
   }
+  .ride-card.past-ride {
+    background: rgba(100, 116, 139, 0.32);
+    border-color: rgba(71, 85, 105, 0.65);
+    opacity: 0.5;
+    filter: saturate(0.5);
+  }
   .choice-toggle {
     display: block;
   }
@@ -1305,6 +1778,8 @@
   .autocomplete-item:hover, .autocomplete-item.highlighted { background: rgba(14, 165, 233, 0.15); }
 
   .hidden { display: none !important; }
+
+  .avatar-btn.hidden { display: none !important; }
 
   .logout-btn {
     background: none;
@@ -1398,40 +1873,6 @@
     gap: 8px;
   }
 
-  .profile-edit-modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(8, 17, 31, 0.62);
-    backdrop-filter: blur(4px);
-    z-index: 230;
-    align-items: center;
-    justify-content: center;
-    padding: 12px;
-  }
-  .profile-edit-modal-overlay.open {
-    display: flex;
-  }
-  .profile-edit-modal {
-    width: min(100%, 520px);
-    background: rgba(255, 255, 255, 0.98);
-    border: 1px solid var(--border);
-    border-radius: 18px;
-    padding: 14px;
-    box-shadow: 0 16px 36px rgba(20, 71, 124, 0.24);
-  }
-  .profile-edit-grid {
-    display: grid;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-  .profile-edit-grid .form-group {
-    margin-bottom: 0;
-  }
-  .profile-edit-actions {
-    display: grid;
-    gap: 8px;
-  }
 </style>
 </head>
 <body>
@@ -1446,7 +1887,7 @@
     </div>
     <div class="entry-role-grid">
       <button class="finder-card" onclick="chooseUserRole('driver')">
-        <strong>🚗 אני הנהג</strong>
+        <strong>🧑‍✈️ אני הנהג</strong>
       </button>
       <button class="finder-card" onclick="chooseUserRole('passenger')">
         <strong>🧳 אני הנוסע</strong>
@@ -1515,11 +1956,15 @@
     <!-- ── HOME SCREEN ── -->
     <div id="homeScreen" class="screen active">
       <div class="top-bar">
-        <h1 class="top-title"><span class="title-icon">🚗</span>מצא נסיעות</h1>
+        <h1 class="top-title"><span class="title-icon">🚗</span>לחפש נסיעה</h1>
         <div style="display:flex;align-items:center;gap:8px;">
-          <button class="mini-btn role-switch-btn hidden" id="switchToDriverBtn" onclick="switchToDriverMode()">🧑‍✈️ אני הנהג</button>
+          <button class="mini-btn home-circle-btn" id="topHomeBtn" onclick="goWelcome()">🏠</button>
           <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
         </div>
+      </div>
+      <div class="screen-side-nav" id="homeSideNav" aria-hidden="true">
+        <button class="side-arrow left" id="homeSidePrev" onclick="sideStepNav('prev')">◀</button>
+        <button class="side-arrow right" id="homeSideNext" onclick="sideStepNav('next')">▶</button>
       </div>
 
       <div id="finderWizard" class="finder-wizard">
@@ -1533,10 +1978,10 @@
           <div class="finder-title"><span class="step-icon">1</span>בחרו כיוון נסיעה</div>
           <div class="finder-grid fill">
             <button class="finder-card" id="tripTypeFromCard" onclick="selectTripType('from_airport', this)">
-              <strong>🛬 חוזרים מהשדה</strong>
+              <strong><span class="trip-emoji">🛬</span><span class="trip-label">חוזרים מהשדה</span></strong>
             </button>
             <button class="finder-card" id="tripTypeToCard" onclick="selectTripType('to_airport', this)">
-              <strong>🛫 נוסעים לשדה</strong>
+              <strong><span class="trip-emoji">🛫</span><span class="trip-label">נוסעים לשדה</span></strong>
             </button>
           </div>
         </section>
@@ -1591,6 +2036,10 @@
         <h1 class="top-title"><span class="title-icon">➕</span>הוספת נסיעה</h1>
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
       </div>
+      <div class="screen-side-nav" id="addSideNav" aria-hidden="true">
+        <button class="side-arrow left" id="addSidePrev" onclick="sideStepNav('prev')">◀</button>
+        <button class="side-arrow right" id="addSideNext" onclick="sideStepNav('next')">▶</button>
+      </div>
 
       <div class="add-wizard" id="addWizard">
         <div class="wizard-progress" id="addProgress" aria-hidden="true">
@@ -1630,59 +2079,61 @@
           <div class="finder-title"><span class="step-icon">2</span>תאריך ושעה</div>
           <div class="form-group">
             <label>תאריך</label>
-            <input type="date" id="addDate">
+            <input type="text" id="addDate" placeholder="בחרו תאריך" readonly onclick="openAddDatePicker()">
           </div>
           <div class="form-group">
             <label id="addTimeLabel">שעת נחיתה</label>
-            <input type="time" id="addTime">
+            <input type="text" id="addTime" placeholder="בחרו שעה" readonly onclick="openAddTimePicker()">
           </div>
           <button class="btn btn-primary" onclick="nextAddStep(3)">המשך</button>
         </section>
 
         <section id="addStep3" class="add-step">
-          <div class="finder-title"><span class="step-icon">3</span>פרטי התקשרות ונסיעה</div>
-          <div class="add-step3-grid">
-            <div class="form-group">
-              <label>שם איש קשר</label>
-              <input type="text" id="addContactName" placeholder="שם מלא">
-            </div>
-            <div class="form-group">
-              <label>טלפון איש קשר</label>
-              <input type="tel" id="addContactPhone" placeholder="05X-XXXXXXX">
-            </div>
-            <div class="form-group">
-              <label>מקומות פנויים</label>
-              <select id="addSeats">
-                <option value="1">1 מקום</option>
-                <option value="2">2 מקומות</option>
-                <option value="3" selected>3 מקומות</option>
-                <option value="4">4 מקומות</option>
-                <option value="5">5 מקומות</option>
-                <option value="6">6 מקומות</option>
-                <option value="7">7 מקומות</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>מחיר לנוסע (€)</label>
-              <input type="number" id="addPrice" placeholder="0 = חינם" min="0" value="">
-            </div>
-            <div class="form-group">
-              <label>תא מטען לנוסעים</label>
-              <input type="hidden" id="addTrunkSpace" value="yes">
-              <div class="choice-toggle">
-                <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addTrunkSpace', this, '🧳 עם תא מטען', '🚫 בלי תא מטען')">🧳 עם תא מטען</button>
+          <div class="add-step3-panel">
+            <div class="finder-title"><span class="step-icon">3</span>פרטי התקשרות ונסיעה</div>
+            <div class="add-step3-grid">
+              <div class="form-group full-row">
+                <label>מספר וואטסאפ שלכם</label>
+                <input type="tel" id="addContactPhone" placeholder="מספר הוואטסאפ שלכם (05X-XXXXXXX)">
+              </div>
+              <div class="form-group full-row">
+                <label>שם איש קשר</label>
+                <input type="text" id="addContactName" placeholder="שם מלא">
+              </div>
+              <div class="form-group">
+                <label>מחיר (€)</label>
+                <input type="number" id="addPrice" placeholder="0 = חינם" min="0" value="0">
+              </div>
+              <div class="form-group">
+                <label>מקומות פנויים</label>
+                <select id="addSeats">
+                  <option value="1">1 מקום</option>
+                  <option value="2">2 מקומות</option>
+                  <option value="3" selected>3 מקומות</option>
+                  <option value="4">4 מקומות</option>
+                  <option value="5">5 מקומות</option>
+                  <option value="6">6 מקומות</option>
+                  <option value="7">7 מקומות</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>כלבים</label>
+                <input type="hidden" id="addDogsAllowed" value="no">
+                <div class="choice-toggle">
+                  <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addDogsAllowed', this, '🐶 עם כלבים', '🚫 בלי כלבים')">🚫 בלי כלבים</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>מזוודה</label>
+                <input type="hidden" id="addTrunkSpace" value="yes">
+                <div class="choice-toggle">
+                  <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addTrunkSpace', this, '🧳 עם מזוודה', '🚫 בלי מזוודה')">🧳 עם מזוודה</button>
+                </div>
               </div>
             </div>
-            <div class="form-group">
-              <label>כלבים</label>
-              <input type="hidden" id="addDogsAllowed" value="no">
-              <div class="choice-toggle">
-                <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addDogsAllowed', this, '🐶 עם כלבים', '🚫 בלי כלבים')">🚫 בלי כלבים</button>
-              </div>
+            <div class="add-step3-actions">
+              <button class="btn btn-primary" onclick="nextAddStep(4)">המשך לאישור</button>
             </div>
-          </div>
-          <div class="add-step3-actions">
-            <button class="btn btn-primary" onclick="nextAddStep(4)">המשך לאישור</button>
           </div>
         </section>
 
@@ -1703,6 +2154,27 @@
       <div class="my-rides-wrap" id="myRidesList"></div>
     </div>
 
+    <div id="availableScreen" class="screen">
+      <div class="top-bar">
+        <h1 class="top-title"><span class="title-icon">📅</span>נסיעות זמינות</h1>
+        <button class="mini-btn home-circle-btn" onclick="goWelcome()">🏠</button>
+      </div>
+      <div class="available-wrap">
+        <div class="available-panel">
+          <div class="available-controls">
+            <button class="day-nav-btn" id="availablePrevBtn" type="button" onclick="shiftAvailableDate(-1)">◀</button>
+            <div class="available-date-pill">
+              <span class="available-date-icon">📅</span>
+              <input type="date" id="availableDate" onchange="setAvailableDate(this.value)">
+            </div>
+            <button class="day-nav-btn" id="availableNextBtn" type="button" onclick="shiftAvailableDate(1)">▶</button>
+          </div>
+          <div class="available-summary" id="availableSummary"></div>
+        </div>
+        <div id="availableRidesList"></div>
+      </div>
+    </div>
+
     <!-- ── PROFILE SCREEN ── -->
     <div id="profileScreen" class="screen">
       <div class="top-bar">
@@ -1714,22 +2186,28 @@
         <div class="profile-avatar" id="profileAvatarLetter" onclick="openAvatarPicker()"></div>
         <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)">
         <div class="profile-name" id="profileName"></div>
-        <div class="profile-location" id="profileLocation">📍 <span></span></div>
       </div>
 
-      <div class="card profile-info-card" id="profileInfoCard" onclick="openProfileEditModal()">
-        <div class="info-row">
-          <span class="info-label">👤 שם משתמש</span>
-          <span id="profileUsername"></span>
+      <div class="card profile-info-card" id="profileInfoCard">
+        <div class="info-row profile-editable-row" id="profileRowName" onclick="startInlineProfileEdit('name')">
+          <span class="info-label">👤 שם מלא</span>
+          <div class="profile-inline-value-wrap">
+            <span id="profileFullName"></span>
+            <input type="text" id="profileInlineName" class="profile-inline-input hidden" placeholder="שם מלא" onclick="event.stopPropagation()">
+          </div>
         </div>
-        <div class="info-row">
+        <div class="info-row profile-editable-row" id="profileRowPhone" onclick="startInlineProfileEdit('phone')">
           <span class="info-label">📞 טלפון</span>
-          <span id="profilePhone"></span>
+          <div class="profile-inline-value-wrap">
+            <span id="profilePhone"></span>
+            <input type="tel" id="profileInlinePhone" class="profile-inline-input hidden" placeholder="05X-XXXXXXX" onclick="event.stopPropagation()">
+          </div>
         </div>
-        <div class="info-row">
-          <span class="info-label">🏠 כתובת</span>
-          <span id="profileAddress" style="text-align:left;direction:ltr;font-size:13px;"></span>
+        <div class="profile-inline-actions hidden" id="profileInlineActions">
+          <button class="btn btn-primary" onclick="saveInlineProfileEdit()">💾 שמירה</button>
+          <button class="step-back" onclick="cancelInlineProfileEdit()">ביטול</button>
         </div>
+        <div class="profile-inline-msg hidden" id="profileInlineMsg"></div>
       </div>
 
       <div style="padding: 0 16px;">
@@ -1739,9 +2217,9 @@
 
     <!-- Bottom Nav -->
     <nav class="bottom-nav">
-      <button class="nav-btn active" id="navHome" onclick="goFindRide()">
+      <button class="nav-btn active" id="navHome" onclick="handleHomeNavClick()">
         <span class="icon">🚗</span>
-        <span>מצא נסיעות</span>
+        <span>לחפש נסיעה</span>
       </button>
       <button class="nav-btn driver-only" id="navAdd" onclick="navigate('add')">
         <span class="icon">➕</span>
@@ -1751,7 +2229,63 @@
         <span class="icon">🗂️</span>
         <span>הנסיעות שלי</span>
       </button>
+      <button class="nav-btn passenger-only" id="navAvailable" onclick="navigate('available')">
+        <span class="icon">📅</span>
+        <span>נסיעות זמינות</span>
+      </button>
     </nav>
+  </div>
+</div>
+
+<div class="app-alert-overlay" id="appAlertModal" onclick="closeAppAlert(event)">
+  <div class="app-alert-box">
+    <div class="app-alert-title">שימו לב</div>
+    <p class="app-alert-text" id="appAlertText"></p>
+    <button class="btn btn-primary" type="button" onclick="closeAppAlert(true)">אישור</button>
+  </div>
+</div>
+
+<div class="app-alert-overlay" id="timePickerModal" onclick="closeTimePickerModal(event)">
+  <div class="app-alert-box time-picker-box">
+    <div class="app-alert-title" id="timePickerTitle">בחירת שעה</div>
+    <div class="time-picker-grid">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>שעה</label>
+        <select id="timePickerHour"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>דקות</label>
+        <select id="timePickerMinute"></select>
+      </div>
+    </div>
+    <div class="otp-actions" style="margin-top:12px;">
+      <button class="btn btn-ghost" type="button" onclick="closeTimePickerModal(false)">ביטול</button>
+      <button class="btn btn-primary" type="button" onclick="closeTimePickerModal(true)">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-alert-overlay" id="datePickerModal" onclick="closeDatePickerModal(event)">
+  <div class="app-alert-box time-picker-box">
+    <div class="app-alert-title" id="datePickerTitle">בחירת תאריך</div>
+    <div class="date-picker-grid">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>יום</label>
+        <select id="datePickerDay"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>חודש</label>
+        <select id="datePickerMonth"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>שנה</label>
+        <select id="datePickerYear"></select>
+      </div>
+    </div>
+    <div class="otp-actions" style="margin-top:12px;">
+      <button class="btn btn-ghost" type="button" onclick="closeDatePickerModal(false)">ביטול</button>
+      <button class="btn btn-primary" type="button" onclick="closeDatePickerModal(true)">אישור</button>
+    </div>
   </div>
 </div>
 
@@ -1779,16 +2313,45 @@
 <!-- ══ OTP MODAL ══ -->
 <div class="otp-modal-overlay" id="otpModal">
   <div class="otp-modal">
-    <div class="otp-title">אימות נהג</div>
-    <div class="otp-subtitle" id="otpSubtitle">שלחנו קוד חד פעמי לטלפון שלך</div>
-    <div class="form-group" style="margin-bottom:0;">
-      <label>קוד אימות</label>
-      <input id="otpInput" type="tel" inputmode="numeric" maxlength="6" autocomplete="one-time-code" pattern="[0-9]{6}" placeholder="הכנס/י 6 ספרות">
+    <div class="otp-title">אימות פרסום ראשון</div>
+    <div class="otp-subtitle" id="otpSubtitle">לפני פרסום הנסיעה הראשונה מבצעים אימות אימייל חד-פעמי</div>
+
+    <div class="otp-verify-info">
+      <div class="otp-info-row">
+        <span class="otp-info-label">שם איש קשר</span>
+        <strong id="otpContactName">-</strong>
+      </div>
+      <div class="otp-info-row">
+        <span class="otp-info-label">מספר וואטסאפ</span>
+        <strong id="otpContactPhone">-</strong>
+      </div>
     </div>
-    <div class="otp-devcode" id="otpDevCode"></div>
-    <div class="otp-actions">
+
+    <div class="otp-note">אימות חד-פעמי לצורכי אבטחה. המכשיר יזוהה אוטומטית בפרסומים הבאים.</div>
+
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>כתובת אימייל</label>
+      <input id="otpEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com">
+    </div>
+
+    <div class="otp-actions" style="margin-top:0; margin-bottom:10px;">
+      <button class="btn btn-primary" type="button" onclick="sendEmailVerifyCode()">שלח קוד לאימייל</button>
       <button class="btn btn-ghost" type="button" onclick="closeOtpModal(false)">ביטול</button>
-      <button class="btn btn-primary" type="button" onclick="closeOtpModal(true)">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div class="otp-modal-overlay" id="otpCodeModal">
+  <div class="otp-modal">
+    <div class="otp-title">אימות קוד</div>
+    <div class="otp-subtitle" id="otpCodeSubtitle">הקוד נשלח למייל שהזנת. הזינו קוד חד-פעמי להמשך פרסום.</div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>קוד אימות (4 ספרות)</label>
+      <input id="otpCodeInput" type="tel" inputmode="numeric" maxlength="4" autocomplete="one-time-code" pattern="[0-9]{4}" placeholder="הכנס/י 4 ספרות">
+    </div>
+    <div class="otp-actions">
+      <button class="btn btn-ghost" type="button" onclick="closeOtpCodeModal(false)">ביטול</button>
+      <button class="btn btn-primary" type="button" onclick="confirmEmailVerification()">אמת והמשך פרסום</button>
     </div>
   </div>
 </div>
@@ -1831,8 +2394,8 @@
         <input type="text" id="editRideDriver">
       </div>
       <div class="form-group">
-        <label>טלפון איש קשר</label>
-        <input type="tel" id="editRidePhone">
+        <label>מספר וואטסאפ שלכם</label>
+        <input type="tel" id="editRidePhone" placeholder="מספר הוואטסאפ שלכם">
       </div>
       <div class="form-group">
         <label>👥 מקומות פנויים</label>
@@ -1847,13 +2410,13 @@
         </select>
       </div>
       <div class="form-group">
-        <label>💶 מחיר לנוסע (€)</label>
+        <label>💶 מחיר (€)</label>
         <input type="number" id="editRidePrice" min="0" step="1">
       </div>
       <div class="form-group">
-        <label>תא מטען לנוסעים</label>
+        <label>מזוודה</label>
         <input type="hidden" id="editRideTrunkSpace" value="yes">
-        <button type="button" class="choice-btn" id="editRideTrunkBtn" onclick="toggleBinaryChoice('editRideTrunkSpace', this, '🧳 עם תא מטען', '🚫 בלי תא מטען')">🧳 עם תא מטען</button>
+        <button type="button" class="choice-btn" id="editRideTrunkBtn" onclick="toggleBinaryChoice('editRideTrunkSpace', this, '🧳 עם מזוודה', '🚫 בלי מזוודה')">🧳 עם מזוודה</button>
       </div>
       <div class="form-group">
         <label>כלבים</label>
@@ -1864,37 +2427,6 @@
     <div class="edit-ride-actions">
       <button class="btn btn-primary" onclick="submitEditRide()">שמירת שינויים</button>
       <button class="step-back" onclick="closeEditRideModal()">ביטול</button>
-    </div>
-  </div>
-</div>
-
-<div class="profile-edit-modal-overlay" id="profileEditModal" onclick="closeProfileEditModal(event)">
-  <div class="profile-edit-modal">
-    <div class="finder-title"><span class="step-icon">👤</span>עריכת פרופיל</div>
-    <div class="profile-edit-grid">
-      <div class="form-group">
-        <label>שם משתמש</label>
-        <input type="text" id="profileEditUsername" placeholder="שם משתמש">
-      </div>
-      <div class="form-group">
-        <label>שם מלא</label>
-        <input type="text" id="profileEditName" placeholder="שם מלא">
-      </div>
-      <div class="form-group">
-        <label>טלפון</label>
-        <input type="tel" id="profileEditPhone" placeholder="05X-XXXXXXX">
-      </div>
-      <div class="form-group">
-        <label>כתובת ברירת מחדל</label>
-        <div class="autocomplete-wrap">
-          <input type="text" id="profileEditAddress" placeholder="עיר, שכונה" oninput="acInput(this, 'profileEditAddressAC')" autocomplete="off">
-          <div class="autocomplete-list hidden" id="profileEditAddressAC"></div>
-        </div>
-      </div>
-    </div>
-    <div class="profile-edit-actions">
-      <button class="btn btn-primary" onclick="saveProfile()">💾 שמור פרופיל</button>
-      <button class="step-back" onclick="closeProfileEditModal()">ביטול</button>
     </div>
   </div>
 </div>
@@ -1911,6 +2443,9 @@ const API_BASE = (() => {
   if (explicitBase) {
     return explicitBase.replace(/\/$/, '');
   }
+  if (location.hostname.endsWith('pages.dev')) {
+    return 'https://carpool-api.unique-center-yoni.workers.dev';
+  }
   if (location.protocol === 'file:') {
     return 'http://localhost:3001';
   }
@@ -1923,14 +2458,37 @@ function assertApiConfigured() {
   }
 }
 
-function initEntryAnimation() {
-  if (!window.lottie) {
-    document.getElementById('entryAnimation').textContent = '✈️';
+let entryAnimationInstance = null;
+
+function initEntryAnimation({ force = false } = {}) {
+  const container = document.getElementById('entryAnimation');
+  if (!container) {
     return;
   }
 
-  window.lottie.loadAnimation({
-    container: document.getElementById('entryAnimation'),
+  if (!window.lottie) {
+    container.textContent = '✈️';
+    return;
+  }
+
+  if (entryAnimationInstance && !force) {
+    entryAnimationInstance.play();
+    return;
+  }
+
+  if (entryAnimationInstance && force) {
+    try {
+      entryAnimationInstance.destroy();
+    } catch {
+      // ignore cleanup errors
+    }
+    entryAnimationInstance = null;
+  }
+
+  container.textContent = '';
+
+  entryAnimationInstance = window.lottie.loadAnimation({
+    container,
     renderer: 'svg',
     loop: true,
     autoplay: true,
@@ -1938,13 +2496,60 @@ function initEntryAnimation() {
   });
 }
 
+function ensureEntryAnimationVisible() {
+  if (entryAnimationInstance) {
+    entryAnimationInstance.play();
+    return;
+  }
+  initEntryAnimation({ force: true });
+}
+
 const STATE = {
   session: localStorage.getItem('cy_session') || null,
   role: localStorage.getItem('cy_role') || null,
   driverPhone: localStorage.getItem('cy_driver_phone') || '',
+  publishSessionToken: localStorage.getItem('cy_publish_session_token') || '',
   currentUser: null,
   rides: [],
+  availableDate: '',
 };
+
+const PUBLISH_SESSION_TOKEN_KEY = 'cy_publish_session_token';
+const PUBLISH_SESSION_EXPIRES_KEY = 'cy_publish_session_expires_at';
+const PUBLISH_SESSION_NAME_KEY = 'cy_publish_contact_name';
+const PUBLISH_SESSION_PHONE_KEY = 'cy_publish_contact_phone';
+
+function clearPublishSession() {
+  STATE.publishSessionToken = '';
+  localStorage.removeItem(PUBLISH_SESSION_TOKEN_KEY);
+  localStorage.removeItem(PUBLISH_SESSION_EXPIRES_KEY);
+  localStorage.removeItem(PUBLISH_SESSION_NAME_KEY);
+  localStorage.removeItem(PUBLISH_SESSION_PHONE_KEY);
+}
+
+function getStoredPublishSessionToken() {
+  const token = localStorage.getItem(PUBLISH_SESSION_TOKEN_KEY) || '';
+  const expiresAt = Number(localStorage.getItem(PUBLISH_SESSION_EXPIRES_KEY) || 0);
+  if (!token || !Number.isFinite(expiresAt) || Date.now() > expiresAt) {
+    clearPublishSession();
+    return '';
+  }
+  STATE.publishSessionToken = token;
+  return token;
+}
+
+function storePublishSession({ token, ttlSeconds, name, phone }) {
+  const seconds = Number(ttlSeconds || 0);
+  const safeSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : 60 * 60 * 24 * 365 * 10;
+  const expiresAt = Date.now() + safeSeconds * 1000;
+  STATE.publishSessionToken = String(token || '').trim();
+  localStorage.setItem(PUBLISH_SESSION_TOKEN_KEY, STATE.publishSessionToken);
+  localStorage.setItem(PUBLISH_SESSION_EXPIRES_KEY, String(expiresAt));
+  localStorage.setItem(PUBLISH_SESSION_NAME_KEY, String(name || '').trim());
+  localStorage.setItem(PUBLISH_SESSION_PHONE_KEY, String(phone || '').trim());
+}
+
+getStoredPublishSessionToken();
 
 function getCurrentUser() {
   return STATE.currentUser;
@@ -1987,10 +2592,21 @@ function openAvatarPicker() {
   document.getElementById('avatarUpload').click();
 }
 
+async function parseApiResponse(res) {
+  const text = await res.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error('שרת API לא זמין או כתובת API שגויה.');
+  }
+  return data;
+}
+
 async function apiGet(path) {
   assertApiConfigured();
   const res = await fetch(`${API_BASE}${path}`);
-  const data = await res.json();
+  const data = await parseApiResponse(res);
   if (!res.ok || data.ok === false) {
     throw new Error(data.error || 'Server error');
   }
@@ -2004,7 +2620,7 @@ async function apiPost(path, body) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  const data = await res.json();
+  const data = await parseApiResponse(res);
   if (!res.ok || data.ok === false) {
     throw new Error(data.error || 'Server error');
   }
@@ -2018,7 +2634,7 @@ async function apiPut(path, body) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
   });
-  const data = await res.json();
+  const data = await parseApiResponse(res);
   if (!res.ok || data.ok === false) {
     throw new Error(data.error || 'Server error');
   }
@@ -2032,7 +2648,7 @@ async function apiDelete(path, body) {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body || {}),
   });
-  const data = await res.json();
+  const data = await parseApiResponse(res);
   if (!res.ok || data.ok === false) {
     throw new Error(data.error || 'Server error');
   }
@@ -2075,6 +2691,17 @@ function chooseUserRole(role) {
   } else {
     resetAddWizard();
   }
+}
+
+function toLocalIsoDate(dateObj = new Date()) {
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isoTodayDate() {
+  return toLocalIsoDate(new Date());
 }
 
 const finderState = {
@@ -2127,19 +2754,23 @@ function updateTripTypeUi() {
 
 function syncAddDefaultsFromProfile() {
   const user = getCurrentUser();
-  if (!user) return;
-
   const nameInput = document.getElementById('addContactName');
   const phoneInput = document.getElementById('addContactPhone');
   const destInput = document.getElementById('addDest');
 
+  const storedName = localStorage.getItem(PUBLISH_SESSION_NAME_KEY) || '';
+  const storedPhone = localStorage.getItem(PUBLISH_SESSION_PHONE_KEY) || '';
+
+  const preferredName = user?.name || storedName;
+  const preferredPhone = user?.phone || storedPhone;
+
   if (nameInput) {
-    nameInput.value = (user.name || '').trim();
+    nameInput.value = String(preferredName || '').trim();
   }
   if (phoneInput) {
-    phoneInput.value = (user.phone || '').trim();
+    phoneInput.value = String(preferredPhone || '').trim();
   }
-  if (destInput) {
+  if (destInput && user) {
     destInput.value = (user.address || '').trim();
   }
 }
@@ -2148,6 +2779,7 @@ function showAddStep(stepNumber) {
   document.querySelectorAll('.add-step').forEach((step) => step.classList.remove('active'));
   document.getElementById(`addStep${stepNumber}`).classList.add('active');
   updateWizardProgress('addProgress', stepNumber, 4);
+  updateSideNavVisibility();
 }
 
 function currentAddStepNumber() {
@@ -2191,21 +2823,62 @@ function goFinderNextStep() {
 }
 
 function getAddFormData() {
-  const priceVal = document.getElementById('addPrice').value;
+  const rawPriceVal = document.getElementById('addPrice').value;
+  const priceVal = rawPriceVal === '' ? '0' : rawPriceVal;
+  const addDateInput = document.getElementById('addDate');
+  const addDateIso = addDateInput?.dataset.iso || '';
   return {
     contactName: document.getElementById('addContactName').value.trim(),
     contactPhone: document.getElementById('addContactPhone').value.trim(),
     tripType: document.getElementById('addTripType').value,
     airport: document.getElementById('addAirport').value,
-    date: document.getElementById('addDate').value,
+    date: addDateIso,
     time: document.getElementById('addTime').value,
     dest: document.getElementById('addDest').value.trim(),
     seats: parseInt(document.getElementById('addSeats').value),
     trunkSpace: document.getElementById('addTrunkSpace').value === 'yes',
     dogsAllowed: document.getElementById('addDogsAllowed').value === 'yes',
     priceVal,
-    price: priceVal === '' ? 0 : parseInt(priceVal),
+    price: Number.isFinite(parseInt(priceVal, 10)) ? parseInt(priceVal, 10) : 0,
   }
+}
+
+const PAST_TIME_WARNING_MESSAGE = 'אופס! נראה שחיפשת נסיעה שכבר עברה. נא לבחור תאריך עתידי.';
+
+function isDateTimeInPast(date, time = '') {
+  if (!date) return false;
+  const now = new Date();
+  const todayDate = isoTodayDate();
+  const selectedDateOnly = new Date(`${date}T00:00:00`);
+  const todayStart = new Date(`${todayDate}T00:00:00`);
+  if (selectedDateOnly < todayStart) {
+    return true;
+  }
+  if (date === todayDate && time) {
+    const selectedDateTime = new Date(`${date}T${time}:00`);
+    return selectedDateTime < now;
+  }
+  return false;
+}
+
+function showAppAlert(message) {
+  const modal = document.getElementById('appAlertModal');
+  const text = document.getElementById('appAlertText');
+  if (!modal || !text) {
+    toast(message);
+    return;
+  }
+  text.textContent = message;
+  modal.classList.add('open');
+}
+
+function closeAppAlert(arg) {
+  const modal = document.getElementById('appAlertModal');
+  if (!modal) return;
+  if (arg && arg.target && arg.target !== modal) {
+    return;
+  }
+  modal.classList.remove('open');
 }
 
 function nextAddStep(stepNumber) {
@@ -2223,10 +2896,14 @@ function nextAddStep(stepNumber) {
       toast('נא לבחור תאריך ושעה');
       return
     }
+    if (isDateTimeInPast(data.date, data.time)) {
+      showAppAlert(PAST_TIME_WARNING_MESSAGE);
+      return;
+    }
   }
 
   if (stepNumber === 4) {
-    if (!data.contactName || !data.contactPhone || !data.seats || data.priceVal === '') {
+    if (!data.contactName || !data.contactPhone || !data.seats) {
       toast('נא להשלים פרטי קשר, מקומות ומחיר');
       return
     }
@@ -2239,14 +2916,14 @@ function nextAddStep(stepNumber) {
 function renderAddConfirm(data) {
   const tripLabel = data.tripType === 'to_airport' ? '🛫 נוסעים לשדה' : '🛬 חוזרים מהשדה'
   const airportLabel = data.airport === 'larnaca' ? 'לרנקה (LCA)' : 'פאפוס (PFO)'
-  const trunkLabel = data.trunkSpace ? 'עם תא מטען' : 'בלי תא מטען'
+  const trunkLabel = data.trunkSpace ? 'עם מזוודה' : 'בלי מזוודה'
   const dogsLabel = data.dogsAllowed ? 'עם כלבים' : 'בלי כלבים'
 
   document.getElementById('addConfirmCard').innerHTML = `
     <div class="info-row"><span class="info-label">כיוון</span><span>${tripLabel}</span></div>
     <div class="info-row"><span class="info-label">שדה</span><span>${airportLabel}</span></div>
     <div class="info-row"><span class="info-label">יעד/מוצא</span><span>${escapeHtml(data.dest)}</span></div>
-    <div class="info-row"><span class="info-label">תאריך ושעה</span><span>${data.date} ${escapeHtml(data.time)}</span></div>
+    <div class="info-row"><span class="info-label">תאריך ושעה</span><span>${escapeHtml(data.time)} ${data.date}</span></div>
     <div class="info-row"><span class="info-label">פרטי קשר</span><span>${escapeHtml(data.contactName)} • ${escapeHtml(data.contactPhone)}</span></div>
     <div class="info-row"><span class="info-label">מקומות</span><span>${data.seats}</span></div>
     <div class="info-row"><span class="info-label">מטען/כלבים</span><span>${trunkLabel} • ${dogsLabel}</span></div>
@@ -2296,24 +2973,212 @@ function showFinderStep(stepNumber) {
   document.querySelectorAll('#finderWizard .finder-step').forEach((step) => step.classList.remove('active'));
   document.getElementById(`finderStep${stepNumber}`).classList.add('active');
   updateWizardProgress('finderProgress', stepNumber, 4);
+  updateSideNavVisibility();
 }
 
 function openFinderDatePicker() {
-  const input = document.getElementById('finderDate');
-  if (input.showPicker) {
-    input.showPicker();
-  } else {
-    input.click();
-  }
+  openDatePickerModal({
+    title: 'בחרו תאריך לחיפוש',
+    targetInputId: 'finderDate',
+    onSave: () => updateFinderPickerLabels(),
+  });
 }
 
 function openFinderTimePicker() {
-  const input = document.getElementById('finderTime');
-  if (input.showPicker) {
-    input.showPicker();
-  } else {
-    input.click();
+  openTimePickerModal({
+    title: 'בחרו שעה לחיפוש',
+    targetInputId: 'finderTime',
+    onSave: () => updateFinderPickerLabels(),
+  });
+}
+
+function openAddTimePicker() {
+  openTimePickerModal({
+    title: 'בחרו שעת נסיעה',
+    targetInputId: 'addTime',
+  });
+}
+
+function openAddDatePicker() {
+  openDatePickerModal({
+    title: 'בחרו תאריך נסיעה',
+    targetInputId: 'addDate',
+    onSave: (iso) => {
+      const input = document.getElementById('addDate');
+      if (input) {
+        input.value = formatDate(iso);
+      }
+    },
+  });
+}
+
+let timePickerState = null;
+let datePickerState = null;
+
+function ensureTimePickerOptions() {
+  const hourSelect = document.getElementById('timePickerHour');
+  const minuteSelect = document.getElementById('timePickerMinute');
+  if (!hourSelect || !minuteSelect) return;
+  if (!hourSelect.options.length) {
+    for (let hour = 0; hour < 24; hour += 1) {
+      const hh = String(hour).padStart(2, '0');
+      hourSelect.add(new Option(hh, hh));
+    }
   }
+  if (!minuteSelect.options.length) {
+    for (let minute = 0; minute < 60; minute += 5) {
+      const mm = String(minute).padStart(2, '0');
+      minuteSelect.add(new Option(mm, mm));
+    }
+  }
+}
+
+function openTimePickerModal({ title = 'בחירת שעה', targetInputId, onSave } = {}) {
+  const modal = document.getElementById('timePickerModal');
+  const titleEl = document.getElementById('timePickerTitle');
+  const hourSelect = document.getElementById('timePickerHour');
+  const minuteSelect = document.getElementById('timePickerMinute');
+  const target = document.getElementById(targetInputId);
+  if (!modal || !target || !hourSelect || !minuteSelect) {
+    return;
+  }
+
+  ensureTimePickerOptions();
+  const current = String(target.value || '').trim();
+  const [currentHour = '08', currentMinuteRaw = '00'] = current.split(':');
+  const minuteRounded = String(Math.round(Number(currentMinuteRaw || 0) / 5) * 5).padStart(2, '0');
+
+  titleEl.textContent = title;
+  hourSelect.value = String(currentHour || '08').padStart(2, '0');
+  minuteSelect.value = Number(minuteRounded) >= 60 ? '55' : minuteRounded;
+  timePickerState = { targetInputId, onSave };
+  modal.classList.add('open');
+}
+
+function closeTimePickerModal(arg) {
+  const modal = document.getElementById('timePickerModal');
+  if (!modal) return;
+  if (arg && arg.target && arg.target !== modal) {
+    return;
+  }
+
+  const shouldSave = arg === true;
+  if (shouldSave && timePickerState?.targetInputId) {
+    const hourSelect = document.getElementById('timePickerHour');
+    const minuteSelect = document.getElementById('timePickerMinute');
+    const target = document.getElementById(timePickerState.targetInputId);
+    if (hourSelect && minuteSelect && target) {
+      const nextValue = `${hourSelect.value}:${minuteSelect.value}`;
+      target.value = nextValue;
+      if (typeof timePickerState.onSave === 'function') {
+        timePickerState.onSave(nextValue);
+      }
+    }
+  }
+
+  timePickerState = null;
+  modal.classList.remove('open');
+}
+
+function ensureDatePickerOptions() {
+  const daySelect = document.getElementById('datePickerDay');
+  const monthSelect = document.getElementById('datePickerMonth');
+  const yearSelect = document.getElementById('datePickerYear');
+  if (!daySelect || !monthSelect || !yearSelect) return;
+
+  if (!monthSelect.options.length) {
+    for (let month = 1; month <= 12; month += 1) {
+      const mm = String(month).padStart(2, '0');
+      monthSelect.add(new Option(mm, mm));
+    }
+  }
+  if (!yearSelect.options.length) {
+    const yearNow = new Date().getFullYear();
+    for (let year = yearNow; year <= yearNow + 2; year += 1) {
+      yearSelect.add(new Option(String(year), String(year)));
+    }
+  }
+}
+
+function refreshDatePickerDays() {
+  const daySelect = document.getElementById('datePickerDay');
+  const monthSelect = document.getElementById('datePickerMonth');
+  const yearSelect = document.getElementById('datePickerYear');
+  if (!daySelect || !monthSelect || !yearSelect) return;
+
+  const year = Number(yearSelect.value);
+  const month = Number(monthSelect.value);
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return;
+
+  const lastDay = new Date(year, month, 0).getDate();
+  const current = Number(daySelect.value || 1);
+  daySelect.innerHTML = '';
+  for (let day = 1; day <= lastDay; day += 1) {
+    const dd = String(day).padStart(2, '0');
+    daySelect.add(new Option(dd, dd));
+  }
+  daySelect.value = String(Math.min(current, lastDay)).padStart(2, '0');
+}
+
+function openDatePickerModal({ title = 'בחירת תאריך', targetInputId, onSave } = {}) {
+  const modal = document.getElementById('datePickerModal');
+  const titleEl = document.getElementById('datePickerTitle');
+  const daySelect = document.getElementById('datePickerDay');
+  const monthSelect = document.getElementById('datePickerMonth');
+  const yearSelect = document.getElementById('datePickerYear');
+  const target = document.getElementById(targetInputId);
+  if (!modal || !target || !daySelect || !monthSelect || !yearSelect) {
+    return;
+  }
+
+  ensureDatePickerOptions();
+  const currentIso = target.dataset.iso || target.value || isoTodayDate();
+  const baseIso = currentIso && /^\d{4}-\d{2}-\d{2}$/.test(currentIso) ? currentIso : isoTodayDate();
+  const [y, m, d] = baseIso.split('-');
+
+  titleEl.textContent = title;
+  yearSelect.value = y;
+  monthSelect.value = m;
+  refreshDatePickerDays();
+  daySelect.value = d;
+
+  monthSelect.onchange = refreshDatePickerDays;
+  yearSelect.onchange = refreshDatePickerDays;
+
+  datePickerState = { targetInputId, onSave };
+  modal.classList.add('open');
+}
+
+function closeDatePickerModal(arg) {
+  const modal = document.getElementById('datePickerModal');
+  if (!modal) return;
+  if (arg && arg.target && arg.target !== modal) {
+    return;
+  }
+
+  const shouldSave = arg === true;
+  if (shouldSave && datePickerState?.targetInputId) {
+    const day = document.getElementById('datePickerDay')?.value || '01';
+    const month = document.getElementById('datePickerMonth')?.value || '01';
+    const year = document.getElementById('datePickerYear')?.value || String(new Date().getFullYear());
+    const iso = `${year}-${month}-${day}`;
+    const clampedIso = iso < isoTodayDate() ? isoTodayDate() : iso;
+    const target = document.getElementById(datePickerState.targetInputId);
+    if (target) {
+      target.dataset.iso = clampedIso;
+      if (target.id === 'finderDate') {
+        target.value = clampedIso;
+      } else {
+        target.value = formatDate(clampedIso);
+      }
+    }
+    if (typeof datePickerState.onSave === 'function') {
+      datePickerState.onSave(clampedIso);
+    }
+  }
+
+  datePickerState = null;
+  modal.classList.remove('open');
 }
 
 function updateFinderPickerLabels() {
@@ -2347,6 +3212,11 @@ function applyFinderDateTime() {
     return;
   }
 
+  if (isDateTimeInPast(date, time)) {
+    showAppAlert(PAST_TIME_WARNING_MESSAGE);
+    return;
+  }
+
   finderState.date = date;
   finderState.time = time;
   showFinderStep(4);
@@ -2373,6 +3243,23 @@ function resetFinderSelection() {
 function goFindRide() {
   navigate('home');
   resetFinderSelection();
+}
+
+function handleHomeNavClick() {
+  if (STATE.role === 'passenger') {
+    goFindRide();
+    return;
+  }
+  goWelcome();
+}
+
+function goWelcome() {
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('entryScreen').classList.remove('hidden');
+  document.getElementById('entryScreen').classList.add('active');
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('hidden');
+  ensureEntryAnimationVisible();
 }
 
 function finderSummaryText() {
@@ -2430,9 +3317,66 @@ function applyRoleUi() {
   const app = document.getElementById('mainApp');
   if (!app) return;
   app.classList.toggle('driver-mode', STATE.role === 'driver');
-  const switchBtn = document.getElementById('switchToDriverBtn');
-  if (switchBtn) {
-    switchBtn.classList.toggle('hidden', STATE.role !== 'passenger');
+  app.classList.toggle('passenger-mode', STATE.role === 'passenger');
+  const navHome = document.getElementById('navHome');
+  const navHomeIcon = navHome?.querySelector('.icon');
+  const navHomeText = navHome?.querySelector('span:not(.icon)');
+  if (navHomeIcon) {
+    navHomeIcon.textContent = STATE.role === 'driver' ? '🏠' : '🚗';
+  }
+  if (navHomeText) {
+    navHomeText.textContent = STATE.role === 'driver' ? 'בית' : 'לחפש נסיעה';
+  }
+  document.querySelectorAll('.js-user-avatar-btn').forEach((btn) => {
+    btn.classList.toggle('hidden', STATE.role !== 'driver');
+  });
+  updateSideNavVisibility();
+}
+
+function sideStepNav(direction) {
+  const activeScreen = document.querySelector('#mainApp .screen.active')?.id;
+  if (activeScreen === 'homeScreen') {
+    if (direction === 'prev') {
+      goFinderPrevStep();
+    } else {
+      goFinderNextStep();
+    }
+    return;
+  }
+  if (activeScreen === 'addScreen') {
+    if (direction === 'prev') {
+      goAddPrevStep();
+    } else {
+      goAddNextStep();
+    }
+  }
+}
+
+function updateSideNavVisibility() {
+  const activeScreen = document.querySelector('#mainApp .screen.active')?.id;
+  const homeNav = document.getElementById('homeSideNav');
+  const addNav = document.getElementById('addSideNav');
+
+  if (homeNav) homeNav.classList.add('hidden');
+  if (addNav) addNav.classList.add('hidden');
+
+  if (activeScreen === 'homeScreen') {
+    const current = currentFinderStepNumber();
+    const prev = document.getElementById('homeSidePrev');
+    const next = document.getElementById('homeSideNext');
+    if (homeNav) homeNav.classList.remove('hidden');
+    if (prev) prev.classList.toggle('hidden', current <= 1);
+    if (next) next.classList.toggle('hidden', current >= 4);
+    return;
+  }
+
+  if (activeScreen === 'addScreen' && STATE.role === 'driver') {
+    const current = currentAddStepNumber();
+    const prev = document.getElementById('addSidePrev');
+    const next = document.getElementById('addSideNext');
+    if (addNav) addNav.classList.remove('hidden');
+    if (prev) prev.classList.toggle('hidden', current <= 1);
+    if (next) next.classList.toggle('hidden', current >= 4);
   }
 }
 
@@ -2518,14 +3462,7 @@ function enterApp({ firstEntry = false, targetScreen = 'home' } = {}) {
 }
 
 function clearDriverVerificationCache() {
-  const keysToDelete = [];
-  for (let index = 0; index < localStorage.length; index += 1) {
-    const key = localStorage.key(index);
-    if (key && key.startsWith('cy_driver_verified_')) {
-      keysToDelete.push(key);
-    }
-  }
-  keysToDelete.forEach((key) => localStorage.removeItem(key));
+  localStorage.removeItem('cy_driver_phone');
 }
 
 function logout() {
@@ -2545,7 +3482,13 @@ function logout() {
 }
 
 function navigate(screen) {
+  if (screen === 'profile' && STATE.role !== 'driver') {
+    screen = 'home';
+  }
   if (screen === 'myrides' && STATE.role !== 'driver') {
+    screen = 'home';
+  }
+  if (screen === 'available' && STATE.role !== 'passenger') {
     screen = 'home';
   }
   document.querySelectorAll('#mainApp .screen').forEach(s => s.classList.remove('active'));
@@ -2565,92 +3508,75 @@ function navigate(screen) {
   if (screen === 'myrides') {
     renderMyRides();
   }
+  if (screen === 'available') {
+    renderAvailableRides();
+  }
+  updateSideNavVisibility();
 }
 
-function goProfile() { navigate('profile'); }
+function goProfile() {
+  if (STATE.role !== 'driver') {
+    return;
+  }
+  navigate('profile');
+}
 
 function normalizePhone(phone) {
   return String(phone || '').replace(/[^\d+]/g, '');
 }
 
-function driverVerifiedKey(phone) {
-  return `cy_driver_verified_${normalizePhone(phone)}`;
-}
-
-function isDriverPhoneVerified(phone) {
-  const raw = localStorage.getItem(driverVerifiedKey(phone));
-  if (!raw) return false;
-  const expiresAt = Number(raw);
-  if (!Number.isFinite(expiresAt) || Date.now() > expiresAt) {
-    localStorage.removeItem(driverVerifiedKey(phone));
-    return false;
-  }
-  return true;
-}
-
-function markDriverPhoneVerified(phone, ttlSeconds = 60 * 60 * 24 * 7) {
-  const expiresAt = Date.now() + ttlSeconds * 1000;
-  localStorage.setItem(driverVerifiedKey(phone), String(expiresAt));
-  STATE.driverPhone = normalizePhone(phone);
-  localStorage.setItem('cy_driver_phone', STATE.driverPhone);
-}
-
 let otpModalResolver = null;
-let otpAutofillAbortController = null;
+let otpModalState = null;
 
-async function startOtpAutofill() {
-  const input = document.getElementById('otpInput');
-  if (!window.isSecureContext || !('OTPCredential' in window) || !navigator.credentials?.get || !input) {
-    return;
-  }
-
-  otpAutofillAbortController = new AbortController();
-
-  try {
-    const otpCredential = await navigator.credentials.get({
-      otp: { transport: ['sms'] },
-      signal: otpAutofillAbortController.signal,
-    });
-
-    if (!otpCredential?.code) {
-      return;
-    }
-
-    input.value = String(otpCredential.code).trim();
-    closeOtpModal(true);
-  } catch {
-    // silently ignore when API not supported, canceled, or times out
-  }
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
 }
 
-function openOtpModal({ subtitle = '', devCode = '' } = {}) {
+function openOtpModal({ subtitle = '', contactName = '', contactPhone = '', email = '' } = {}) {
   const modal = document.getElementById('otpModal');
+  const codeModal = document.getElementById('otpCodeModal');
   const subtitleEl = document.getElementById('otpSubtitle');
-  const input = document.getElementById('otpInput');
-  const devCodeEl = document.getElementById('otpDevCode');
+  const nameEl = document.getElementById('otpContactName');
+  const phoneEl = document.getElementById('otpContactPhone');
+  const emailInput = document.getElementById('otpEmailInput');
+  const codeInput = document.getElementById('otpCodeInput');
 
   subtitleEl.textContent = subtitle;
-  devCodeEl.textContent = devCode ? `קוד בדיקה זמני: ${devCode}` : '';
-  input.value = '';
+  nameEl.textContent = contactName || '-';
+  phoneEl.textContent = contactPhone || '-';
+  emailInput.value = email;
+  if (codeInput) {
+    codeInput.value = '';
+  }
+  if (codeModal) {
+    codeModal.classList.remove('open');
+  }
   modal.classList.add('open');
 
-  setTimeout(() => input.focus(), 30);
-  startOtpAutofill();
+  otpModalState = {
+    contactName: String(contactName || '').trim(),
+    contactPhone: String(contactPhone || '').trim(),
+    email: normalizeEmail(email),
+    codeSent: false,
+  };
+
+  setTimeout(() => emailInput.focus(), 30);
 
   return new Promise((resolve) => {
     otpModalResolver = resolve;
   });
 }
 
-function closeOtpModal(confirm) {
+function finalizeOtpFlow(confirm) {
   const modal = document.getElementById('otpModal');
-  const input = document.getElementById('otpInput');
-  modal.classList.remove('open');
-
-  if (otpAutofillAbortController) {
-    otpAutofillAbortController.abort();
-    otpAutofillAbortController = null;
+  const codeModal = document.getElementById('otpCodeModal');
+  if (modal) {
+    modal.classList.remove('open');
   }
+  if (codeModal) {
+    codeModal.classList.remove('open');
+  }
+  otpModalState = null;
 
   if (!otpModalResolver) {
     return;
@@ -2658,39 +3584,119 @@ function closeOtpModal(confirm) {
 
   const resolve = otpModalResolver;
   otpModalResolver = null;
-  resolve(confirm ? input.value.trim() : '');
+  resolve(confirm ? true : false);
 }
 
-async function ensureDriverOtpVerified(phone) {
-  if (isDriverPhoneVerified(phone)) {
+function closeOtpModal(confirm) {
+  if (confirm) {
+    finalizeOtpFlow(true);
+    return;
+  }
+  finalizeOtpFlow(false);
+}
+
+function openOtpCodeModal(email) {
+  const modal = document.getElementById('otpModal');
+  const codeModal = document.getElementById('otpCodeModal');
+  const subtitleEl = document.getElementById('otpCodeSubtitle');
+  const codeInput = document.getElementById('otpCodeInput');
+
+  modal.classList.remove('open');
+  subtitleEl.textContent = `הקוד נשלח ל־${email}. הזינו קוד חד-פעמי להמשך פרסום.`;
+  codeInput.value = '';
+  codeModal.classList.add('open');
+  setTimeout(() => codeInput.focus(), 30);
+}
+
+function closeOtpCodeModal(confirm) {
+  if (confirm) {
+    finalizeOtpFlow(true);
+    return;
+  }
+  finalizeOtpFlow(false);
+}
+
+async function sendEmailVerifyCode() {
+  if (!otpModalState) {
+    return;
+  }
+
+  const emailInput = document.getElementById('otpEmailInput');
+  const email = normalizeEmail(emailInput?.value);
+  if (!email || !email.includes('@')) {
+    toast('נא להזין כתובת אימייל תקינה');
+    return;
+  }
+
+  try {
+    await apiPost('/api/driver/email/send-code', {
+      name: otpModalState.contactName,
+      phone: otpModalState.contactPhone,
+      email,
+    });
+    otpModalState.email = email;
+    otpModalState.codeSent = true;
+    openOtpCodeModal(email);
+    toast('קוד אימות נשלח לאימייל ✅');
+  } catch (err) {
+    toast(`שגיאה בשליחת קוד: ${err.message}`);
+  }
+}
+
+async function confirmEmailVerification() {
+  if (!otpModalState) {
+    return;
+  }
+  if (!otpModalState.codeSent) {
+    toast('יש לשלוח קודם קוד אימות לאימייל');
+    return;
+  }
+
+  const code = String(document.getElementById('otpCodeInput')?.value || '').trim();
+  if (!/^\d{4}$/.test(code)) {
+    toast('נא להזין קוד בן 4 ספרות');
+    return;
+  }
+
+  try {
+    const data = await apiPost('/api/driver/email/verify-code', {
+      email: otpModalState.email,
+      code,
+    });
+
+    storePublishSession({
+      token: data.token,
+      ttlSeconds: data.ttlSeconds,
+      name: data.name || otpModalState.contactName,
+      phone: data.phone || otpModalState.contactPhone,
+    });
+    STATE.driverPhone = normalizePhone(data.phone || otpModalState.contactPhone);
+    localStorage.setItem('cy_driver_phone', STATE.driverPhone);
+    toast('האימות הצליח ✅');
+    closeOtpCodeModal(true);
+  } catch (err) {
+    toast(`קוד לא תקין: ${err.message}`);
+  }
+}
+
+async function ensureFirstPublishEmailVerified({ name, phone }) {
+  const existingToken = getStoredPublishSessionToken();
+  if (existingToken) {
     return true;
   }
 
-  const sendData = await apiPost('/api/driver/send-code', { phone });
-  if (sendData.smsSent) {
-    toast('שלחנו קוד אימות חד פעמי למכשיר הזה. הזינו אותו כדי לפרסם נסיעה.');
-  } else {
-    toast('SMS לא הוגדר עדיין. מוצג קוד בדיקה חד פעמי למכשיר זה.');
-  }
-
-  const code = await openOtpModal({
-    subtitle: sendData.smsSent ? 'שלחנו קוד חד פעמי למכשיר הזה בטלפון שהזנת' : 'מצב בדיקה: השתמשו בקוד הזמני החד פעמי למכשיר',
-    devCode: sendData.devCode || '',
+  const ok = await openOtpModal({
+    subtitle: 'לפני פרסום ראשון צריך אימות אימייל חד-פעמי',
+    contactName: String(name || '').trim(),
+    contactPhone: String(phone || '').trim(),
   });
-  if (!code) {
+
+  if (!ok) {
     toast('האימות בוטל.');
     return false;
   }
 
-  const data = await apiPost('/api/driver/verify-code', {
-    phone,
-    code: String(code).trim(),
-  });
-
-  const deviceRememberSeconds = 60 * 60 * 24 * 365 * 5;
-  markDriverPhoneVerified(phone, Math.max(Number(data.ttlSeconds || 0), deviceRememberSeconds));
-  toast('האימות הצליח ✅');
-  return true;
+  return !!getStoredPublishSessionToken();
 }
 
 async function fetchRidesFromApi() {
@@ -2709,26 +3715,133 @@ async function fetchRidesFromApi() {
   return STATE.rides;
 }
 
+async function fetchAvailableRidesByDate(date) {
+  const requests = [
+    apiGet(`/api/rides?tripType=from_airport&airport=larnaca&date=${encodeURIComponent(date)}`),
+    apiGet(`/api/rides?tripType=from_airport&airport=paphos&date=${encodeURIComponent(date)}`),
+    apiGet(`/api/rides?tripType=to_airport&airport=larnaca&date=${encodeURIComponent(date)}`),
+    apiGet(`/api/rides?tripType=to_airport&airport=paphos&date=${encodeURIComponent(date)}`),
+  ];
+
+  const settled = await Promise.allSettled(requests);
+  const ridesById = new Map();
+
+  settled.forEach((entry) => {
+    if (entry.status !== 'fulfilled') {
+      return;
+    }
+    const rides = Array.isArray(entry.value?.rides) ? entry.value.rides : [];
+    rides.forEach((ride) => {
+      ridesById.set(Number(ride.id), ride);
+    });
+  });
+
+  return Array.from(ridesById.values()).sort((a, b) => (a.time > b.time ? 1 : -1));
+}
+
+async function renderAvailableRides() {
+  const dateInput = document.getElementById('availableDate');
+  const summary = document.getElementById('availableSummary');
+  const container = document.getElementById('availableRidesList');
+  const prevBtn = document.getElementById('availablePrevBtn');
+  if (!dateInput || !summary || !container) return;
+
+  const today = isoTodayDate();
+  const requestedDate = STATE.availableDate || dateInput.value || today;
+  const date = requestedDate < today ? today : requestedDate;
+  STATE.availableDate = date;
+  dateInput.min = today;
+  dateInput.value = date;
+  if (prevBtn) {
+    prevBtn.disabled = date <= today;
+  }
+  summary.textContent = `נסיעות זמינות ליום ${formatDate(date)}`;
+  container.innerHTML = '<div class="empty-state"><span class="emoji">⏳</span><p>טוען נסיעות...</p></div>';
+
+  let rides = [];
+  try {
+    rides = await fetchAvailableRidesByDate(date);
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><span class="emoji">⚠️</span><p>${escapeHtml(err.message || 'שגיאה בטעינת נסיעות')}</p></div>`;
+    return;
+  }
+
+  if (!rides.length) {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">🗓️</span><p>לא נמצאו נסיעות ליום הזה</p></div>';
+    return;
+  }
+
+  STATE.rides = rides;
+
+  container.innerHTML = rides.map((r) => {
+    const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
+    const tripClass = r.tripType === 'to_airport' ? 'trip-to' : 'trip-from';
+    const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
+    const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
+    const tripTypeLine = r.tripType === 'to_airport' ? 'נסיעה לשדה' : 'חזרה מהשדה';
+    const isPastRide = isRidePast(r);
+    const trunkHtml = r.trunkSpace
+      ? '<span class="trunk-badge yes">🧳 עם מזוודה</span>'
+      : '<span class="trunk-badge no">🚫 בלי מזוודה</span>';
+    const dogsHtml = r.dogsAllowed
+      ? '<span class="dogs-badge yes">🐶 עם כלבים</span>'
+      : '<span class="dogs-badge no">🚫 בלי כלבים</span>';
+
+    return `
+      <div class="ride-card ${isPastRide ? 'past-ride' : ''}" onclick="openContact(${r.id})">
+        <div class="ride-header">
+          <span class="airport-badge ${tripClass}">${tripTypeLine}</span>
+          <span class="seats-badge">👥 ${seatsAvailableLabel(r.seats)}</span>
+        </div>
+        <div class="ride-dest route-flow"><span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span></div>
+        <div class="ride-meta">
+          <span>🕐 ${escapeHtml(r.time)}</span>
+          <span>${trunkHtml}</span>
+          <span>${dogsHtml}</span>
+        </div>
+        <div class="ride-footer">
+          <span class="price-tag">€${r.price}</span>
+          <div class="driver-info">
+            <div class="driver-avatar">${escapeHtml((r.driver || '?').charAt(0))}</div>
+            <span>${escapeHtml(r.driver)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function shiftAvailableDate(deltaDays) {
+  const base = STATE.availableDate || isoTodayDate();
+  const dateObj = new Date(`${base}T00:00:00`);
+  dateObj.setDate(dateObj.getDate() + deltaDays);
+  const nextRaw = toLocalIsoDate(dateObj);
+  const today = isoTodayDate();
+  const next = nextRaw < today ? today : nextRaw;
+  setAvailableDate(next);
+}
+
+function setAvailableDate(date) {
+  if (!date) return;
+  const today = isoTodayDate();
+  STATE.availableDate = date < today ? today : date;
+  renderAvailableRides();
+}
+
 async function fetchMyRides() {
   const fallbackPhone = normalizePhone(document.getElementById('addContactPhone')?.value || '');
   const profilePhone = normalizePhone(STATE.currentUser?.phone || '');
   let phone = STATE.driverPhone || profilePhone || fallbackPhone;
 
   if (!phone) {
-    const entered = window.prompt('הזינו מספר טלפון של הנהג כדי לטעון נסיעות');
-    phone = normalizePhone(entered || '');
-    if (phone) {
-      STATE.driverPhone = phone;
-      localStorage.setItem('cy_driver_phone', phone);
-    }
+    return { rides: [], missingPhone: true };
   }
 
-  if (!phone) {
-    return [];
-  }
+  STATE.driverPhone = phone;
+  localStorage.setItem('cy_driver_phone', phone);
 
   const data = await apiGet(`/api/rides/mine?phone=${encodeURIComponent(phone)}`);
-  return Array.isArray(data.rides) ? data.rides : [];
+  return { rides: Array.isArray(data.rides) ? data.rides : [], missingPhone: false };
 }
 
 async function renderMyRides() {
@@ -2742,11 +3855,19 @@ async function renderMyRides() {
 
   container.innerHTML = '<div class="empty-state"><span class="emoji">⏳</span><p>טוען נסיעות שלך...</p></div>';
   let rides = [];
+  let missingPhone = false;
 
   try {
-    rides = await fetchMyRides();
+    const data = await fetchMyRides();
+    rides = data.rides;
+    missingPhone = data.missingPhone;
   } catch (err) {
     container.innerHTML = `<div class="empty-state"><span class="emoji">⚠️</span><p>${escapeHtml(err.message || 'שגיאה בטעינת נסיעות')}</p></div>`;
+    return;
+  }
+
+  if (missingPhone) {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">📱</span><p>פרטי איש הקשר נשמרים במכשיר לאחר אימות ראשון.<br>אפשר לפרסם נסיעה חדשה בלי אימות חוזר.</p></div>';
     return;
   }
 
@@ -2760,19 +3881,21 @@ async function renderMyRides() {
   container.innerHTML = rides.map((r) => {
     const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
     const tripTypeLine = r.tripType === 'to_airport' ? '🛫 נסיעה לשדה' : '🛬 חזרה מהשדה';
+    const tripClass = r.tripType === 'to_airport' ? 'trip-to' : 'trip-from';
+    const isPast = isRidePast(r);
     const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
     const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
     const dateStr = formatDate(r.date);
     return `
-      <div class="ride-card">
+      <div class="ride-card ${isPast ? 'past-ride' : ''}">
         <div class="ride-header">
-          <span class="airport-badge ${r.airport === 'larnaca' ? 'larnaca' : 'paphos'}">${tripTypeLine}</span>
-          <span class="seats-badge">👥 ${r.seats} מקומות</span>
+          <span class="airport-badge ${tripClass}">${tripTypeLine}</span>
+          <span class="seats-badge">👥 ${seatsAvailableLabel(r.seats)}</span>
         </div>
         <div class="ride-dest route-flow"><span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span></div>
         <div class="ride-meta">
-          <span>📅 ${dateStr}</span>
           <span>🕐 ${escapeHtml(r.time)}</span>
+          <span>📅 ${dateStr}</span>
           <span>💶 €${r.price}</span>
         </div>
         <div class="my-ride-actions">
@@ -2816,7 +3939,7 @@ function openEditRideModal(ride, phone) {
   const trunkInput = document.getElementById('editRideTrunkSpace');
   const trunkBtn = document.getElementById('editRideTrunkBtn');
   trunkInput.value = ride?.trunkSpace ? 'yes' : 'no';
-  trunkBtn.textContent = trunkInput.value === 'yes' ? '🧳 עם תא מטען' : '🚫 בלי תא מטען';
+  trunkBtn.textContent = trunkInput.value === 'yes' ? '🧳 עם מזוודה' : '🚫 בלי מזוודה';
   trunkBtn.classList.toggle('active', trunkInput.value === 'yes');
 
   const dogsInput = document.getElementById('editRideDogsAllowed');
@@ -2902,6 +4025,7 @@ async function submitEditRide() {
     });
     STATE.driverPhone = normalizePhone(contactPhone);
     localStorage.setItem('cy_driver_phone', STATE.driverPhone);
+    await persistDriverProfileFromRide(driver, contactPhone);
     closeEditRideModal();
     toast('הנסיעה עודכנה ✅');
     await renderMyRides();
@@ -2965,7 +4089,8 @@ async function renderRides() {
 
   container.innerHTML = rides.map(r => {
     const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
-    const airportClass = r.airport === 'larnaca' ? 'larnaca' : 'paphos';
+    const tripClass = r.tripType === 'to_airport' ? 'trip-to' : 'trip-from';
+    const isPast = isRidePast(r);
     const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
     const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
     const routeLine = r.tripType === 'to_airport'
@@ -2979,8 +4104,8 @@ async function renderRides() {
     const trunkSpace = r.trunkSpace === true;
     const dogsAllowed = r.dogsAllowed === true;
     const trunkHtml = trunkSpace
-      ? '<span class="trunk-badge yes">🧳 יש מקום</span>'
-      : '<span class="trunk-badge no">🚫 ללא תא מטען</span>';
+      ? '<span class="trunk-badge yes">🧳 עם מזוודה</span>'
+      : '<span class="trunk-badge no">🚫 בלי מזוודה</span>';
     const dogsHtml = dogsAllowed
       ? '<span class="dogs-badge yes">🐶 עם כלבים</span>'
       : '<span class="dogs-badge no">🚫 בלי כלבים</span>';
@@ -2989,15 +4114,15 @@ async function renderRides() {
       : escapeHtml((r.driver || '?').charAt(0));
 
     return `
-      <div class="ride-card" onclick="openContact(${r.id})">
+      <div class="ride-card ${isPast ? 'past-ride' : ''}" onclick="openContact(${r.id})">
         <div class="ride-header">
-          <span class="airport-badge ${airportClass}">${tripTypeLine}</span>
-          <span class="seats-badge">👥 ${r.seats} מקומות</span>
+          <span class="airport-badge ${tripClass}">${tripTypeLine}</span>
+          <span class="seats-badge">👥 ${seatsAvailableLabel(r.seats)}</span>
         </div>
         <div class="ride-dest route-flow">${routeLine}</div>
         <div class="ride-meta">
-          <span>📅 ${dateStr}</span>
           <span>🕐 ${escapeHtml(r.time)}</span>
+          <span>📅 ${dateStr}</span>
           <span>${trunkHtml}</span>
           <span>${dogsHtml}</span>
         </div>
@@ -3016,8 +4141,10 @@ async function renderRides() {
 function formatDate(d) {
   const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
   const dt = new Date(d + 'T00:00:00');
-  const today = new Date().toISOString().split('T')[0];
-  const tom = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+  const today = isoTodayDate();
+  const tomorrowDateObj = new Date();
+  tomorrowDateObj.setDate(tomorrowDateObj.getDate() + 1);
+  const tom = toLocalIsoDate(tomorrowDateObj);
   if (d === today) return 'היום';
   if (d === tom) return 'מחר';
   const [y, m, day] = d.split('-');
@@ -3028,14 +4155,23 @@ async function addRide() {
   const user = getCurrentUser();
   const data = getAddFormData();
 
-  if (!data.contactName || !data.contactPhone || !data.tripType || !data.airport || !data.date || !data.time || !data.dest || data.priceVal === '') {
+  if (!data.contactName || !data.contactPhone || !data.tripType || !data.airport || !data.date || !data.time || !data.dest) {
     toast('נא למלא את כל שדות החובה ⚠️');
     return;
   }
 
   try {
-    const ok = await ensureDriverOtpVerified(data.contactPhone);
+    const ok = await ensureFirstPublishEmailVerified({
+      name: data.contactName,
+      phone: data.contactPhone,
+    });
     if (!ok) return;
+
+    const publishSessionToken = getStoredPublishSessionToken();
+    if (!publishSessionToken) {
+      toast('נדרש אימות אימייל לפני פרסום הנסיעה');
+      return;
+    }
 
     await apiPost('/api/rides', {
       driver: data.contactName,
@@ -3049,12 +4185,17 @@ async function addRide() {
       trunkSpace: data.trunkSpace,
       dogsAllowed: data.dogsAllowed,
       price: data.price,
+      publishSessionToken,
       uid: user?.username || 'guest',
       driverAvatar: user?.avatarDataUrl || '',
     });
 
+    STATE.driverPhone = normalizePhone(data.contactPhone);
+    localStorage.setItem('cy_driver_phone', STATE.driverPhone);
+    await persistDriverProfileFromRide(data.contactName, data.contactPhone);
+
     toast('הנסיעה פורסמה בהצלחה! 🎉');
-    navigate('home');
+    navigate('myrides');
     resetAddWizard();
     renderRides();
   } catch (err) {
@@ -3068,52 +4209,101 @@ function renderProfile() {
 
   document.getElementById('profileAvatarLetter').innerHTML = avatarMarkup(user, 80);
   document.getElementById('profileName').textContent = user.name;
-  document.getElementById('profileUsername').textContent = user.username;
-  document.getElementById('profileLocation').querySelector('span').textContent = user.address;
+  document.getElementById('profileFullName').textContent = user.name;
   document.getElementById('profilePhone').textContent = user.phone;
-  document.getElementById('profileAddress').textContent = user.address;
-  document.getElementById('profileEditUsername').value = user.username || '';
-  document.getElementById('profileEditName').value = user.name || '';
-  document.getElementById('profileEditPhone').value = user.phone || '';
-  document.getElementById('profileEditAddress').value = user.address || '';
+  document.getElementById('profileInlineName').value = user.name || '';
+  document.getElementById('profileInlinePhone').value = user.phone || '';
+  resetInlineProfileEdit();
   renderHeaderAvatar();
 }
 
-function openProfileEditModal() {
-  renderProfile();
-  document.getElementById('profileEditModal').classList.add('open');
+const profileInlineState = {
+  field: null,
+};
+
+function showProfileInlineMsg(message, isError = false) {
+  const messageEl = document.getElementById('profileInlineMsg');
+  if (!messageEl) return;
+  messageEl.textContent = message;
+  messageEl.classList.remove('hidden', 'error');
+  if (isError) {
+    messageEl.classList.add('error');
+  }
 }
 
-function closeProfileEditModal(event) {
-  if (event && event.target !== document.getElementById('profileEditModal')) {
+function resetInlineProfileEdit() {
+  profileInlineState.field = null;
+  document.getElementById('profileRowName')?.classList.remove('editing');
+  document.getElementById('profileRowPhone')?.classList.remove('editing');
+  document.getElementById('profileInlineName')?.classList.add('hidden');
+  document.getElementById('profileInlinePhone')?.classList.add('hidden');
+  document.getElementById('profileFullName')?.classList.remove('hidden');
+  document.getElementById('profilePhone')?.classList.remove('hidden');
+  document.getElementById('profileInlineActions')?.classList.add('hidden');
+}
+
+function startInlineProfileEdit(field) {
+  if (STATE.role !== 'driver') {
     return;
   }
-  document.getElementById('profileEditModal').classList.remove('open');
+  resetInlineProfileEdit();
+  profileInlineState.field = field;
+
+  const rowName = document.getElementById('profileRowName');
+  const rowPhone = document.getElementById('profileRowPhone');
+  const nameValue = document.getElementById('profileFullName');
+  const phoneValue = document.getElementById('profilePhone');
+  const nameInput = document.getElementById('profileInlineName');
+  const phoneInput = document.getElementById('profileInlinePhone');
+
+  if (field === 'name') {
+    rowName?.classList.add('editing');
+    nameValue?.classList.add('hidden');
+    nameInput?.classList.remove('hidden');
+    nameInput?.focus();
+  }
+
+  if (field === 'phone') {
+    rowPhone?.classList.add('editing');
+    phoneValue?.classList.add('hidden');
+    phoneInput?.classList.remove('hidden');
+    phoneInput?.focus();
+  }
+
+  document.getElementById('profileInlineActions')?.classList.remove('hidden');
+  document.getElementById('profileInlineMsg')?.classList.add('hidden');
 }
 
-async function saveProfile() {
+function cancelInlineProfileEdit() {
+  const user = getCurrentUser();
+  if (!user) return;
+  document.getElementById('profileInlineName').value = user.name || '';
+  document.getElementById('profileInlinePhone').value = user.phone || '';
+  resetInlineProfileEdit();
+  document.getElementById('profileInlineMsg')?.classList.add('hidden');
+}
+
+async function saveInlineProfileEdit() {
   const user = getCurrentUser();
   if (!user || user.username === 'guest') {
-    toast('כדי לערוך פרופיל צריך להתחבר עם משתמש רשום');
+    showProfileInlineMsg('כדי לערוך פרופיל צריך להתחבר עם משתמש רשום', true);
     return;
   }
 
-  const username = document.getElementById('profileEditUsername').value.trim();
-  const name = document.getElementById('profileEditName').value.trim();
-  const phone = document.getElementById('profileEditPhone').value.trim();
-  const address = document.getElementById('profileEditAddress').value.trim();
-  if (!username || !name || !phone || !address) {
-    toast('נא להזין שם משתמש, שם, טלפון וכתובת');
+  const name = document.getElementById('profileInlineName').value.trim();
+  const phone = document.getElementById('profileInlinePhone').value.trim();
+  if (!name || !phone) {
+    showProfileInlineMsg('נא להזין שם מלא וטלפון', true);
     return;
   }
 
   try {
     const data = await apiPost('/api/user/profile', {
       currentUsername: user.username,
-      username,
+      username: user.username,
       name,
       phone,
-      address,
+      address: user.address || '',
     });
 
     const previousUsername = user.username;
@@ -3124,13 +4314,49 @@ async function saveProfile() {
     if (previousUsername && previousUsername !== data.user.username) {
       localStorage.removeItem(profileSetupKey(previousUsername));
     }
-    closeProfileEditModal();
     renderProfile();
     syncAddDefaultsFromProfile();
-    toast('הפרופיל עודכן ✅');
+    showProfileInlineMsg('הפרופיל עודכן ✅');
   } catch (err) {
-    toast(`שגיאה בעדכון פרופיל: ${err.message}`);
+    showProfileInlineMsg(`שגיאה בעדכון פרופיל: ${err.message}`, true);
   }
+}
+
+async function saveProfile() {
+  return saveInlineProfileEdit();
+}
+
+async function persistDriverProfileFromRide(name, phone) {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const nextName = String(name || '').trim();
+  const nextPhone = String(phone || '').trim();
+  if (!nextName || !nextPhone) return;
+
+  STATE.currentUser = {
+    ...user,
+    name: nextName,
+    phone: nextPhone,
+  };
+
+  if (user.username && user.username !== 'guest') {
+    try {
+      const data = await apiPost('/api/user/profile', {
+        currentUsername: user.username,
+        username: user.username,
+        name: nextName,
+        phone: nextPhone,
+        address: user.address || '',
+      });
+      STATE.currentUser = data.user;
+    } catch {
+      // keep local profile fallback
+    }
+  }
+
+  renderProfile();
+  syncAddDefaultsFromProfile();
 }
 
 async function uploadAvatar(event) {
@@ -3171,6 +4397,10 @@ async function uploadAvatar(event) {
 function openContact(rideId) {
   const ride = STATE.rides.find(r => r.id === rideId);
   if (!ride) return;
+  if (isRidePast(ride)) {
+    showAppAlert('חלף המועד של הנסיעה הזאת. נא לבחור נסיעה עדכנית.');
+    return;
+  }
   const airportLabel = ride.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
   const rideRoute = ride.tripType === 'to_airport'
     ? `${ride.dest} ← שדה ${airportLabel}`
@@ -3181,7 +4411,7 @@ function openContact(rideId) {
 
   document.getElementById('modalInfo').innerHTML = `
     <div style="font-size:16px;font-weight:700;margin-bottom:6px;">${tripKind}: ${escapeHtml(rideRoute)}</div>
-    <div style="font-size:13px;color:var(--muted);">📅 ${dateStr} | 🕐 ${escapeHtml(ride.time)} | 👥 ${ride.seats} מקומות | 💰 ${priceText}</div>
+    <div style="font-size:13px;color:var(--muted);">🕐 ${escapeHtml(ride.time)} | 📅 ${dateStr} | 👥 ${seatsAvailableLabel(ride.seats)} | 💰 ${priceText}</div>
     <div style="font-size:13px;margin-top:6px;">🚗 נהג: <strong>${escapeHtml(ride.driver)}</strong></div>
   `;
 
@@ -3203,6 +4433,25 @@ function closeModal(e) {
   if (!e || e.target === document.getElementById('contactModal')) {
     document.getElementById('contactModal').classList.remove('open');
   }
+}
+
+function seatsAvailableLabel(value) {
+  const seats = Number(value);
+  if (!Number.isFinite(seats) || seats <= 0) {
+    return '0 מקומות פנויים';
+  }
+  if (seats === 1) {
+    return '1 מקום פנוי';
+  }
+  return `${seats} מקומות פנויים`;
+}
+
+function isRidePast(ride) {
+  const rideDate = String(ride?.date || '').trim();
+  const rideTime = String(ride?.time || '').trim();
+  if (!rideDate || !rideTime) return false;
+  const rideDateTime = new Date(`${rideDate}T${rideTime}:00`);
+  return Number.isFinite(rideDateTime.getTime()) && rideDateTime.getTime() < Date.now();
 }
 
 let acCounter = 0;
@@ -3240,7 +4489,73 @@ const CYPRUS_LOCAL_PLACES = [
   'פרוטאראס',
   'פוליס',
   'דריניה',
-  'פאראלימני'
+  'פאראלימני',
+  'Nicosia',
+  'Limassol',
+  'Larnaca',
+  'Paphos',
+  'Nicosia, City Center',
+  'Nicosia, Old City',
+  'Limassol, City Center',
+  'Larnaca, City Center',
+  'Paphos, City Center',
+  'Paphos, Peyia',
+  'Paphos, Kissonerga',
+  'Paphos, Konia',
+  'Paphos, Tsada',
+  'Paphos, Polemi',
+  'Larnaca, Aradippou',
+  'Larnaca, Oroklini',
+  'Larnaca, Pyla',
+  'Limassol, Ypsonas',
+  'Limassol, Kolossi',
+  'Aglantzia',
+  'Lakatamia',
+  'Ayios Tychonas',
+  'Kiti Village',
+  'Peyia Village',
+  'Tala Village',
+  'Kissonerga Village',
+  'Tsada Village',
+  'Polemi Village',
+  'Stroumpi Village',
+  'Kathikas Village',
+  'Omodos Village',
+  'Platres Village',
+  'Lefkara Village',
+  'ניקוסיה',
+  'לימסול',
+  'לרנקה',
+  'פאפוס',
+  'ניקוסיה, מרכז העיר',
+  'ניקוסיה, העיר העתיקה',
+  'לימסול, מרכז העיר',
+  'לרנקה, מרכז העיר',
+  'פאפוס, מרכז העיר',
+  'פאפוס, פייה',
+  'פאפוס, קיסונרגה',
+  'פאפוס, קוניה',
+  'פאפוס, צדה',
+  'פאפוס, פולמי',
+  'לרנקה, אראדיפו',
+  'לרנקה, אורוקליני',
+  'לרנקה, פילה',
+  'לימסול, איפסונס',
+  'לימסול, קולוסי',
+  'אגלנדזיה',
+  'לקטמיה',
+  'אגיוס טיכונס',
+  'כפר קיטי',
+  'כפר פייה',
+  'כפר טלה',
+  'כפר קיסונרגה',
+  'כפר צדה',
+  'כפר פולמי',
+  'כפר סטרומפי',
+  'כפר קתיקאס',
+  'כפר אומודוס',
+  'כפר פלטראס',
+  'כפר לפקרה'
 ];
 
 function normalizePlaceText(value) {
@@ -3330,7 +4645,12 @@ async function restoreSession() {
   }
 }
 
-document.getElementById('addDate').value = new Date().toISOString().split('T')[0];
+const addDateInputEl = document.getElementById('addDate');
+if (addDateInputEl) {
+  const todayIso = isoTodayDate();
+  addDateInputEl.dataset.iso = todayIso;
+  addDateInputEl.value = formatDate(todayIso);
+}
 document.getElementById('otpInput').addEventListener('keydown', (event) => {
   if (event.key === 'Enter') {
     closeOtpModal(true);
@@ -3343,7 +4663,7 @@ updateWizardProgress('finderProgress', 1, 4);
 updateWizardProgress('addProgress', 1, 4);
 setupWizardGestures('finderWizard', currentFinderStepNumber, goFinderPrevStep, goFinderNextStep);
 setupWizardGestures('addWizard', currentAddStepNumber, goAddPrevStep, goAddNextStep);
-initEntryAnimation();
+initEntryAnimation({ force: true });
 updateTripTypeUi();
 updateFinderPickerLabels();
 </script>
