@@ -135,12 +135,14 @@
   /* ── Bottom Nav ── */
   .bottom-nav {
     position: fixed;
-    bottom: 0; left: 50%;
+    bottom: 8px; left: 50%;
     transform: translateX(-50%);
-    width: 100%; max-width: var(--app-max-w);
+    width: calc(100% - 16px); max-width: calc(var(--app-max-w) - 16px);
     background: rgba(255, 255, 255, 0.92);
     backdrop-filter: blur(20px);
-    border-top: 1px solid var(--border);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
     display: flex;
     z-index: 50;
   }
@@ -422,7 +424,7 @@
     overflow-y: auto;
     overscroll-behavior: contain;
     -webkit-overflow-scrolling: touch;
-    padding-bottom: 10px;
+    padding-bottom: calc(var(--bottom-nav-h) + 18px);
   }
   .finder-title {
     font-size: 26px;
@@ -612,6 +614,10 @@
     font-size: 12px;
     cursor: pointer;
   }
+  .role-switch-btn {
+    min-width: 96px;
+    font-weight: 700;
+  }
   .step-back {
     align-self: center;
     width: auto;
@@ -710,7 +716,7 @@
     display: flex;
     flex-direction: column;
     min-height: var(--app-h);
-    padding-bottom: var(--bottom-nav-h);
+    padding-bottom: calc(var(--bottom-nav-h) + 12px);
   }
 
   #homeScreen .top-bar {
@@ -1499,7 +1505,10 @@
     <div id="homeScreen" class="screen active">
       <div class="top-bar">
         <h1 class="top-title"><span class="title-icon">🚗</span>מצא נסיעות</h1>
-        <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="mini-btn role-switch-btn hidden" id="switchToDriverBtn" onclick="switchToDriverMode()">🚗 אני הנהג</button>
+          <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
+        </div>
       </div>
 
       <div id="finderWizard" class="finder-wizard">
@@ -1552,7 +1561,6 @@
           </div>
           <div class="step3-actions">
             <button class="btn btn-primary" onclick="applyFinderDateTime()">הצג נסיעות זמינות</button>
-            <button class="step-back" onclick="showFinderStep(2)">חזרה</button>
           </div>
         </section>
 
@@ -1561,7 +1569,6 @@
           <div id="resultsToolbar" class="results-toolbar">
             <div class="results-summary" id="resultsSummary"></div>
             <div style="display:flex;gap:6px;">
-              <button class="mini-btn" onclick="goFinderPrevStep()">חזור</button>
               <button class="mini-btn" onclick="resetFinderSelection()">חיפוש חדש</button>
             </div>
           </div>
@@ -1728,7 +1735,7 @@
         <span class="icon">🚗</span>
         <span>מצא נסיעות</span>
       </button>
-      <button class="nav-btn" id="navAdd" onclick="navigate('add')">
+      <button class="nav-btn driver-only" id="navAdd" onclick="navigate('add')">
         <span class="icon">➕</span>
         <span>הוסף נסיעה</span>
       </button>
@@ -2399,6 +2406,15 @@ function applyRoleUi() {
   const app = document.getElementById('mainApp');
   if (!app) return;
   app.classList.toggle('driver-mode', STATE.role === 'driver');
+  const switchBtn = document.getElementById('switchToDriverBtn');
+  if (switchBtn) {
+    switchBtn.classList.toggle('hidden', STATE.role !== 'passenger');
+  }
+}
+
+function switchToDriverMode() {
+  chooseUserRole('driver');
+  toast('עברת למצב נהג 🚗');
 }
 
 function switchAuthTab(tab, eventRef) {
@@ -2720,6 +2736,8 @@ async function renderMyRides() {
   container.innerHTML = rides.map((r) => {
     const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
     const tripTypeLine = r.tripType === 'to_airport' ? '🛫 נסיעה לשדה' : '🛬 חזרה מהשדה';
+    const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
+    const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
     const dateStr = formatDate(r.date);
     return `
       <div class="ride-card">
@@ -2727,7 +2745,7 @@ async function renderMyRides() {
           <span class="airport-badge ${r.airport === 'larnaca' ? 'larnaca' : 'paphos'}">${tripTypeLine}</span>
           <span class="seats-badge">👥 ${r.seats} מקומות</span>
         </div>
-        <div class="ride-dest">${escapeHtml(r.dest)} • ${airportName}</div>
+        <div class="ride-dest">${routeStart} <span style="color:var(--muted);font-weight:900;">→</span> ${routeEnd}</div>
         <div class="ride-meta">
           <span>📅 ${dateStr}</span>
           <span>🕐 ${escapeHtml(r.time)}</span>
