@@ -4651,14 +4651,17 @@ if (addDateInputEl) {
   addDateInputEl.dataset.iso = todayIso;
   addDateInputEl.value = formatDate(todayIso);
 }
-document.getElementById('otpInput').addEventListener('keydown', (event) => {
-  if (event.key === 'Enter') {
-    closeOtpModal(true);
-  }
-});
-document.getElementById('otpInput').addEventListener('input', (event) => {
-  event.target.value = event.target.value.replace(/\D/g, '').slice(0, 6);
-});
+const otpCodeInputEl = document.getElementById('otpCodeInput');
+if (otpCodeInputEl) {
+  otpCodeInputEl.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      confirmEmailVerification();
+    }
+  });
+  otpCodeInputEl.addEventListener('input', (event) => {
+    event.target.value = event.target.value.replace(/\D/g, '').slice(0, 4);
+  });
+}
 updateWizardProgress('finderProgress', 1, 4);
 updateWizardProgress('addProgress', 1, 4);
 setupWizardGestures('finderWizard', currentFinderStepNumber, goFinderPrevStep, goFinderNextStep);
