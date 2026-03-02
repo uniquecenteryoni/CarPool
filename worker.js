@@ -18,6 +18,10 @@ function normalizePhone(phone) {
   return String(phone || '').replace(/[^\d+]/g, '');
 }
 
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
 function toE164Phone(phone, defaultCountryCode = '+972') {
   const normalized = normalizePhone(phone);
   if (!normalized) return '';
@@ -68,14 +72,74 @@ async function sendOtpWithTwilio(env, to, code) {
   }
 }
 
+function resendConfigured(env) {
+  return Boolean(env.RESEND_API_KEY && env.RESEND_FROM_EMAIL);
+}
+
+async function sendOtpWithResend(env, toEmail, code) {
+  const response = await fetch('https://api.resend.com/emails', {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.RESEND_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: env.RESEND_FROM_EMAIL,
+      to: [toEmail],
+      subject: 'קוד אימות לפרסום נסיעה',
+      html: `<div dir="rtl" style="font-family:Arial,sans-serif;line-height:1.6"><h2>אימות חד-פעמי לפרסום נסיעה</h2><p>קוד האימות שלך הוא:</p><p style="font-size:30px;font-weight:700;letter-spacing:8px;margin:12px 0;">${code}</p><p>הקוד תקף ל-5 דקות.</p></div>`,
+    }),
+  });
+
+  if (!response.ok) {
+    let msg = `Resend request failed (${response.status})`;
+    try {
+      const body = await response.json();
+      msg = body?.message || body?.error || msg;
+    } catch {
+      // keep fallback message
+    }
+    throw new Error(msg);
+  }
+}
+
+async function ensureEmailVerificationTables(env) {
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS email_otp_codes (
+      email TEXT PRIMARY KEY,
+      code_hash TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      attempts INTEGER NOT NULL DEFAULT 0,
+      last_sent_at INTEGER NOT NULL DEFAULT 0,
+      verified_until INTEGER NOT NULL DEFAULT 0,
+      name TEXT,
+      phone TEXT
+    )
+  `).run();
+
+  await env.DB.prepare(`
+    CREATE TABLE IF NOT EXISTS publish_sessions (
+      token TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      expires_at INTEGER NOT NULL,
+      created_at INTEGER NOT NULL
+    )
+  `).run();
+}
+
 async function hashOtp(code) {
   const raw = new TextEncoder().encode(String(code));
   const digest = await crypto.subtle.digest('SHA-256', raw);
   return Array.from(new Uint8Array(digest)).map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-function generateOtpCode() {
-  return String(Math.floor(100000 + Math.random() * 900000));
+function generateOtpCode(length = 6) {
+  const size = Number.isFinite(Number(length)) ? Math.max(4, Number(length)) : 6;
+  const min = 10 ** (size - 1);
+  const max = (10 ** size) - 1;
+  return String(Math.floor(min + Math.random() * (max - min + 1)));
 }
 
 function userPayload(user) {
@@ -307,7 +371,7 @@ export default {
         provider,
         to: destination,
         expiresInSeconds: 300,
-        ...(debugEnabled || !smsSent ? { devCode: code } : {}),
+        ...(debugEnabled ? { devCode: code } : {}),
       });
     }
 
@@ -341,6 +405,125 @@ export default {
       return json({ ok: true, verifiedUntil, ttlSeconds: 5 * 365 * 24 * 60 * 60 });
     }
 
+    if (pathname === '/api/driver/email/send-code' && req.method === 'POST') {
+      const body = await parseJson(req);
+      const email = normalizeEmail(body?.email);
+      const phone = normalizePhone(body?.phone);
+      const name = String(body?.name || '').trim();
+
+      if (!email || !email.includes('@')) {
+        return json({ ok: false, error: 'Valid email is required.' }, 400);
+      }
+      if (!phone || phone.length < 8 || !name) {
+        return json({ ok: false, error: 'name and phone are required.' }, 400);
+      }
+
+      await ensureEmailVerificationTables(env);
+
+      const now = Date.now();
+      const existing = await env.DB.prepare('SELECT last_sent_at FROM email_otp_codes WHERE email = ? LIMIT 1').bind(email).first();
+      if (existing && now - Number(existing.last_sent_at || 0) < 60_000) {
+        return json({ ok: false, error: 'Please wait before requesting a new code.' }, 429);
+      }
+
+      const code = generateOtpCode(4);
+      const codeHash = await hashOtp(code);
+      const expiresAt = now + 5 * 60_000;
+
+      await env.DB.prepare(`
+        INSERT INTO email_otp_codes (email, code_hash, expires_at, attempts, last_sent_at, verified_until, name, phone)
+        VALUES (?, ?, ?, 0, ?, 0, ?, ?)
+        ON CONFLICT(email) DO UPDATE SET
+          code_hash = excluded.code_hash,
+          expires_at = excluded.expires_at,
+          attempts = 0,
+          last_sent_at = excluded.last_sent_at,
+          verified_until = 0,
+          name = excluded.name,
+          phone = excluded.phone
+      `).bind(email, codeHash, expiresAt, now, name, phone).run();
+
+      let emailSent = false;
+      const debugEnabled = env.OTP_DEBUG === '1';
+
+      if (!resendConfigured(env) && !debugEnabled) {
+        return json({ ok: false, error: 'Email provider is not configured.' }, 500);
+      }
+
+      if (resendConfigured(env)) {
+        try {
+          await sendOtpWithResend(env, email, code);
+          emailSent = true;
+        } catch (err) {
+          return json({ ok: false, error: 'Failed to send email code.', details: err.message }, 502);
+        }
+      }
+
+      return json({
+        ok: true,
+        emailSent,
+        expiresInSeconds: 300,
+        ...(debugEnabled ? { devCode: code } : {}),
+      });
+    }
+
+    if (pathname === '/api/driver/email/verify-code' && req.method === 'POST') {
+      const body = await parseJson(req);
+      const email = normalizeEmail(body?.email);
+      const code = String(body?.code || '').trim();
+
+      if (!email || !code) {
+        return json({ ok: false, error: 'email and code are required.' }, 400);
+      }
+
+      await ensureEmailVerificationTables(env);
+
+      const row = await env.DB.prepare('SELECT * FROM email_otp_codes WHERE email = ? LIMIT 1').bind(email).first();
+      if (!row) {
+        return json({ ok: false, error: 'No verification request found.' }, 404);
+      }
+
+      const now = Date.now();
+      if (now > Number(row.expires_at)) {
+        return json({ ok: false, error: 'Code expired. Please request a new code.' }, 410);
+      }
+      if (Number(row.attempts) >= 5) {
+        return json({ ok: false, error: 'Too many attempts. Request a new code.' }, 429);
+      }
+
+      const codeHash = await hashOtp(code);
+      if (codeHash !== row.code_hash) {
+        await env.DB.prepare('UPDATE email_otp_codes SET attempts = attempts + 1 WHERE email = ?').bind(email).run();
+        return json({ ok: false, error: 'Invalid code.' }, 401);
+      }
+
+      const ttlSeconds = 60 * 60 * 24 * 365 * 10;
+      const verifiedUntil = now + ttlSeconds * 1000;
+      const token = `${crypto.randomUUID()}${crypto.randomUUID()}`;
+
+      await env.DB.prepare('UPDATE email_otp_codes SET verified_until = ?, attempts = 0 WHERE email = ?').bind(verifiedUntil, email).run();
+      await env.DB.prepare(`
+        INSERT INTO publish_sessions (token, email, name, phone, expires_at, created_at)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `).bind(
+        token,
+        email,
+        String(row.name || '').trim(),
+        normalizePhone(row.phone),
+        verifiedUntil,
+        now,
+      ).run();
+
+      return json({
+        ok: true,
+        token,
+        ttlSeconds,
+        name: String(row.name || '').trim(),
+        phone: normalizePhone(row.phone),
+        email,
+      });
+    }
+
     if (pathname === '/api/rides' && req.method === 'GET') {
       const tripType = (url.searchParams.get('tripType') || '').trim();
       const airport = (url.searchParams.get('airport') || '').trim();
@@ -372,6 +555,7 @@ export default {
     if (pathname === '/api/rides' && req.method === 'POST') {
       const body = await parseJson(req);
       const phone = normalizePhone(body?.phone);
+      const publishSessionToken = String(body?.publishSessionToken || '').trim();
       const required = ['driver', 'tripType', 'airport', 'date', 'time', 'dest'];
       for (const field of required) {
         if (!String(body?.[field] ?? '').trim()) {
@@ -380,9 +564,19 @@ export default {
       }
       if (!phone) return json({ ok: false, error: 'phone is required.' }, 400);
 
-      const otp = await env.DB.prepare('SELECT verified_until FROM driver_otp_codes WHERE phone = ? LIMIT 1').bind(phone).first();
-      if (!otp || Date.now() > Number(otp.verified_until || 0)) {
-        return json({ ok: false, error: 'Driver phone must be OTP verified before publishing.' }, 401);
+      if (!publishSessionToken) {
+        return json({ ok: false, error: 'publishSessionToken is required.' }, 401);
+      }
+
+      await ensureEmailVerificationTables(env);
+      const session = await env.DB.prepare('SELECT * FROM publish_sessions WHERE token = ? LIMIT 1').bind(publishSessionToken).first();
+      if (!session || Date.now() > Number(session.expires_at || 0)) {
+        return json({ ok: false, error: 'Invalid or expired publish session.' }, 401);
+      }
+
+      const sessionPhone = normalizePhone(session.phone);
+      if (sessionPhone !== phone) {
+        return json({ ok: false, error: 'Publish session does not match this phone.' }, 403);
       }
 
       const seats = Number(body?.seats || 0);
@@ -398,8 +592,8 @@ export default {
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         RETURNING *
       `).bind(
-        String(body.driver).trim(),
-        phone,
+        String(session.name || body.driver).trim(),
+        sessionPhone,
         String(body.tripType).trim(),
         String(body.airport).trim(),
         String(body.date).trim(),
