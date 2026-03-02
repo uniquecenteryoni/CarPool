@@ -1605,7 +1605,7 @@
     border-radius: 24px;
     font-weight: 600;
     font-size: 14px;
-    z-index: 200;
+    z-index: 300;
     transition: transform 0.3s ease;
     white-space: nowrap;
   }
@@ -2834,7 +2834,7 @@ function goAddPrevStep() {
 function goAddNextStep() {
   const current = currentAddStepNumber();
   if (current < 4) {
-    showAddStep(current + 1);
+    nextAddStep(current + 1);
   }
 }
 
@@ -3710,6 +3710,12 @@ async function confirmEmailVerification() {
     return;
   }
 
+  const verifyBtn = document.querySelector('#otpCodeModal .btn-primary');
+  if (verifyBtn) {
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'מאמת...';
+  }
+
   try {
     const data = await apiPost('/api/driver/email/verify-code', {
       email: otpModalState.email,
@@ -3719,15 +3725,20 @@ async function confirmEmailVerification() {
     storePublishSession({
       token: data.token,
       ttlSeconds: data.ttlSeconds,
-      name: data.name || otpModalState.contactName,
-      phone: data.phone || otpModalState.contactPhone,
+      name: data.name || (otpModalState ? otpModalState.contactName : ''),
+      phone: data.phone || (otpModalState ? otpModalState.contactPhone : ''),
     });
-    STATE.driverPhone = normalizePhone(data.phone || otpModalState.contactPhone);
+    STATE.driverPhone = normalizePhone(data.phone || (otpModalState ? otpModalState.contactPhone : ''));
     localStorage.setItem('cy_driver_phone', STATE.driverPhone);
+    finalizeOtpFlow(true);
     toast('האימות הצליח ✅');
-    closeOtpCodeModal(true);
   } catch (err) {
-    toast(`קוד לא תקין: ${err.message}`);
+    toast(`שגיאה באימות: ${err.message}`);
+  } finally {
+    if (verifyBtn) {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'אמת והמשך פרסום';
+    }
   }
 }
 
