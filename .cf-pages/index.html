@@ -1010,26 +1010,26 @@
     gap: 6px;
   }
 
-  .top-bar-nav-arrows {
+  .top-bar-center {
     display: flex;
     align-items: center;
-    gap: 2px;
+    gap: 6px;
   }
   .side-arrow {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     border: none;
     background: transparent;
-    color: var(--muted);
-    font-size: 18px;
-    font-weight: 400;
+    color: var(--sky);
+    font-size: 22px;
+    font-weight: 900;
     font-family: 'Heebo', sans-serif;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0.5;
+    opacity: 0.85;
     transition: opacity 0.2s;
     padding: 0;
     line-height: 1;
@@ -1976,15 +1976,16 @@
     <!-- ── HOME SCREEN ── -->
     <div id="homeScreen" class="screen active">
       <div class="top-bar">
-        <div class="top-bar-nav-arrows" id="homeSideNav">
-          <button class="side-arrow" id="homeSideNext" onclick="sideStepNav('next')">&lt;</button>
-          <button class="side-arrow" id="homeSidePrev" onclick="sideStepNav('prev')">&gt;</button>
-        </div>
-        <h1 class="top-title"><span class="title-icon">🚗</span>לחפש נסיעה</h1>
         <div style="display:flex;align-items:center;gap:8px;">
           <button class="mini-btn home-circle-btn" id="topHomeBtn" onclick="goWelcome()">🏠</button>
           <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
         </div>
+        <div class="top-bar-center" id="homeSideNav">
+          <button class="side-arrow" id="homeSidePrev" onclick="sideStepNav('prev')">&gt;</button>
+          <h1 class="top-title"><span class="title-icon">🚗</span>לחפש נסיעה</h1>
+          <button class="side-arrow" id="homeSideNext" onclick="sideStepNav('next')">&lt;</button>
+        </div>
+        <div style="width:44px"></div>
       </div>
 
       <div id="finderWizard" class="finder-wizard">
@@ -2053,12 +2054,13 @@
     <!-- ── ADD RIDE SCREEN ── -->
     <div id="addScreen" class="screen">
       <div class="top-bar">
-        <div class="top-bar-nav-arrows" id="addSideNav">
-          <button class="side-arrow" id="addSideNext" onclick="sideStepNav('next')">&lt;</button>
-          <button class="side-arrow" id="addSidePrev" onclick="sideStepNav('prev')">&gt;</button>
-        </div>
-        <h1 class="top-title"><span class="title-icon">➕</span>הוספת נסיעה</h1>
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
+        <div class="top-bar-center" id="addSideNav">
+          <button class="side-arrow" id="addSidePrev" onclick="sideStepNav('prev')">&gt;</button>
+          <h1 class="top-title"><span class="title-icon">➕</span>הוספת נסיעה</h1>
+          <button class="side-arrow" id="addSideNext" onclick="sideStepNav('next')">&lt;</button>
+        </div>
+        <div style="width:36px"></div>
       </div>
 
       <div class="add-wizard" id="addWizard">
