@@ -1012,35 +1012,40 @@
 
   .screen-side-nav {
     position: absolute;
-    top: 50%;
+    top: 78px;
     left: 0;
     right: 0;
-    transform: translateY(-50%);
     pointer-events: none;
     z-index: 55;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 6px;
   }
   .side-arrow {
     pointer-events: auto;
-    position: absolute;
-    width: 32px;
-    height: 32px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.25);
-    background: var(--sky);
-    color: #fff;
-    font-size: 14px;
-    font-weight: 900;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 20px;
+    font-weight: 300;
+    font-family: 'Heebo', sans-serif;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 8px 20px rgba(16, 64, 111, 0.2);
     cursor: pointer;
+    opacity: 0.55;
+    transition: opacity 0.2s;
+  }
+  .side-arrow:hover {
+    opacity: 1;
   }
   .side-arrow.left {
-    left: 8px;
   }
   .side-arrow.right {
-    right: 8px;
   }
   #addStep3 {
     height: 100%;
@@ -1988,8 +1993,8 @@
         </div>
       </div>
       <div class="screen-side-nav" id="homeSideNav" aria-hidden="true">
-        <button class="side-arrow left" id="homeSidePrev" onclick="sideStepNav('prev')">◀</button>
-        <button class="side-arrow right" id="homeSideNext" onclick="sideStepNav('next')">▶</button>
+        <button class="side-arrow right" id="homeSideNext" onclick="sideStepNav('next')">&lt;</button>
+        <button class="side-arrow left" id="homeSidePrev" onclick="sideStepNav('prev')">&gt;</button>
       </div>
 
       <div id="finderWizard" class="finder-wizard">
@@ -2062,8 +2067,8 @@
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
       </div>
       <div class="screen-side-nav" id="addSideNav" aria-hidden="true">
-        <button class="side-arrow left" id="addSidePrev" onclick="sideStepNav('prev')">◀</button>
-        <button class="side-arrow right" id="addSideNext" onclick="sideStepNav('next')">▶</button>
+        <button class="side-arrow right" id="addSideNext" onclick="sideStepNav('next')">&lt;</button>
+        <button class="side-arrow left" id="addSidePrev" onclick="sideStepNav('prev')">&gt;</button>
       </div>
 
       <div class="add-wizard" id="addWizard">
@@ -3070,7 +3075,15 @@ function openTimePickerModal({ title = 'בחירת שעה', targetInputId, onSav
 
   ensureTimePickerOptions();
   const current = String(target.value || '').trim();
-  const [currentHour = '08', currentMinuteRaw = '00'] = current.split(':');
+  let currentHour, currentMinuteRaw;
+  if (current && current.includes(':')) {
+    [currentHour = '08', currentMinuteRaw = '00'] = current.split(':');
+  } else {
+    const now = new Date();
+    const nextHour = now.getHours() + 1;
+    currentHour = String(nextHour >= 24 ? 0 : nextHour).padStart(2, '0');
+    currentMinuteRaw = '00';
+  }
   const minuteRounded = String(Math.round(Number(currentMinuteRaw || 0) / 5) * 5).padStart(2, '0');
 
   titleEl.textContent = title;
@@ -3498,6 +3511,7 @@ function logout() {
   localStorage.removeItem('cy_role');
   localStorage.removeItem('cy_driver_phone');
   clearDriverVerificationCache();
+  clearPublishSession();
   document.getElementById('mainApp').classList.add('hidden');
   document.getElementById('entryScreen').classList.remove('hidden');
   document.getElementById('entryScreen').classList.add('active');
@@ -3653,18 +3667,31 @@ async function sendEmailVerifyCode() {
     return;
   }
 
+  const sendBtn = document.querySelector('#otpModal .btn-primary');
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'שולח...';
+  }
+
   try {
     await apiPost('/api/driver/email/send-code', {
       name: otpModalState.contactName,
       phone: otpModalState.contactPhone,
       email,
     });
-    otpModalState.email = email;
-    otpModalState.codeSent = true;
+    if (otpModalState) {
+      otpModalState.email = email;
+      otpModalState.codeSent = true;
+    }
     openOtpCodeModal(email);
     toast('קוד אימות נשלח לאימייל ✅');
   } catch (err) {
     toast(`שגיאה בשליחת קוד: ${err.message}`);
+  } finally {
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'שלח קוד לאימייל';
+    }
   }
 }
 
