@@ -1,0 +1,4732 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קארפול קפריסין - שדה התעופה</title>
+<meta name="description" content="עושים טובה, מקבלים תמורה: המקום הפנוי ברכב שלכם הוא בדיוק מה שמישהו אחר מחפש. פרסמו בקרפול ותהנו מנסיעה משותפת שמשלמת לכם על הדרך">
+<meta property="og:type" content="website">
+<meta property="og:title" content="קארפול קפריסין - שדה התעופה">
+<meta property="og:description" content="עושים טובה, מקבלים תמורה: המקום הפנוי ברכב שלכם הוא בדיוק מה שמישהו אחר מחפש. פרסמו בקרפול ותהנו מנסיעה משותפת שמשלמת לכם על הדרך">
+<meta property="og:url" content="https://carpool-cy.pages.dev/">
+<meta property="og:site_name" content="Carpool Cyprus">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="קארפול קפריסין - שדה התעופה">
+<meta name="twitter:description" content="עושים טובה, מקבלים תמורה: המקום הפנוי ברכב שלכם הוא בדיוק מה שמישהו אחר מחפש. פרסמו בקרפול ותהנו מנסיעה משותפת שמשלמת לכם על הדרך">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Ctext y='50' font-size='48'%3E%E2%9C%88%EF%B8%8F%3C/text%3E%3C/svg%3E">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --app-h: 100dvh;
+    --app-max-w: 480px;
+    --top-bar-h: 68px;
+    --bottom-nav-h: 64px;
+    --between-h: calc(var(--app-h) - var(--top-bar-h) - var(--bottom-nav-h));
+    --sky: #1d9bf0;
+    --sky-dark: #0077c8;
+    --night: #f4f9ff;
+    --night2: #ffffff;
+    --night3: #d6e6f5;
+    --gold: #f6b73c;
+    --gold-light: #ffe08a;
+    --green: #1f9d55;
+    --red: #ef4444;
+    --text: #0f2a44;
+    --muted: #4b6782;
+    --card: rgba(255, 255, 255, 0.95);
+    --border: rgba(35, 84, 137, 0.2);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html,
+  body {
+    height: var(--app-h);
+    overflow: hidden;
+  }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--night);
+    color: var(--text);
+    min-height: var(--app-h);
+    overflow-x: hidden;
+  }
+
+  /* Background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse 80% 60% at 50% -20%, rgba(29, 155, 240, 0.22) 0%, transparent 62%),
+      radial-gradient(ellipse 45% 45% at 80% 80%, rgba(246, 183, 60, 0.16) 0%, transparent 55%),
+      linear-gradient(180deg, #f6fbff 0%, #eef6ff 100%);
+    z-index: -1;
+  }
+
+  /* Stars */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: 
+      radial-gradient(1px 1px at 20% 30%, rgba(0, 119, 200, 0.12) 0%, transparent 100%),
+      radial-gradient(1px 1px at 60% 15%, rgba(0, 119, 200, 0.1) 0%, transparent 100%),
+      radial-gradient(1px 1px at 85% 45%, rgba(246, 183, 60, 0.1) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 70%, rgba(0, 119, 200, 0.09) 0%, transparent 100%),
+      radial-gradient(1px 1px at 45% 85%, rgba(246, 183, 60, 0.08) 0%, transparent 100%),
+      radial-gradient(1px 1px at 75% 65%, rgba(0, 119, 200, 0.11) 0%, transparent 100%);
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  /* ── App Shell ── */
+  #app {
+    width: 100%;
+    max-width: var(--app-max-w);
+    height: var(--app-h);
+    margin: 0 auto;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* ── Screen management ── */
+  .screen {
+    display: none;
+    height: var(--app-h);
+    min-height: var(--app-h);
+    padding: 0 0 80px;
+    overflow: hidden;
+    position: relative;
+  }
+  .screen.active { display: block; }
+
+  /* ── Header ── */
+  .top-bar {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+  .top-bar h1 { font-size: 18px; font-weight: 800; }
+  .top-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .top-title .title-icon {
+    font-size: 18px;
+    line-height: 1;
+  }
+  .top-bar .logo { font-size: 22px; }
+  .avatar-btn {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-weight: 700;
+    overflow: hidden;
+  }
+  .avatar-btn img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Bottom Nav ── */
+  .bottom-nav {
+    position: fixed;
+    bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: var(--app-max-w);
+    min-height: 70px;
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -8px 24px rgba(15, 42, 68, 0.08);
+    overflow: hidden;
+    display: flex;
+    z-index: 50;
+  }
+  .nav-btn {
+    flex: 1; padding: 10px 8px;
+    background: none; border: none;
+    color: var(--muted); cursor: pointer;
+    display: flex; flex-direction: column;
+    align-items: center; gap: 3px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px; font-weight: 700;
+    transition: color 0.2s;
+  }
+  .nav-btn.active { color: var(--sky); }
+  .nav-btn .icon { font-size: 24px; }
+
+  /* ── Cards ── */
+  .card {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 12px 16px;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:active { transform: scale(0.98); }
+
+  /* ── Inputs ── */
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block;
+    font-size: 12px; font-weight: 600;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-size: 15px;
+    outline: none;
+    transition: border-color 0.2s;
+    appearance: none;
+    -webkit-appearance: none;
+    min-height: 46px;
+  }
+  .form-group input:focus,
+  .form-group select:focus { border-color: var(--sky); }
+  .form-group input::placeholder { color: var(--muted); }
+  .form-group select option { background: var(--night2); }
+  input[type="date"]::-webkit-calendar-picker-indicator,
+  input[type="time"]::-webkit-calendar-picker-indicator {
+    filter: saturate(140%) brightness(0.65);
+    opacity: 1;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    font-family: 'Heebo', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s;
+  }
+  .btn:active { transform: scale(0.97); opacity: 0.9; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+    color: white;
+  }
+  .btn-gold {
+    background: linear-gradient(135deg, var(--gold), #d97706);
+    color: var(--text);
+  }
+  .btn-ghost {
+    background: var(--border);
+    color: var(--text);
+  }
+  .btn-green {
+    background: linear-gradient(135deg, var(--green), #059669);
+    color: white;
+  }
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    width: auto;
+    border-radius: 8px;
+  }
+
+  /* ── Login Screen ── */
+  #entryScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 20px;
+    padding-top: max(48px, calc(env(safe-area-inset-top) + 24px));
+    padding-bottom: calc(env(safe-area-inset-bottom) + 20px);
+    text-align: center;
+    align-items: center;
+    overflow: hidden;
+  }
+  .entry-hero {
+    margin: 0 auto 28px;
+    max-width: 380px;
+  }
+  #entryAnimation {
+    width: min(220px, 100%);
+    height: min(220px, 30%);
+    max-height: 30%;
+    aspect-ratio: 1 / 1;
+    margin: 0 auto 8px;
+  }
+  #entryAnimation img,
+  #entryAnimation svg,
+  #entryAnimation canvas {
+    width: 100% !important;
+    height: 100% !important;
+    max-height: 100%;
+    object-fit: contain;
+  }
+  .entry-hero h1 {
+    font-size: 42px;
+    font-weight: 900;
+    margin: 8px 0 10px;
+  }
+  .entry-hero p {
+    color: var(--muted);
+    font-size: 19px;
+    line-height: 1.6;
+    font-weight: 700;
+  }
+  .entry-role-grid {
+    display: grid;
+    gap: 14px;
+    width: min(100%, 420px);
+    margin: 0 auto;
+  }
+  .entry-credit {
+    margin-top: 14px;
+    font-size: 11px;
+    color: var(--muted);
+    opacity: 0.85;
+    text-align: center;
+  }
+
+  #loginScreen {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 20px 20px 40px;
+    padding-top: max(48px, calc(env(safe-area-inset-top) + 24px));
+    min-height: var(--app-h);
+    max-width: 460px;
+    margin: 0 auto;
+    width: 100%;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .login-hero {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  .login-hero .plane {
+    font-size: 64px;
+    display: block;
+    animation: float 3s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50% { transform: translateY(-12px) rotate(5deg); }
+  }
+  .login-hero h1 {
+    font-size: 32px;
+    font-weight: 900;
+    margin: 12px 0 6px;
+    background: linear-gradient(135deg, #0f2a44, var(--sky-dark));
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .login-hero p { color: var(--muted); font-size: 15px; }
+
+  .tabs {
+    display: flex;
+    background: var(--night2);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+  .tab {
+    flex: 1; padding: 10px;
+    border: none; background: none;
+    color: var(--muted);
+    font-family: 'Heebo', sans-serif;
+    font-size: 15px; font-weight: 600;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .tab.active {
+    background: var(--sky);
+    color: white;
+  }
+
+  /* ── Rides List ── */
+  .filters {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+    padding: 12px 16px;
+  }
+  .direction-filters {
+    display: none;
+  }
+  .filter-chip {
+    width: 100%;
+    padding: 11px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: var(--night2);
+    color: var(--muted);
+    font-family: 'Heebo', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: normal;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .filter-chip.active {
+    background: var(--sky);
+    border-color: var(--sky);
+    color: white;
+  }
+
+  .finder-wizard {
+    min-height: 0;
+    height: auto;
+    flex: 1;
+    max-width: 460px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 10px 10px 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .finder-step {
+    display: none;
+    min-height: 0;
+    height: auto;
+    flex: 1;
+    max-width: 460px;
+    width: 100%;
+    margin: 0 auto;
+    padding: 14px 12px 14px;
+    border-radius: 18px;
+    background:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(235, 245, 255, 0.82) 100%);
+    box-shadow: 0 10px 30px rgba(24, 84, 145, 0.12);
+    overflow: hidden;
+  }
+  .finder-step.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 16px;
+  }
+  .finder-step:not(.results-step).active {
+    overflow: hidden;
+  }
+  .finder-step.results-step.active {
+    justify-content: flex-start;
+    gap: 10px;
+  }
+  #ridesList {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(var(--bottom-nav-h) + 18px);
+  }
+  .finder-title {
+    font-size: 26px;
+    font-weight: 900;
+    text-align: center;
+    margin-top: 4px;
+  }
+  .finder-title .step-icon {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background: var(--sky);
+    color: #fff;
+    font-size: 16px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+  .finder-subtitle {
+    text-align: center;
+    color: var(--muted);
+    font-size: 18px;
+    margin-top: -6px;
+  }
+  .wizard-progress {
+    width: min(100%, 430px);
+    margin: 0 auto 8px;
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 8px;
+  }
+  .wizard-line {
+    flex: 1;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(15, 42, 68, 0.15);
+    transition: background-color 0.2s ease;
+  }
+  .wizard-line.active {
+    background: var(--sky);
+  }
+  .finder-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .finder-grid.fill {
+    grid-template-rows: 1fr 1fr;
+    height: auto;
+    min-height: 0;
+    flex: 1;
+  }
+  .finder-card {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--text);
+    border-radius: 14px;
+    padding: 16px 12px;
+    min-height: 86px;
+    text-align: right;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 22px rgba(18, 79, 137, 0.12);
+  }
+  .finder-card strong {
+    display: block;
+    font-size: clamp(24px, 6.2vw, 32px);
+    line-height: 1.25;
+  }
+  .finder-card .trip-emoji {
+    font-size: clamp(34px, 8vw, 44px);
+    line-height: 1;
+    display: inline-block;
+    margin-left: 8px;
+    vertical-align: -2px;
+  }
+  .finder-card .trip-label {
+    vertical-align: middle;
+  }
+  @media (max-width: 480px) {
+    .finder-step {
+      padding: 12px 10px 10px;
+      gap: 10px;
+    }
+    .finder-title {
+      font-size: 20px;
+      margin-top: 0;
+    }
+    .finder-subtitle {
+      font-size: 16px;
+      margin-top: -2px;
+    }
+    .wizard-progress {
+      margin-bottom: 6px;
+      gap: 6px;
+    }
+    .finder-card {
+      min-height: 78px;
+      padding: 12px 10px;
+    }
+    .finder-card strong {
+      font-size: 19px;
+      line-height: 1.2;
+    }
+    .step3-grid {
+      gap: 8px;
+    }
+    .step3-card {
+      padding: 10px;
+    }
+    .step3-card label {
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .picker-btn {
+      min-height: 50px;
+      font-size: 16px;
+    }
+    .step3-actions {
+      gap: 8px;
+    }
+    .step3-actions .btn,
+    .step3-actions .step-back {
+      min-height: 44px;
+      font-size: 15px;
+      padding: 9px 12px;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    :root {
+      --app-max-w: 100vw;
+    }
+
+    #app {
+      margin: 0;
+    }
+
+    .top-bar h1 {
+      font-size: 22px;
+    }
+
+    .nav-btn {
+      font-size: 13px;
+      gap: 4px;
+    }
+
+    .nav-btn .icon {
+      font-size: 22px;
+    }
+
+    .finder-wizard,
+    .add-wizard,
+    #myridesScreen .my-rides-wrap {
+      max-width: none;
+    }
+
+    .finder-step,
+    .add-step,
+    .edit-ride-modal {
+      max-width: none;
+    }
+
+    .pick-step .finder-card strong {
+      font-size: 28px;
+    }
+  }
+  .finder-card.active {
+    border-color: var(--sky);
+    box-shadow: 0 0 0 2px rgba(14, 165, 233, 0.28) inset;
+  }
+  .finder-continue {
+    margin-top: 4px;
+  }
+  .results-toolbar {
+    padding: 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    align-items: center;
+  }
+  .results-summary {
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .mini-btn {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--night2);
+    color: var(--text);
+    padding: 8px 10px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .home-circle-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 900;
+  }
+  .role-switch-btn {
+    min-width: 96px;
+    font-weight: 700;
+  }
+  .step-back {
+    align-self: center;
+    width: auto;
+    min-width: 110px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    background: rgba(30, 41, 59, 0.85);
+    color: #fff;
+  }
+
+  .step3-grid {
+    display: grid;
+    gap: 10px;
+    width: min(100%, 430px);
+    margin: 0 auto;
+    flex: 1;
+    min-height: 0;
+  }
+  .step3-card {
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 8px 24px rgba(17, 74, 128, 0.1);
+  }
+  .step3-card label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .step3-card input {
+    min-height: 56px !important;
+    font-size: 18px !important;
+    font-weight: 700;
+    padding: 14px 16px !important;
+  }
+  .picker-btn {
+    width: 100%;
+    min-height: 54px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: var(--text);
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    text-align: center;
+  }
+  .picker-btn.empty {
+    color: var(--muted);
+    font-weight: 700;
+  }
+  .hidden-picker {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+    width: 0;
+    height: 0;
+  }
+  #finderStep3 .finder-subtitle {
+    margin-top: 2px;
+    font-size: 19px;
+  }
+  .step3-actions {
+    width: min(100%, 430px);
+    margin: 0 auto 8px;
+    display: grid;
+    gap: 10px;
+    padding-bottom: 6px;
+  }
+
+  .driver-mode #finderStep3 .step3-card {
+    padding: 10px;
+  }
+  .driver-mode #finderStep3 .picker-btn {
+    min-height: 50px;
+    font-size: 16px;
+  }
+
+  .pick-step .finder-grid {
+    width: min(100%, 430px);
+    margin: 0 auto;
+    gap: 10px;
+    grid-template-rows: repeat(2, minmax(0, 1fr));
+    flex: 1;
+    min-height: 0;
+    padding-top: 6px;
+    padding-bottom: 14px;
+  }
+
+  .pick-step .finder-card {
+    min-height: 72px;
+    border-radius: 16px;
+    padding: 14px 12px;
+  }
+
+  .pick-step .finder-card strong {
+    font-size: clamp(24px, 5.8vw, 30px);
+  }
+
+  #homeScreen.active {
+    display: flex;
+    flex-direction: column;
+    min-height: var(--app-h);
+    padding-bottom: calc(var(--bottom-nav-h) + 12px);
+  }
+
+  #homeScreen .top-bar {
+    flex: 0 0 auto;
+  }
+
+  .ride-card {
+    background: var(--card);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 16px;
+    margin: 10px 16px;
+    cursor: pointer;
+    transition: transform 0.15s, border-color 0.2s;
+  }
+  .ride-card:hover { border-color: rgba(14, 165, 233, 0.4); }
+  .ride-card:active { transform: scale(0.98); }
+
+  .ride-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 12px;
+  }
+  .airport-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+  }
+  .airport-badge.larnaca { background: rgba(14, 165, 233, 0.2); color: var(--sky); }
+  .airport-badge.paphos { background: rgba(245, 158, 11, 0.2); color: var(--gold); }
+  .airport-badge.trip-to {
+    background: rgba(245, 158, 11, 0.18);
+    color: #b45309;
+  }
+  .airport-badge.trip-from {
+    background: rgba(14, 165, 233, 0.18);
+    color: #0369a1;
+  }
+
+  .seats-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 16px;
+    color: var(--green);
+    font-weight: 800;
+  }
+  .ride-dest {
+    font-size: 24px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+  .route-flow {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    direction: rtl;
+  }
+  .route-arrow {
+    color: var(--muted);
+    font-weight: 900;
+  }
+  .ride-meta {
+    display: flex;
+    gap: 16px;
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+  .ride-meta span { display: flex; align-items: center; gap: 4px; }
+  .ride-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+  .price-tag {
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--gold);
+  }
+  .price-tag.free { color: var(--green); }
+  .driver-info { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .driver-avatar {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700;
+    overflow: hidden;
+  }
+  .driver-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ── Add Ride Screen ── */
+  .screen-title {
+    padding: 20px 16px 8px;
+    font-size: 22px;
+    font-weight: 800;
+  }
+
+  .add-wizard {
+    min-height: var(--between-h);
+    height: auto;
+    max-height: var(--between-h);
+    padding: 18px;
+    overflow-y: auto;
+    max-width: 460px;
+    margin: 0 auto;
+    width: 100%;
+  }
+  .add-step {
+    display: none;
+    max-width: 460px;
+    margin: 0 auto;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 10px 28px rgba(18, 79, 137, 0.1);
+  }
+  .add-step.active {
+    display: grid;
+    gap: 12px;
+  }
+  .add-step .form-group {
+    margin-bottom: 0;
+  }
+  .add-step .form-group label {
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+  }
+  .add-step .form-group input,
+  .add-step .form-group select,
+  .add-step .form-group textarea {
+    min-height: 58px;
+    font-size: 18px;
+    border-radius: 12px;
+    padding: 14px 16px;
+  }
+  .add-step .btn {
+    min-height: 54px;
+    font-size: 18px;
+  }
+  .add-step3-grid {
+    display: grid;
+    gap: 6px;
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: auto;
+    flex: 1;
+  }
+
+  #profileScreen {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  @media (max-height: 760px) {
+    #loginScreen {
+      padding-top: max(18px, calc(env(safe-area-inset-top) + 8px));
+      padding-bottom: calc(var(--bottom-nav-h) + 20px);
+    }
+
+    #entryScreen {
+      padding-top: max(18px, calc(env(safe-area-inset-top) + 8px));
+      padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
+    }
+
+    #entryAnimation {
+      width: 170px;
+      height: 170px;
+      margin-bottom: 4px;
+    }
+
+    .entry-hero {
+      margin-bottom: 16px;
+    }
+
+    .entry-hero h1 {
+      font-size: 34px;
+      margin: 4px 0 8px;
+    }
+
+    .entry-hero p {
+      font-size: 16px;
+      line-height: 1.4;
+    }
+
+    .entry-role-grid {
+      gap: 10px;
+    }
+
+    .add-wizard {
+      padding: 12px;
+    }
+
+    .add-step {
+      padding: 12px;
+    }
+
+    .add-step .form-group input,
+    .add-step .form-group select,
+    .add-step .form-group textarea {
+      min-height: 50px;
+      font-size: 16px;
+      padding: 10px 12px;
+    }
+
+    .add-step .btn {
+      min-height: 48px;
+      font-size: 16px;
+    }
+  }
+  .add-step3-actions {
+    display: grid;
+    gap: 6px;
+  }
+
+  .top-bar-nav-arrows {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .side-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-size: 18px;
+    font-weight: 400;
+    font-family: 'Heebo', sans-serif;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+    padding: 0;
+    line-height: 1;
+  }
+  .side-arrow:hover {
+    opacity: 1;
+  }
+  #addStep3 {
+    height: 100%;
+    min-height: 0;
+    padding: 8px;
+    overflow: hidden;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+  }
+  #addStep3.active {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  #addStep3 .add-step3-panel {
+    height: 100%;
+    min-height: 0;
+    background: linear-gradient(180deg, rgba(255,255,255,0.94) 0%, rgba(239,245,252,0.92) 100%);
+    border: 1px solid rgba(148, 163, 184, 0.28);
+    border-radius: 24px;
+    box-shadow: 0 10px 24px rgba(15, 42, 68, 0.09);
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 8px;
+    overflow: hidden;
+  }
+  #addStep3 .finder-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+  }
+  #addStep3 .add-step3-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 0;
+  }
+  #addStep3 .form-group.full-row {
+    grid-column: 1 / -1;
+  }
+  #addStep3 .form-group {
+    margin: 0;
+    background: rgba(235, 243, 253, 0.66);
+    border: 1px solid rgba(148, 163, 184, 0.25);
+    border-radius: 16px;
+    padding: 8px;
+  }
+  #addStep3 .form-group label {
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  #addStep3 .form-group input,
+  #addStep3 .form-group select,
+  #addStep3 .form-group textarea {
+    min-height: 44px;
+    font-size: 15px;
+    padding: 8px 10px;
+    border-radius: 12px;
+  }
+  #addStep3 .choice-btn {
+    min-height: 44px;
+    padding: 8px;
+    font-size: 15px;
+    border-radius: 12px;
+  }
+  #addStep3 .add-step3-actions {
+    margin-top: auto;
+    padding-top: 4px;
+    padding-bottom: calc(var(--bottom-nav-h) + 8px);
+    background: transparent;
+  }
+  #addStep3 .add-step3-actions .btn {
+    min-height: 52px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #2f95e9, #2178cb);
+    font-size: 20px;
+    font-weight: 700;
+  }
+  .driver-mode #addStep2 .form-group input,
+  .driver-mode #addStep2 .form-group select {
+    min-height: 50px;
+    font-size: 16px;
+    padding: 10px 12px;
+  }
+  .driver-mode #addStep2 .btn {
+    min-height: 48px;
+    font-size: 16px;
+  }
+  @media (max-width: 480px) {
+    #addStep3 {
+      padding: 6px;
+      gap: 6px;
+    }
+    #addStep3 .finder-title {
+      font-size: 18px;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    #addStep3 .finder-title .step-icon {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+    #addStep3 .add-step3-grid { gap: 6px; }
+    #addStep3 .form-group.full-row {
+      grid-column: 1 / -1;
+    }
+    #addStep3 .form-group {
+      margin-bottom: 0;
+      padding: 6px;
+    }
+    #addStep3 .form-group label {
+      font-size: 12px;
+      margin-bottom: 3px;
+      line-height: 1.2;
+    }
+    #addStep3 .form-group input,
+    #addStep3 .form-group select,
+    #addStep3 .form-group textarea {
+      min-height: 40px;
+      font-size: 15px;
+      padding: 6px 8px;
+      border-radius: 10px;
+    }
+    #addStep3 .choice-btn {
+      padding: 6px;
+      font-size: 14px;
+      min-height: 40px;
+    }
+    #addStep3 .add-step3-actions .btn,
+    #addStep3 .add-step3-actions .step-back {
+      min-height: 52px;
+      font-size: 18px;
+      padding: 10px 12px;
+    }
+  }
+
+  .app-alert-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 17, 31, 0.66);
+    backdrop-filter: blur(4px);
+    z-index: 260;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .app-alert-overlay.open {
+    display: flex;
+  }
+  .app-alert-box {
+    width: min(100%, 460px);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 18px 36px rgba(20, 71, 124, 0.25);
+    text-align: center;
+  }
+  .app-alert-title {
+    font-size: 24px;
+    font-weight: 900;
+    margin: 0 0 10px;
+  }
+  .app-alert-text {
+    font-size: 18px;
+    line-height: 1.5;
+    margin: 0 0 14px;
+  }
+  .time-picker-box {
+    text-align: right;
+  }
+  .time-picker-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    direction: ltr;
+  }
+  .date-picker-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+    direction: ltr;
+  }
+  .time-picker-grid .form-group,
+  .date-picker-grid .form-group {
+    text-align: left;
+  }
+  .time-picker-grid select,
+  .date-picker-grid select {
+    direction: ltr;
+    text-align: left;
+  }
+  #addConfirmCard {
+    margin: 0 0 12px;
+    padding: 16px;
+  }
+  #addStep4.active {
+    max-height: var(--between-h);
+    overflow-y: auto;
+    padding-bottom: 96px;
+  }
+
+  #myridesScreen .my-rides-wrap {
+    height: auto;
+    flex: 1;
+    min-height: 0;
+    max-width: none;
+    margin: 0;
+    width: 100%;
+    padding: 12px 16px 90px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    touch-action: pan-y;
+  }
+
+  #myridesScreen .my-rides-wrap .ride-card {
+    width: 100%;
+    margin: 0 0 14px;
+    padding: 18px;
+  }
+
+  #myridesScreen .ride-dest {
+    font-size: 22px;
+  }
+
+  #myridesScreen.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .my-ride-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+  .btn-danger {
+    background: rgba(239, 68, 68, 0.16);
+    color: #b91c1c;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+  }
+
+  .driver-only {
+    display: none;
+  }
+
+  .driver-mode .driver-only {
+    display: flex;
+  }
+
+  .passenger-only {
+    display: none;
+  }
+
+  .passenger-mode .passenger-only {
+    display: flex;
+  }
+
+  #availableScreen.active {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .available-wrap {
+    flex: 1;
+    min-height: 0;
+    width: 100%;
+    padding: 10px 16px calc(var(--bottom-nav-h) + 18px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .available-panel {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    box-shadow: 0 10px 28px rgba(18, 79, 137, 0.12);
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+
+  .available-controls {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 44px 1fr 44px;
+    gap: 8px;
+    align-items: center;
+    direction: ltr;
+  }
+
+  .day-nav-btn {
+    min-height: 44px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: linear-gradient(135deg, #2f95e9, #2178cb);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    box-shadow: 0 8px 18px rgba(33, 120, 203, 0.24);
+  }
+  .day-nav-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  .available-date-pill {
+    min-height: 44px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(235, 243, 253, 0.95);
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    gap: 6px;
+    padding: 0 10px;
+  }
+
+  .available-date-icon {
+    font-size: 18px;
+    color: var(--sky-dark);
+    text-align: center;
+  }
+
+  .available-controls input[type="date"] {
+    min-height: 38px;
+    border: none;
+    background: transparent;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    padding: 0;
+    color: var(--text);
+  }
+  .available-controls input[type="date"]:focus {
+    border: none;
+    outline: none;
+  }
+
+  .available-summary {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  #availableRidesList .ride-card {
+    margin: 0 0 12px;
+    border-radius: 20px;
+    padding: 14px;
+    background: rgba(255,255,255,0.93);
+    box-shadow: 0 10px 24px rgba(18, 79, 137, 0.11);
+  }
+  #availableRidesList .ride-header {
+    margin-bottom: 10px;
+  }
+  #availableRidesList .ride-meta {
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  #availableRidesList .ride-footer {
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    padding-top: 10px;
+  }
+
+  @media (max-width: 480px) {
+    .pick-step {
+      gap: 8px !important;
+    }
+    .pick-step .finder-title {
+      font-size: 19px;
+    }
+    .pick-step .finder-subtitle {
+      font-size: 14px;
+      margin-top: -4px;
+    }
+    .pick-step .finder-grid {
+      gap: 8px;
+    }
+    .pick-step .finder-card {
+      min-height: 58px;
+      padding: 10px;
+    }
+    .pick-step .finder-card strong {
+      font-size: 18px;
+      line-height: 1.15;
+    }
+
+    #addStep4.active {
+      padding: 12px 12px 112px;
+      gap: 8px;
+    }
+    #addStep4 .finder-title {
+      font-size: 20px;
+      margin-top: 0;
+      margin-bottom: 4px;
+    }
+    #addConfirmCard {
+      margin: 0;
+      padding: 12px;
+    }
+    #addStep4 .btn,
+    #addStep4 .step-back {
+      min-height: 46px;
+      font-size: 15px;
+      padding: 9px 12px;
+    }
+  }
+
+  /* ── Profile Screen ── */
+  .profile-header {
+    text-align: center;
+    padding: 30px 20px 20px;
+  }
+  .profile-avatar {
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 32px; font-weight: 800;
+    margin: 0 auto 14px;
+    border: 3px solid rgba(14, 165, 233, 0.3);
+    overflow: hidden;
+    cursor: pointer;
+  }
+  .profile-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .profile-name { font-size: 22px; font-weight: 800; }
+  .profile-location { font-size: 14px; color: var(--muted); margin-top: 4px; }
+
+  #avatarUpload { display: none; }
+
+  .info-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 15px;
+  }
+  .info-row:last-child { border-bottom: none; }
+  .info-label { color: var(--muted); }
+  .profile-info-card {
+    cursor: default;
+  }
+  .profile-editable-row {
+    cursor: pointer;
+  }
+  .profile-editable-row.editing {
+    background: rgba(14, 165, 233, 0.08);
+    border-radius: 10px;
+    padding: 10px;
+    margin: 4px 0;
+    border-bottom-color: transparent;
+  }
+  .profile-inline-value-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+  }
+  .profile-inline-input {
+    min-height: 42px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    padding: 8px 10px;
+    font-size: 15px;
+    width: min(64vw, 220px);
+    text-align: right;
+  }
+  .profile-inline-actions {
+    padding: 10px 0 0;
+    display: grid;
+    gap: 8px;
+  }
+  .profile-inline-msg {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.14);
+    color: #047857;
+  }
+  .profile-inline-msg.error {
+    background: rgba(239, 68, 68, 0.12);
+    color: #b91c1c;
+  }
+
+  /* ── Contact Modal ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--night2);
+    border-radius: 20px 20px 0 0;
+    padding: 20px;
+    width: 100%;
+    max-width: 480px;
+    border-top: 1px solid var(--border);
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-handle {
+    width: 40px; height: 4px;
+    background: var(--night3);
+    border-radius: 2px;
+    margin: 0 auto 20px;
+  }
+  .modal-ride-info {
+    background: var(--night);
+    border-radius: 12px;
+    padding: 14px;
+    margin-bottom: 16px;
+  }
+  .contact-btns { display: flex; flex-direction: column; gap: 10px; }
+  .btn-whatsapp {
+    background: linear-gradient(135deg, #25d366, #128c7e);
+    color: white;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .btn-call {
+    background: linear-gradient(135deg, var(--sky), var(--sky-dark));
+    color: white;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    top: 20px; left: 50%;
+    transform: translateX(-50%) translateY(-80px);
+    background: var(--green);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 24px;
+    font-weight: 600;
+    font-size: 14px;
+    z-index: 300;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+
+  .otp-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 17, 31, 0.66);
+    backdrop-filter: blur(4px);
+    z-index: 210;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+  }
+  .otp-modal-overlay.open {
+    display: flex;
+  }
+  .otp-modal {
+    width: min(100%, 420px);
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 18px 40px rgba(14, 53, 95, 0.25);
+  }
+  .otp-title {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 6px;
+    text-align: center;
+  }
+  .otp-subtitle {
+    color: var(--muted);
+    font-size: 14px;
+    text-align: center;
+    margin-bottom: 12px;
+    line-height: 1.5;
+  }
+  .otp-verify-info {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .otp-info-row {
+    background: var(--night2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+  .otp-info-label {
+    color: var(--muted);
+    display: block;
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+  .otp-note {
+    background: #f8fbff;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 13px;
+    color: var(--text);
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  .otp-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  /* ── Date filter input ── */
+  .date-filter-wrap {
+    padding: 0 16px 8px;
+  }
+  .date-filter-wrap input {
+    width: 100%;
+    background: var(--night2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: var(--text);
+    font-family: 'Heebo', sans-serif;
+    font-size: 14px;
+    outline: none;
+  }
+  .date-filter-wrap input:focus { border-color: var(--sky); }
+
+  /* ── Empty State ── */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-state .emoji { font-size: 48px; display: block; margin-bottom: 12px; }
+  .empty-state p { font-size: 15px; }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--night3); border-radius: 2px; }
+
+  .section-pad { padding: 0 16px; }
+  .mt-8 { margin-top: 8px; }
+  .mt-16 { margin-top: 16px; }
+  .text-muted { color: var(--muted); font-size: 13px; }
+  .divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+  .step-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .trunk-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .trunk-badge.yes {
+    background: rgba(16, 185, 129, 0.16);
+    color: #34d399;
+  }
+  .trunk-badge.no {
+    background: rgba(239, 68, 68, 0.16);
+    color: #f87171;
+  }
+  .dogs-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+  }
+  .dogs-badge.yes {
+    background: rgba(16, 185, 129, 0.16);
+    color: #34d399;
+  }
+  .dogs-badge.no {
+    background: rgba(239, 68, 68, 0.16);
+    color: #f87171;
+  }
+  .ride-card.past-ride {
+    background: rgba(100, 116, 139, 0.32);
+    border-color: rgba(71, 85, 105, 0.65);
+    opacity: 0.5;
+    filter: saturate(0.5);
+  }
+  .choice-toggle {
+    display: block;
+  }
+  .choice-btn {
+    width: 100%;
+    border: 1px solid var(--border);
+    background: var(--night2);
+    color: var(--muted);
+    border-radius: 10px;
+    padding: 12px 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  .choice-btn.active {
+    border-color: var(--sky);
+    background: rgba(14, 165, 233, 0.2);
+    color: var(--text);
+  }
+
+  /* ── Autocomplete ── */
+  .autocomplete-wrap { position: relative; }
+  .autocomplete-list {
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    background: var(--night2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    max-height: 200px;
+    overflow-y: auto;
+    z-index: 60;
+    margin-top: 4px;
+  }
+  .autocomplete-item {
+    padding: 11px 14px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background 0.15s;
+    border-bottom: 1px solid var(--border);
+  }
+  .autocomplete-item:last-child { border-bottom: none; }
+  .autocomplete-item:hover, .autocomplete-item.highlighted { background: rgba(14, 165, 233, 0.15); }
+
+  .hidden { display: none !important; }
+
+  .avatar-btn.hidden { display: none !important; }
+
+  .logout-btn {
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--red);
+    border-radius: 10px;
+    padding: 12px;
+    width: 100%;
+    font-family: 'Heebo', sans-serif;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+    transition: background 0.2s;
+  }
+  .logout-btn:hover { background: rgba(239, 68, 68, 0.1); }
+
+  .edit-ride-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(8, 17, 31, 0.62);
+    backdrop-filter: blur(4px);
+    z-index: 220;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+  }
+  .edit-ride-modal-overlay.open {
+    display: flex;
+  }
+  .edit-ride-modal {
+    width: min(100%, 460px);
+    max-height: calc(var(--app-h) - 24px);
+    overflow-y: auto;
+    background: rgba(255, 255, 255, 0.98);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+    box-shadow: 0 16px 36px rgba(20, 71, 124, 0.24);
+  }
+  .edit-ride-modal .finder-title {
+    font-size: 21px;
+    margin-bottom: 4px;
+  }
+  .edit-ride-modal .step3-card input,
+  .edit-ride-modal .step3-card select {
+    min-height: 48px;
+    font-size: 16px;
+  }
+  .edit-ride-modal .form-group {
+    margin-bottom: 0;
+  }
+  .edit-ride-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .edit-ride-grid .full {
+    grid-column: 1 / -1;
+  }
+  .edit-ride-modal .form-group label {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--text);
+  }
+  .edit-ride-modal .form-group input,
+  .edit-ride-modal .form-group select {
+    width: 100%;
+    min-height: 48px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    background: rgba(255, 255, 255, 0.96);
+    padding: 10px 12px;
+    font-size: 15px;
+    color: var(--text);
+  }
+  .edit-ride-modal .choice-btn {
+    min-height: 48px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+  .edit-ride-modal .step3-card {
+    margin-bottom: 10px;
+  }
+  .edit-ride-actions {
+    display: grid;
+    gap: 8px;
+  }
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══ ENTRY SCREEN ══ -->
+  <div id="entryScreen" class="screen active">
+    <div class="entry-hero">
+      <div id="entryAnimation" aria-hidden="true"></div>
+      <h1>ברוכים הבאים</h1>
+      <p>מוצאים נסיעה משותפת מהשדה. פשוט.</p>
+    </div>
+    <div class="entry-role-grid">
+      <button class="finder-card" onclick="chooseUserRole('driver')">
+        <strong>🧑‍✈️ אני הנהג</strong>
+      </button>
+      <button class="finder-card" onclick="chooseUserRole('passenger')">
+        <strong>🧳 אני הנוסע</strong>
+      </button>
+    </div>
+    <div class="entry-credit">נבנה ע״י יונתן כהן @2026</div>
+  </div>
+
+  <!-- ══ LOGIN SCREEN ══ -->
+  <div id="loginScreen" class="screen hidden">
+    <div class="login-hero">
+      <span class="plane">✈️</span>
+      <h1>נסיעות קפריסין</h1>
+      <p>שיתוף נסיעות מהשדה לבית</p>
+    </div>
+
+    <div class="tabs" style="margin: 0 0 20px;">
+      <button class="tab active" onclick="switchAuthTab('login', event)">כניסה</button>
+      <button class="tab" onclick="switchAuthTab('register', event)">הרשמה</button>
+    </div>
+
+    <!-- Login Form -->
+    <form id="loginForm" onsubmit="event.preventDefault(); doLogin();">
+      <div class="form-group">
+        <label>שם משתמש</label>
+        <input type="text" id="loginName" placeholder="הכנס שם משתמש">
+      </div>
+      <div class="form-group">
+        <label>סיסמה</label>
+        <input type="password" id="loginPass" placeholder="הכנס סיסמה">
+      </div>
+      <button class="btn btn-primary" type="submit">כניסה</button>
+    </form>
+
+    <!-- Register Form -->
+    <form id="registerForm" class="hidden" onsubmit="event.preventDefault(); doRegister();">
+      <div class="form-group">
+        <label>שם משתמש</label>
+        <input type="text" id="regUsername" placeholder="למשל: yossi88">
+      </div>
+      <div class="form-group">
+        <label>שם מלא</label>
+        <input type="text" id="regName" placeholder="שם ושם משפחה">
+      </div>
+      <div class="form-group">
+        <label>סיסמה</label>
+        <input type="password" id="regPass" placeholder="לפחות 6 תווים">
+      </div>
+      <div class="form-group">
+        <label>מספר טלפון</label>
+        <input type="tel" id="regPhone" placeholder="05X-XXXXXXX">
+      </div>
+      <div class="form-group">
+        <label>כתובת מגורים (יעד ברירת מחדל)</label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="regAddress" placeholder="לדוגמה: Paphos, Universal" oninput="acInput(this, 'regAddressAC')" autocomplete="off">
+          <div class="autocomplete-list hidden" id="regAddressAC"></div>
+        </div>
+      </div>
+      <button class="btn btn-primary" type="submit">הרשמה</button>
+    </form>
+  </div>
+
+  <!-- ══ MAIN APP ══ -->
+  <div id="mainApp" class="hidden">
+    <!-- ── HOME SCREEN ── -->
+    <div id="homeScreen" class="screen active">
+      <div class="top-bar">
+        <div class="top-bar-nav-arrows" id="homeSideNav">
+          <button class="side-arrow" id="homeSideNext" onclick="sideStepNav('next')">&lt;</button>
+          <button class="side-arrow" id="homeSidePrev" onclick="sideStepNav('prev')">&gt;</button>
+        </div>
+        <h1 class="top-title"><span class="title-icon">🚗</span>לחפש נסיעה</h1>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="mini-btn home-circle-btn" id="topHomeBtn" onclick="goWelcome()">🏠</button>
+          <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
+        </div>
+      </div>
+
+      <div id="finderWizard" class="finder-wizard">
+        <div class="wizard-progress" id="finderProgress" aria-hidden="true">
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+        </div>
+        <section id="finderStep1" class="finder-step pick-step active">
+          <div class="finder-title"><span class="step-icon">1</span>בחרו כיוון נסיעה</div>
+          <div class="finder-grid fill">
+            <button class="finder-card" id="tripTypeFromCard" onclick="selectTripType('from_airport', this)">
+              <strong><span class="trip-emoji">🛬</span><span class="trip-label">חוזרים מהשדה</span></strong>
+            </button>
+            <button class="finder-card" id="tripTypeToCard" onclick="selectTripType('to_airport', this)">
+              <strong><span class="trip-emoji">🛫</span><span class="trip-label">נוסעים לשדה</span></strong>
+            </button>
+          </div>
+        </section>
+
+        <section id="finderStep2" class="finder-step pick-step">
+          <div class="finder-title" id="finderStep2Title"><span class="step-icon">2</span>מאיזה שדה אתם חוזרים?</div>
+          <div class="finder-grid fill">
+            <button class="finder-card" id="airportLarnacaCard" onclick="selectAirport('larnaca', this)">
+              <strong>🛬 לרנקה (LCA)</strong>
+            </button>
+            <button class="finder-card" id="airportPaphosCard" onclick="selectAirport('paphos', this)">
+              <strong>🛬 פאפוס (PFO)</strong>
+            </button>
+          </div>
+        </section>
+
+        <section id="finderStep3" class="finder-step">
+          <div class="finder-title" id="finderStep3Title"><span class="step-icon">3</span>תאריך ושעת נחיתה</div>
+          <div class="step3-grid">
+            <div class="step3-card">
+              <label>📅 יום נסיעה</label>
+              <button id="finderDateBtn" class="picker-btn empty" type="button" onclick="openFinderDatePicker()">בחירת יום</button>
+              <input class="hidden-picker" type="date" id="finderDate" onchange="updateFinderPickerLabels()">
+            </div>
+            <div class="step3-card">
+              <label id="finderTimeLabel">🕐 שעת נחיתה (אופציונלי)</label>
+              <button id="finderTimeBtn" class="picker-btn empty" type="button" onclick="openFinderTimePicker()">בחירת שעה</button>
+              <input class="hidden-picker" type="time" id="finderTime" onchange="updateFinderPickerLabels()">
+            </div>
+          </div>
+          <div class="step3-actions">
+            <button class="btn btn-primary" onclick="applyFinderDateTime()">הצג נסיעות זמינות</button>
+          </div>
+        </section>
+
+        <section id="finderStep4" class="finder-step results-step">
+          <div class="finder-title"><span class="step-icon">4</span>נסיעות זמינות</div>
+          <div id="resultsToolbar" class="results-toolbar">
+            <div class="results-summary" id="resultsSummary"></div>
+            <div style="display:flex;gap:6px;">
+              <button class="mini-btn" onclick="resetFinderSelection()">חיפוש חדש</button>
+            </div>
+          </div>
+          <div id="ridesList"></div>
+        </section>
+      </div>
+    </div>
+
+    <!-- ── ADD RIDE SCREEN ── -->
+    <div id="addScreen" class="screen">
+      <div class="top-bar">
+        <div class="top-bar-nav-arrows" id="addSideNav">
+          <button class="side-arrow" id="addSideNext" onclick="sideStepNav('next')">&lt;</button>
+          <button class="side-arrow" id="addSidePrev" onclick="sideStepNav('prev')">&gt;</button>
+        </div>
+        <h1 class="top-title"><span class="title-icon">➕</span>הוספת נסיעה</h1>
+        <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
+      </div>
+
+      <div class="add-wizard" id="addWizard">
+        <div class="wizard-progress" id="addProgress" aria-hidden="true">
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+          <span class="wizard-line"></span>
+        </div>
+        <section id="addStep1" class="add-step active">
+          <div class="finder-title"><span class="step-icon">1</span>פרטי מסלול</div>
+          <div class="form-group">
+            <label>סוג נסיעה</label>
+            <select id="addTripType" onchange="updateTripTypeUi()">
+              <option value="from_airport" selected>🛬 חזרה מהשדה</option>
+              <option value="to_airport">🛫 נסיעה לשדה</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="addAirportLabel">שדה תעופה</label>
+            <select id="addAirport">
+              <option value="">בחר שדה תעופה</option>
+              <option value="larnaca">לרנקה (LCA)</option>
+              <option value="paphos">פאפוס (PFO)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label id="addDestLabel">יעד הנסיעה (מהשדה)</label>
+            <div class="autocomplete-wrap">
+              <input type="text" id="addDest" placeholder="בחרו עיר + שכונה או כפר מתוך הרשימה" oninput="acInput(this, 'addDestAC')" autocomplete="off">
+              <div class="autocomplete-list hidden" id="addDestAC"></div>
+            </div>
+          </div>
+          <button class="btn btn-primary" onclick="nextAddStep(2)">המשך</button>
+        </section>
+
+        <section id="addStep2" class="add-step">
+          <div class="finder-title"><span class="step-icon">2</span>תאריך ושעה</div>
+          <div class="form-group">
+            <label>תאריך</label>
+            <input type="text" id="addDate" placeholder="בחרו תאריך" readonly onclick="openAddDatePicker()">
+          </div>
+          <div class="form-group">
+            <label id="addTimeLabel">שעת נחיתה</label>
+            <input type="text" id="addTime" placeholder="בחרו שעה" readonly onclick="openAddTimePicker()">
+          </div>
+          <button class="btn btn-primary" onclick="nextAddStep(3)">המשך</button>
+        </section>
+
+        <section id="addStep3" class="add-step">
+          <div class="add-step3-panel">
+            <div class="finder-title"><span class="step-icon">3</span>פרטי התקשרות ונסיעה</div>
+            <div class="add-step3-grid">
+              <div class="form-group full-row">
+                <label>מספר וואטסאפ שלכם</label>
+                <input type="tel" id="addContactPhone" placeholder="מספר הוואטסאפ שלכם (05X-XXXXXXX)">
+              </div>
+              <div class="form-group full-row">
+                <label>שם איש קשר</label>
+                <input type="text" id="addContactName" placeholder="שם מלא">
+              </div>
+              <div class="form-group">
+                <label>מחיר (€)</label>
+                <input type="number" id="addPrice" placeholder="0 = חינם" min="0" value="0">
+              </div>
+              <div class="form-group">
+                <label>מקומות פנויים</label>
+                <select id="addSeats">
+                  <option value="1">1 מקום</option>
+                  <option value="2">2 מקומות</option>
+                  <option value="3" selected>3 מקומות</option>
+                  <option value="4">4 מקומות</option>
+                  <option value="5">5 מקומות</option>
+                  <option value="6">6 מקומות</option>
+                  <option value="7">7 מקומות</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>כלבים</label>
+                <input type="hidden" id="addDogsAllowed" value="no">
+                <div class="choice-toggle">
+                  <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addDogsAllowed', this, '🐶 עם כלבים', '🚫 בלי כלבים')">🚫 בלי כלבים</button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>מזוודה</label>
+                <input type="hidden" id="addTrunkSpace" value="yes">
+                <div class="choice-toggle">
+                  <button type="button" class="choice-btn active" onclick="toggleBinaryChoice('addTrunkSpace', this, '🧳 עם מזוודה', '🚫 בלי מזוודה')">🧳 עם מזוודה</button>
+                </div>
+              </div>
+            </div>
+            <div class="add-step3-actions">
+              <button class="btn btn-primary" onclick="nextAddStep(4)">המשך לאישור</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="addStep4" class="add-step">
+          <div class="finder-title"><span class="step-icon">4</span>אישור פרטי נסיעה</div>
+          <div class="card" id="addConfirmCard"></div>
+          <button class="btn btn-gold" onclick="addRide()">✅ אישור ופרסום נסיעה</button>
+          <button class="step-back" onclick="goAddPrevStep()">חזרה לעריכה</button>
+        </section>
+      </div>
+    </div>
+
+    <div id="myridesScreen" class="screen">
+      <div class="top-bar">
+        <h1 class="top-title"><span class="title-icon">🗂️</span>הנסיעות שלי</h1>
+        <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
+      </div>
+      <div class="my-rides-wrap" id="myRidesList"></div>
+    </div>
+
+    <div id="availableScreen" class="screen">
+      <div class="top-bar">
+        <h1 class="top-title"><span class="title-icon">📅</span>נסיעות זמינות</h1>
+        <button class="mini-btn home-circle-btn" onclick="goWelcome()">🏠</button>
+      </div>
+      <div class="available-wrap">
+        <div class="available-panel">
+          <div class="available-controls">
+            <button class="day-nav-btn" id="availablePrevBtn" type="button" onclick="shiftAvailableDate(-1)">◀</button>
+            <div class="available-date-pill">
+              <span class="available-date-icon">📅</span>
+              <input type="date" id="availableDate" onchange="setAvailableDate(this.value)">
+            </div>
+            <button class="day-nav-btn" id="availableNextBtn" type="button" onclick="shiftAvailableDate(1)">▶</button>
+          </div>
+          <div class="available-summary" id="availableSummary"></div>
+        </div>
+        <div id="availableRidesList"></div>
+      </div>
+    </div>
+
+    <!-- ── PROFILE SCREEN ── -->
+    <div id="profileScreen" class="screen">
+      <div class="top-bar">
+        <h1 class="top-title"><span class="title-icon">👤</span>הפרופיל שלי</h1>
+        <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
+      </div>
+
+      <div class="profile-header">
+        <div class="profile-avatar" id="profileAvatarLetter" onclick="openAvatarPicker()"></div>
+        <input type="file" id="avatarUpload" accept="image/*" onchange="uploadAvatar(event)">
+        <div class="profile-name" id="profileName"></div>
+      </div>
+
+      <div class="card profile-info-card" id="profileInfoCard">
+        <div class="info-row profile-editable-row" id="profileRowName" onclick="startInlineProfileEdit('name')">
+          <span class="info-label">👤 שם מלא</span>
+          <div class="profile-inline-value-wrap">
+            <span id="profileFullName"></span>
+            <input type="text" id="profileInlineName" class="profile-inline-input hidden" placeholder="שם מלא" onclick="event.stopPropagation()">
+          </div>
+        </div>
+        <div class="info-row profile-editable-row" id="profileRowPhone" onclick="startInlineProfileEdit('phone')">
+          <span class="info-label">📞 טלפון</span>
+          <div class="profile-inline-value-wrap">
+            <span id="profilePhone"></span>
+            <input type="tel" id="profileInlinePhone" class="profile-inline-input hidden" placeholder="05X-XXXXXXX" onclick="event.stopPropagation()">
+          </div>
+        </div>
+        <div class="profile-inline-actions hidden" id="profileInlineActions">
+          <button class="btn btn-primary" onclick="saveInlineProfileEdit()">💾 שמירה</button>
+          <button class="step-back" onclick="cancelInlineProfileEdit()">ביטול</button>
+        </div>
+        <div class="profile-inline-msg hidden" id="profileInlineMsg"></div>
+      </div>
+
+      <div style="padding: 0 16px;">
+        <button class="logout-btn" onclick="logout()">🚪 התנתק</button>
+      </div>
+    </div>
+
+    <!-- Bottom Nav -->
+    <nav class="bottom-nav">
+      <button class="nav-btn active" id="navHome" onclick="handleHomeNavClick()">
+        <span class="icon">🚗</span>
+        <span>לחפש נסיעה</span>
+      </button>
+      <button class="nav-btn driver-only" id="navAdd" onclick="navigate('add')">
+        <span class="icon">➕</span>
+        <span>הוסף נסיעה</span>
+      </button>
+      <button class="nav-btn driver-only" id="navMyrides" onclick="navigate('myrides')">
+        <span class="icon">🗂️</span>
+        <span>הנסיעות שלי</span>
+      </button>
+      <button class="nav-btn passenger-only" id="navAvailable" onclick="navigate('available')">
+        <span class="icon">📅</span>
+        <span>נסיעות זמינות</span>
+      </button>
+    </nav>
+  </div>
+</div>
+
+<div class="app-alert-overlay" id="appAlertModal" onclick="closeAppAlert(event)">
+  <div class="app-alert-box">
+    <div class="app-alert-title">שימו לב</div>
+    <p class="app-alert-text" id="appAlertText"></p>
+    <button class="btn btn-primary" type="button" onclick="closeAppAlert(true)">אישור</button>
+  </div>
+</div>
+
+<div class="app-alert-overlay" id="timePickerModal" onclick="closeTimePickerModal(event)">
+  <div class="app-alert-box time-picker-box">
+    <div class="app-alert-title" id="timePickerTitle">בחירת שעה</div>
+    <div class="time-picker-grid">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>שעה</label>
+        <select id="timePickerHour"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>דקות</label>
+        <select id="timePickerMinute"></select>
+      </div>
+    </div>
+    <div class="otp-actions" style="margin-top:12px;">
+      <button class="btn btn-ghost" type="button" onclick="closeTimePickerModal(false)">ביטול</button>
+      <button class="btn btn-primary" type="button" onclick="closeTimePickerModal(true)">אישור</button>
+    </div>
+  </div>
+</div>
+
+<div class="app-alert-overlay" id="datePickerModal" onclick="closeDatePickerModal(event)">
+  <div class="app-alert-box time-picker-box">
+    <div class="app-alert-title" id="datePickerTitle">בחירת תאריך</div>
+    <div class="date-picker-grid">
+      <div class="form-group" style="margin-bottom:0;">
+        <label>יום</label>
+        <select id="datePickerDay"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>חודש</label>
+        <select id="datePickerMonth"></select>
+      </div>
+      <div class="form-group" style="margin-bottom:0;">
+        <label>שנה</label>
+        <select id="datePickerYear"></select>
+      </div>
+    </div>
+    <div class="otp-actions" style="margin-top:12px;">
+      <button class="btn btn-ghost" type="button" onclick="closeDatePickerModal(false)">ביטול</button>
+      <button class="btn btn-primary" type="button" onclick="closeDatePickerModal(true)">אישור</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CONTACT MODAL ══ -->
+<!-- ══ CONTACT MODAL ══ -->
+<div class="modal-overlay" id="contactModal" onclick="closeModal(event)">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <div class="modal-ride-info" id="modalInfo"></div>
+    <div class="contact-btns">
+      <button class="btn btn-whatsapp" id="whatsappBtn">
+        <span style="font-size:20px">💬</span> שלח WhatsApp
+      </button>
+      <button class="btn btn-call" id="callBtn">
+        <span style="font-size:18px">📞</span> התקשר עכשיו
+      </button>
+      <button class="btn btn-ghost" onclick="closeModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TOAST ══ -->
+<div class="toast" id="toast"></div>
+
+<!-- ══ OTP MODAL ══ -->
+<div class="otp-modal-overlay" id="otpModal">
+  <div class="otp-modal">
+    <div class="otp-title">אימות פרסום ראשון</div>
+    <div class="otp-subtitle" id="otpSubtitle">לפני פרסום הנסיעה הראשונה מבצעים אימות אימייל חד-פעמי</div>
+
+    <div class="otp-verify-info">
+      <div class="otp-info-row">
+        <span class="otp-info-label">שם איש קשר</span>
+        <strong id="otpContactName">-</strong>
+      </div>
+      <div class="otp-info-row">
+        <span class="otp-info-label">מספר וואטסאפ</span>
+        <strong id="otpContactPhone">-</strong>
+      </div>
+    </div>
+
+    <div class="otp-note">אימות חד-פעמי לצורכי אבטחה. המכשיר יזוהה אוטומטית בפרסומים הבאים.</div>
+
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>כתובת אימייל</label>
+      <input id="otpEmailInput" type="email" inputmode="email" autocomplete="email" placeholder="name@example.com">
+    </div>
+
+    <div class="otp-actions" style="margin-top:0; margin-bottom:10px;">
+      <button class="btn btn-primary" type="button" onclick="sendEmailVerifyCode()">שלח קוד לאימייל</button>
+      <button class="btn btn-ghost" type="button" onclick="closeOtpModal(false)">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<div class="otp-modal-overlay" id="otpCodeModal">
+  <div class="otp-modal">
+    <div class="otp-title">אימות קוד</div>
+    <div class="otp-subtitle" id="otpCodeSubtitle">הקוד נשלח למייל שהזנת. הזינו קוד חד-פעמי להמשך פרסום.</div>
+    <div class="form-group" style="margin-bottom:10px;">
+      <label>קוד אימות (4 ספרות)</label>
+      <input id="otpCodeInput" type="tel" inputmode="numeric" maxlength="4" autocomplete="one-time-code" pattern="[0-9]{4}" placeholder="הכנס/י 4 ספרות">
+    </div>
+    <div class="otp-actions">
+      <button class="btn btn-ghost" type="button" onclick="closeOtpCodeModal(false)">ביטול</button>
+      <button class="btn btn-primary" type="button" onclick="confirmEmailVerification()">אמת והמשך פרסום</button>
+    </div>
+  </div>
+</div>
+
+<div class="edit-ride-modal-overlay" id="editRideModal" onclick="closeEditRideModal(event)">
+  <div class="edit-ride-modal">
+    <div class="finder-title"><span class="step-icon">✏️</span>עריכת פרטי נסיעה</div>
+    <div class="edit-ride-grid">
+      <div class="form-group full">
+        <label>סוג נסיעה</label>
+        <select id="editRideTripType" onchange="updateEditRideTripTypeUi()">
+          <option value="from_airport">🛬 חזרה מהשדה</option>
+          <option value="to_airport">🛫 נסיעה לשדה</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>שדה תעופה</label>
+        <select id="editRideAirport">
+          <option value="larnaca">לרנקה (LCA)</option>
+          <option value="paphos">פאפוס (PFO)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label id="editRideDestLabel">יעד/מוצא</label>
+        <div class="autocomplete-wrap">
+          <input type="text" id="editRideDest" oninput="acInput(this, 'editRideDestAC')" autocomplete="off">
+          <div class="autocomplete-list hidden" id="editRideDestAC"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>תאריך</label>
+        <input type="date" id="editRideDate">
+      </div>
+      <div class="form-group">
+        <label id="editRideTimeLabel">שעה</label>
+        <input type="time" id="editRideTime">
+      </div>
+      <div class="form-group">
+        <label>שם איש קשר</label>
+        <input type="text" id="editRideDriver">
+      </div>
+      <div class="form-group">
+        <label>מספר וואטסאפ שלכם</label>
+        <input type="tel" id="editRidePhone" placeholder="מספר הוואטסאפ שלכם">
+      </div>
+      <div class="form-group">
+        <label>👥 מקומות פנויים</label>
+        <select id="editRideSeats">
+          <option value="1">1 מקום</option>
+          <option value="2">2 מקומות</option>
+          <option value="3">3 מקומות</option>
+          <option value="4">4 מקומות</option>
+          <option value="5">5 מקומות</option>
+          <option value="6">6 מקומות</option>
+          <option value="7">7 מקומות</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>💶 מחיר (€)</label>
+        <input type="number" id="editRidePrice" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>מזוודה</label>
+        <input type="hidden" id="editRideTrunkSpace" value="yes">
+        <button type="button" class="choice-btn" id="editRideTrunkBtn" onclick="toggleBinaryChoice('editRideTrunkSpace', this, '🧳 עם מזוודה', '🚫 בלי מזוודה')">🧳 עם מזוודה</button>
+      </div>
+      <div class="form-group">
+        <label>כלבים</label>
+        <input type="hidden" id="editRideDogsAllowed" value="no">
+        <button type="button" class="choice-btn" id="editRideDogsBtn" onclick="toggleBinaryChoice('editRideDogsAllowed', this, '🐶 עם כלבים', '🚫 בלי כלבים')">🚫 בלי כלבים</button>
+      </div>
+    </div>
+    <div class="edit-ride-actions">
+      <button class="btn btn-primary" onclick="submitEditRide()">שמירת שינויים</button>
+      <button class="step-back" onclick="closeEditRideModal()">ביטול</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+<script>
+const queryApiBase = new URLSearchParams(location.search).get('api');
+if (queryApiBase) {
+  localStorage.setItem('cy_api_base', queryApiBase);
+}
+
+const API_BASE = (() => {
+  const explicitBase = (window.CARPOOL_API_BASE || localStorage.getItem('cy_api_base') || '').trim();
+  if (explicitBase) {
+    return explicitBase.replace(/\/$/, '');
+  }
+  if (location.hostname.endsWith('pages.dev')) {
+    return 'https://carpool-api.unique-center-yoni.workers.dev';
+  }
+  if (location.protocol === 'file:') {
+    return 'http://localhost:3001';
+  }
+  return '';
+})();
+
+function assertApiConfigured() {
+  if (!API_BASE && location.hostname.endsWith('github.io')) {
+    throw new Error('שרת API לא מוגדר. הגדר כתובת Worker דרך ?api=... או localStorage: cy_api_base');
+  }
+}
+
+let entryAnimationInstance = null;
+
+function initEntryAnimation({ force = false } = {}) {
+  const container = document.getElementById('entryAnimation');
+  if (!container) {
+    return;
+  }
+
+  if (!window.lottie) {
+    container.textContent = '✈️';
+    return;
+  }
+
+  if (entryAnimationInstance && !force) {
+    entryAnimationInstance.play();
+    return;
+  }
+
+  if (entryAnimationInstance && force) {
+    try {
+      entryAnimationInstance.destroy();
+    } catch {
+      // ignore cleanup errors
+    }
+    entryAnimationInstance = null;
+  }
+
+  container.textContent = '';
+
+  entryAnimationInstance = window.lottie.loadAnimation({
+    container,
+    renderer: 'svg',
+    loop: true,
+    autoplay: true,
+    path: 'airplane.json',
+  });
+}
+
+function ensureEntryAnimationVisible() {
+  if (entryAnimationInstance) {
+    entryAnimationInstance.play();
+    return;
+  }
+  initEntryAnimation({ force: true });
+}
+
+const STATE = {
+  session: localStorage.getItem('cy_session') || null,
+  role: localStorage.getItem('cy_role') || null,
+  driverPhone: localStorage.getItem('cy_driver_phone') || '',
+  publishSessionToken: localStorage.getItem('cy_publish_session_token') || '',
+  currentUser: null,
+  rides: [],
+  availableDate: '',
+};
+
+const PUBLISH_SESSION_TOKEN_KEY = 'cy_publish_session_token';
+const PUBLISH_SESSION_EXPIRES_KEY = 'cy_publish_session_expires_at';
+const PUBLISH_SESSION_NAME_KEY = 'cy_publish_contact_name';
+const PUBLISH_SESSION_PHONE_KEY = 'cy_publish_contact_phone';
+
+function clearPublishSession() {
+  STATE.publishSessionToken = '';
+  localStorage.removeItem(PUBLISH_SESSION_TOKEN_KEY);
+  localStorage.removeItem(PUBLISH_SESSION_EXPIRES_KEY);
+  localStorage.removeItem(PUBLISH_SESSION_NAME_KEY);
+  localStorage.removeItem(PUBLISH_SESSION_PHONE_KEY);
+}
+
+function getStoredPublishSessionToken() {
+  const token = localStorage.getItem(PUBLISH_SESSION_TOKEN_KEY) || '';
+  const expiresAt = Number(localStorage.getItem(PUBLISH_SESSION_EXPIRES_KEY) || 0);
+  if (!token || !Number.isFinite(expiresAt) || Date.now() > expiresAt) {
+    clearPublishSession();
+    return '';
+  }
+  STATE.publishSessionToken = token;
+  return token;
+}
+
+function storePublishSession({ token, ttlSeconds, name, phone }) {
+  const seconds = Number(ttlSeconds || 0);
+  const safeSeconds = Number.isFinite(seconds) && seconds > 0 ? seconds : 60 * 60 * 24 * 365 * 10;
+  const expiresAt = Date.now() + safeSeconds * 1000;
+  STATE.publishSessionToken = String(token || '').trim();
+  localStorage.setItem(PUBLISH_SESSION_TOKEN_KEY, STATE.publishSessionToken);
+  localStorage.setItem(PUBLISH_SESSION_EXPIRES_KEY, String(expiresAt));
+  localStorage.setItem(PUBLISH_SESSION_NAME_KEY, String(name || '').trim());
+  localStorage.setItem(PUBLISH_SESSION_PHONE_KEY, String(phone || '').trim());
+}
+
+getStoredPublishSessionToken();
+
+function getCurrentUser() {
+  return STATE.currentUser;
+}
+
+function profileSetupKey(username) {
+  return `cy_profile_setup_done_${username}`;
+}
+
+function isProfileSetupDone(username) {
+  return localStorage.getItem(profileSetupKey(username)) === '1';
+}
+
+function setProfileSetupDone(username) {
+  localStorage.setItem(profileSetupKey(username), '1');
+}
+
+function escapeHtml(value) {
+  return (value || '').replace(/[&<>'"]/g, (ch) => {
+    const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+    return map[ch];
+  });
+}
+
+function avatarMarkup(user, size = 36) {
+  if (user?.avatarDataUrl) {
+    return `<img src="${escapeHtml(user.avatarDataUrl)}" alt="avatar" width="${size}" height="${size}">`;
+  }
+  const letter = (user?.name || user?.username || '?').charAt(0).toUpperCase();
+  return escapeHtml(letter);
+}
+
+function renderHeaderAvatar() {
+  document.querySelectorAll('.js-user-avatar-btn').forEach((btn) => {
+    btn.innerHTML = avatarMarkup(getCurrentUser(), 36);
+  });
+}
+
+function openAvatarPicker() {
+  document.getElementById('avatarUpload').click();
+}
+
+async function parseApiResponse(res) {
+  const text = await res.text();
+  let data;
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    throw new Error('שרת API לא זמין או כתובת API שגויה.');
+  }
+  return data;
+}
+
+async function apiGet(path) {
+  assertApiConfigured();
+  const res = await fetch(`${API_BASE}${path}`);
+  const data = await parseApiResponse(res);
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || 'Server error');
+  }
+  return data;
+}
+
+async function apiPost(path, body) {
+  assertApiConfigured();
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await parseApiResponse(res);
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || 'Server error');
+  }
+  return data;
+}
+
+async function apiPut(path, body) {
+  assertApiConfigured();
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  const data = await parseApiResponse(res);
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || 'Server error');
+  }
+  return data;
+}
+
+async function apiDelete(path, body) {
+  assertApiConfigured();
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body || {}),
+  });
+  const data = await parseApiResponse(res);
+  if (!res.ok || data.ok === false) {
+    throw new Error(data.error || 'Server error');
+  }
+  return data;
+}
+
+function toggleBinaryChoice(fieldId, btnEl, yesLabel, noLabel) {
+  const input = document.getElementById(fieldId);
+  input.value = input.value === 'yes' ? 'no' : 'yes';
+  const isYes = input.value === 'yes';
+  btnEl.textContent = isYes ? yesLabel : noLabel;
+  btnEl.classList.toggle('active', isYes);
+}
+
+function ensureGuestUser() {
+  if (!STATE.currentUser) {
+    STATE.currentUser = {
+      username: 'guest',
+      name: 'אורח',
+      phone: '',
+      address: '',
+      avatarDataUrl: '',
+    }
+  }
+}
+
+async function startAppEntry() {
+  ensureGuestUser();
+  enterApp({ firstEntry: false, targetScreen: 'home' });
+}
+
+function chooseUserRole(role) {
+  STATE.role = role;
+  localStorage.setItem('cy_role', role);
+  applyRoleUi();
+  ensureGuestUser();
+  enterApp({ firstEntry: false, targetScreen: role === 'driver' ? 'add' : 'home' });
+  if (role === 'passenger') {
+    goFindRide();
+  } else {
+    resetAddWizard();
+  }
+}
+
+function toLocalIsoDate(dateObj = new Date()) {
+  const year = dateObj.getFullYear();
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function isoTodayDate() {
+  return toLocalIsoDate(new Date());
+}
+
+const finderState = {
+  tripType: null,
+  airport: null,
+  date: '',
+  time: '',
+}
+
+function timeLabelByTripType(tripType, optional = false) {
+  const suffix = optional ? ' (אופציונלי)' : '';
+  return tripType === 'to_airport' ? `🕐 שעת המראה${suffix}` : `🕐 שעת נחיתה${suffix}`;
+}
+
+function updateTimeContextUi() {
+  const addTripType = document.getElementById('addTripType')?.value || 'from_airport';
+  const finderTripType = finderState.tripType || 'from_airport';
+
+  const addTimeLabel = document.getElementById('addTimeLabel');
+  if (addTimeLabel) {
+    addTimeLabel.textContent = addTripType === 'to_airport' ? 'שעת המראה' : 'שעת נחיתה';
+  }
+
+  const finderTimeLabel = document.getElementById('finderTimeLabel');
+  if (finderTimeLabel) {
+    finderTimeLabel.textContent = timeLabelByTripType(finderTripType, true);
+  }
+}
+
+function updateWizardProgress(progressId, currentStep, totalSteps = 4) {
+  const progressEl = document.getElementById(progressId);
+  if (!progressEl) return;
+  const lines = progressEl.querySelectorAll('.wizard-line');
+  lines.forEach((line, index) => {
+    line.classList.toggle('active', index < Math.min(currentStep, totalSteps));
+  });
+}
+
+function updateTripTypeUi() {
+  const tripType = document.getElementById('addTripType').value;
+  const isFromAirport = tripType === 'from_airport';
+  document.getElementById('addDestLabel').textContent = isFromAirport
+    ? 'יעד הנסיעה (מהשדה)'
+    : 'מאיפה יוצאים לשדה';
+  document.getElementById('addDest').placeholder = isFromAirport
+    ? 'אפשר להקליד בעברית/אנגלית או לבחור מהרשימה'
+    : 'אפשר להקליד בעברית/אנגלית או לבחור מהרשימה';
+  updateTimeContextUi();
+}
+
+function syncAddDefaultsFromProfile() {
+  const user = getCurrentUser();
+  const nameInput = document.getElementById('addContactName');
+  const phoneInput = document.getElementById('addContactPhone');
+  const destInput = document.getElementById('addDest');
+
+  const storedName = localStorage.getItem(PUBLISH_SESSION_NAME_KEY) || '';
+  const storedPhone = localStorage.getItem(PUBLISH_SESSION_PHONE_KEY) || '';
+
+  const preferredName = user?.name || storedName;
+  const preferredPhone = user?.phone || storedPhone;
+
+  if (nameInput) {
+    nameInput.value = String(preferredName || '').trim();
+  }
+  if (phoneInput) {
+    phoneInput.value = String(preferredPhone || '').trim();
+  }
+  if (destInput && user) {
+    destInput.value = (user.address || '').trim();
+  }
+}
+
+function showAddStep(stepNumber) {
+  document.querySelectorAll('.add-step').forEach((step) => step.classList.remove('active'));
+  document.getElementById(`addStep${stepNumber}`).classList.add('active');
+  updateWizardProgress('addProgress', stepNumber, 4);
+  updateSideNavVisibility();
+}
+
+function currentAddStepNumber() {
+  const active = document.querySelector('#addWizard .add-step.active');
+  if (!active?.id) return 1;
+  return Number(active.id.replace('addStep', '')) || 1;
+}
+
+function currentFinderStepNumber() {
+  const active = document.querySelector('#finderWizard .finder-step.active');
+  if (!active?.id) return 1;
+  return Number(active.id.replace('finderStep', '')) || 1;
+}
+
+function goAddPrevStep() {
+  const current = currentAddStepNumber();
+  if (current > 1) {
+    showAddStep(current - 1);
+  }
+}
+
+function goAddNextStep() {
+  const current = currentAddStepNumber();
+  if (current < 4) {
+    nextAddStep(current + 1);
+  }
+}
+
+function goFinderPrevStep() {
+  const current = currentFinderStepNumber();
+  if (current > 1) {
+    showFinderStep(current - 1);
+  }
+}
+
+function goFinderNextStep() {
+  const current = currentFinderStepNumber();
+  if (current < 4) {
+    showFinderStep(current + 1);
+  }
+}
+
+function getAddFormData() {
+  const rawPriceVal = document.getElementById('addPrice').value;
+  const priceVal = rawPriceVal === '' ? '0' : rawPriceVal;
+  const addDateInput = document.getElementById('addDate');
+  const addDateIso = addDateInput?.dataset.iso || '';
+  return {
+    contactName: document.getElementById('addContactName').value.trim(),
+    contactPhone: document.getElementById('addContactPhone').value.trim(),
+    tripType: document.getElementById('addTripType').value,
+    airport: document.getElementById('addAirport').value,
+    date: addDateIso,
+    time: document.getElementById('addTime').value,
+    dest: document.getElementById('addDest').value.trim(),
+    seats: parseInt(document.getElementById('addSeats').value),
+    trunkSpace: document.getElementById('addTrunkSpace').value === 'yes',
+    dogsAllowed: document.getElementById('addDogsAllowed').value === 'yes',
+    priceVal,
+    price: Number.isFinite(parseInt(priceVal, 10)) ? parseInt(priceVal, 10) : 0,
+  }
+}
+
+const PAST_TIME_WARNING_MESSAGE = 'אופס! נראה שחיפשת נסיעה שכבר עברה. נא לבחור תאריך עתידי.';
+
+function isDateTimeInPast(date, time = '') {
+  if (!date) return false;
+  const now = new Date();
+  const todayDate = isoTodayDate();
+  const selectedDateOnly = new Date(`${date}T00:00:00`);
+  const todayStart = new Date(`${todayDate}T00:00:00`);
+  if (selectedDateOnly < todayStart) {
+    return true;
+  }
+  if (date === todayDate && time) {
+    const selectedDateTime = new Date(`${date}T${time}:00`);
+    return selectedDateTime < now;
+  }
+  return false;
+}
+
+function showAppAlert(message) {
+  const modal = document.getElementById('appAlertModal');
+  const text = document.getElementById('appAlertText');
+  if (!modal || !text) {
+    toast(message);
+    return;
+  }
+  text.textContent = message;
+  modal.classList.add('open');
+}
+
+function closeAppAlert(arg) {
+  const modal = document.getElementById('appAlertModal');
+  if (!modal) return;
+  if (arg && arg.target && arg.target !== modal) {
+    return;
+  }
+  modal.classList.remove('open');
+}
+
+function nextAddStep(stepNumber) {
+  const data = getAddFormData()
+
+  if (stepNumber === 2) {
+    if (!data.tripType || !data.airport || !data.dest) {
+      toast('נא למלא סוג נסיעה, שדה ויעד/מוצא');
+      return
+    }
+  }
+
+  if (stepNumber === 3) {
+    if (!data.date || !data.time) {
+      toast('נא לבחור תאריך ושעה');
+      return
+    }
+    if (isDateTimeInPast(data.date, data.time)) {
+      showAppAlert(PAST_TIME_WARNING_MESSAGE);
+      return;
+    }
+  }
+
+  if (stepNumber === 4) {
+    if (!data.contactName || !data.contactPhone || !data.seats) {
+      toast('נא להשלים פרטי קשר, מקומות ומחיר');
+      return
+    }
+    renderAddConfirm(data)
+  }
+
+  showAddStep(stepNumber)
+}
+
+function renderAddConfirm(data) {
+  const tripLabel = data.tripType === 'to_airport' ? '🛫 נוסעים לשדה' : '🛬 חוזרים מהשדה'
+  const airportLabel = data.airport === 'larnaca' ? 'לרנקה (LCA)' : 'פאפוס (PFO)'
+  const trunkLabel = data.trunkSpace ? 'עם מזוודה' : 'בלי מזוודה'
+  const dogsLabel = data.dogsAllowed ? 'עם כלבים' : 'בלי כלבים'
+
+  document.getElementById('addConfirmCard').innerHTML = `
+    <div class="info-row"><span class="info-label">כיוון</span><span>${tripLabel}</span></div>
+    <div class="info-row"><span class="info-label">שדה</span><span>${airportLabel}</span></div>
+    <div class="info-row"><span class="info-label">יעד/מוצא</span><span>${escapeHtml(data.dest)}</span></div>
+    <div class="info-row"><span class="info-label">תאריך ושעה</span><span>${escapeHtml(data.time)} ${data.date}</span></div>
+    <div class="info-row"><span class="info-label">פרטי קשר</span><span>${escapeHtml(data.contactName)} • ${escapeHtml(data.contactPhone)}</span></div>
+    <div class="info-row"><span class="info-label">מקומות</span><span>${data.seats}</span></div>
+    <div class="info-row"><span class="info-label">מטען/כלבים</span><span>${trunkLabel} • ${dogsLabel}</span></div>
+    <div class="info-row"><span class="info-label">מחיר</span><span>€${data.price}</span></div>
+  `
+}
+
+function resetAddWizard() {
+  showAddStep(1)
+}
+
+function updateFinderTitlesByTripType(type) {
+  const step2Title = document.getElementById('finderStep2Title');
+  const step3Title = document.getElementById('finderStep3Title');
+  const normalized = type || 'from_airport';
+
+  if (step2Title) {
+    step2Title.innerHTML = normalized === 'to_airport'
+      ? '<span class="step-icon">2</span>לאיזה שדה אתם נוסעים?'
+      : '<span class="step-icon">2</span>מאיזה שדה אתם חוזרים?';
+  }
+
+  if (step3Title) {
+    step3Title.innerHTML = normalized === 'to_airport'
+      ? '<span class="step-icon">3</span>תאריך ושעת המראה'
+      : '<span class="step-icon">3</span>תאריך ושעת נחיתה';
+  }
+}
+
+function selectTripType(type, el) {
+  finderState.tripType = type;
+  updateFinderTitlesByTripType(type);
+  updateTimeContextUi();
+  document.querySelectorAll('#finderWizard #tripTypeFromCard, #finderWizard #tripTypeToCard').forEach((card) => card.classList.remove('active'));
+  el.classList.add('active');
+  showFinderStep(2);
+}
+
+function selectAirport(airport, el) {
+  finderState.airport = airport;
+  document.querySelectorAll('#finderWizard #airportLarnacaCard, #finderWizard #airportPaphosCard').forEach((card) => card.classList.remove('active'));
+  el.classList.add('active');
+  showFinderStep(3);
+}
+
+function showFinderStep(stepNumber) {
+  document.querySelectorAll('#finderWizard .finder-step').forEach((step) => step.classList.remove('active'));
+  document.getElementById(`finderStep${stepNumber}`).classList.add('active');
+  updateWizardProgress('finderProgress', stepNumber, 4);
+  updateSideNavVisibility();
+}
+
+function openFinderDatePicker() {
+  openDatePickerModal({
+    title: 'בחרו תאריך לחיפוש',
+    targetInputId: 'finderDate',
+    onSave: () => updateFinderPickerLabels(),
+  });
+}
+
+function openFinderTimePicker() {
+  openTimePickerModal({
+    title: 'בחרו שעה לחיפוש',
+    targetInputId: 'finderTime',
+    onSave: () => updateFinderPickerLabels(),
+  });
+}
+
+function openAddTimePicker() {
+  openTimePickerModal({
+    title: 'בחרו שעת נסיעה',
+    targetInputId: 'addTime',
+  });
+}
+
+function openAddDatePicker() {
+  openDatePickerModal({
+    title: 'בחרו תאריך נסיעה',
+    targetInputId: 'addDate',
+    onSave: (iso) => {
+      const input = document.getElementById('addDate');
+      if (input) {
+        input.value = formatDate(iso);
+      }
+    },
+  });
+}
+
+let timePickerState = null;
+let datePickerState = null;
+
+function ensureTimePickerOptions() {
+  const hourSelect = document.getElementById('timePickerHour');
+  const minuteSelect = document.getElementById('timePickerMinute');
+  if (!hourSelect || !minuteSelect) return;
+  if (!hourSelect.options.length) {
+    for (let hour = 0; hour < 24; hour += 1) {
+      const hh = String(hour).padStart(2, '0');
+      hourSelect.add(new Option(hh, hh));
+    }
+  }
+  if (!minuteSelect.options.length) {
+    for (let minute = 0; minute < 60; minute += 5) {
+      const mm = String(minute).padStart(2, '0');
+      minuteSelect.add(new Option(mm, mm));
+    }
+  }
+}
+
+function openTimePickerModal({ title = 'בחירת שעה', targetInputId, onSave } = {}) {
+  const modal = document.getElementById('timePickerModal');
+  const titleEl = document.getElementById('timePickerTitle');
+  const hourSelect = document.getElementById('timePickerHour');
+  const minuteSelect = document.getElementById('timePickerMinute');
+  const target = document.getElementById(targetInputId);
+  if (!modal || !target || !hourSelect || !minuteSelect) {
+    return;
+  }
+
+  ensureTimePickerOptions();
+  const current = String(target.value || '').trim();
+  let currentHour, currentMinuteRaw;
+  if (current && current.includes(':')) {
+    [currentHour = '08', currentMinuteRaw = '00'] = current.split(':');
+  } else {
+    const now = new Date();
+    const nextHour = now.getHours() + 1;
+    currentHour = String(nextHour >= 24 ? 0 : nextHour).padStart(2, '0');
+    currentMinuteRaw = '00';
+  }
+  const minuteRounded = String(Math.round(Number(currentMinuteRaw || 0) / 5) * 5).padStart(2, '0');
+
+  titleEl.textContent = title;
+  hourSelect.value = String(currentHour || '08').padStart(2, '0');
+  minuteSelect.value = Number(minuteRounded) >= 60 ? '55' : minuteRounded;
+  timePickerState = { targetInputId, onSave };
+  modal.classList.add('open');
+}
+
+function closeTimePickerModal(arg) {
+  const modal = document.getElementById('timePickerModal');
+  if (!modal) return;
+  if (arg && arg.target && arg.target !== modal) {
+    return;
+  }
+
+  const shouldSave = arg === true;
+  if (shouldSave && timePickerState?.targetInputId) {
+    const hourSelect = document.getElementById('timePickerHour');
+    const minuteSelect = document.getElementById('timePickerMinute');
+    const target = document.getElementById(timePickerState.targetInputId);
+    if (hourSelect && minuteSelect && target) {
+      const nextValue = `${hourSelect.value}:${minuteSelect.value}`;
+      target.value = nextValue;
+      if (typeof timePickerState.onSave === 'function') {
+        timePickerState.onSave(nextValue);
+      }
+    }
+  }
+
+  timePickerState = null;
+  modal.classList.remove('open');
+}
+
+function ensureDatePickerOptions() {
+  const daySelect = document.getElementById('datePickerDay');
+  const monthSelect = document.getElementById('datePickerMonth');
+  const yearSelect = document.getElementById('datePickerYear');
+  if (!daySelect || !monthSelect || !yearSelect) return;
+
+  if (!monthSelect.options.length) {
+    for (let month = 1; month <= 12; month += 1) {
+      const mm = String(month).padStart(2, '0');
+      monthSelect.add(new Option(mm, mm));
+    }
+  }
+  if (!yearSelect.options.length) {
+    const yearNow = new Date().getFullYear();
+    for (let year = yearNow; year <= yearNow + 2; year += 1) {
+      yearSelect.add(new Option(String(year), String(year)));
+    }
+  }
+}
+
+function refreshDatePickerDays() {
+  const daySelect = document.getElementById('datePickerDay');
+  const monthSelect = document.getElementById('datePickerMonth');
+  const yearSelect = document.getElementById('datePickerYear');
+  if (!daySelect || !monthSelect || !yearSelect) return;
+
+  const year = Number(yearSelect.value);
+  const month = Number(monthSelect.value);
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return;
+
+  const lastDay = new Date(year, month, 0).getDate();
+  const current = Number(daySelect.value || 1);
+  daySelect.innerHTML = '';
+  for (let day = 1; day <= lastDay; day += 1) {
+    const dd = String(day).padStart(2, '0');
+    daySelect.add(new Option(dd, dd));
+  }
+  daySelect.value = String(Math.min(current, lastDay)).padStart(2, '0');
+}
+
+function openDatePickerModal({ title = 'בחירת תאריך', targetInputId, onSave } = {}) {
+  const modal = document.getElementById('datePickerModal');
+  const titleEl = document.getElementById('datePickerTitle');
+  const daySelect = document.getElementById('datePickerDay');
+  const monthSelect = document.getElementById('datePickerMonth');
+  const yearSelect = document.getElementById('datePickerYear');
+  const target = document.getElementById(targetInputId);
+  if (!modal || !target || !daySelect || !monthSelect || !yearSelect) {
+    return;
+  }
+
+  ensureDatePickerOptions();
+  const currentIso = target.dataset.iso || target.value || isoTodayDate();
+  const baseIso = currentIso && /^\d{4}-\d{2}-\d{2}$/.test(currentIso) ? currentIso : isoTodayDate();
+  const [y, m, d] = baseIso.split('-');
+
+  titleEl.textContent = title;
+  yearSelect.value = y;
+  monthSelect.value = m;
+  refreshDatePickerDays();
+  daySelect.value = d;
+
+  monthSelect.onchange = refreshDatePickerDays;
+  yearSelect.onchange = refreshDatePickerDays;
+
+  datePickerState = { targetInputId, onSave };
+  modal.classList.add('open');
+}
+
+function closeDatePickerModal(arg) {
+  const modal = document.getElementById('datePickerModal');
+  if (!modal) return;
+  if (arg && arg.target && arg.target !== modal) {
+    return;
+  }
+
+  const shouldSave = arg === true;
+  if (shouldSave && datePickerState?.targetInputId) {
+    const day = document.getElementById('datePickerDay')?.value || '01';
+    const month = document.getElementById('datePickerMonth')?.value || '01';
+    const year = document.getElementById('datePickerYear')?.value || String(new Date().getFullYear());
+    const iso = `${year}-${month}-${day}`;
+    const clampedIso = iso < isoTodayDate() ? isoTodayDate() : iso;
+    const target = document.getElementById(datePickerState.targetInputId);
+    if (target) {
+      target.dataset.iso = clampedIso;
+      if (target.id === 'finderDate') {
+        target.value = clampedIso;
+      } else {
+        target.value = formatDate(clampedIso);
+      }
+    }
+    if (typeof datePickerState.onSave === 'function') {
+      datePickerState.onSave(clampedIso);
+    }
+  }
+
+  datePickerState = null;
+  modal.classList.remove('open');
+}
+
+function updateFinderPickerLabels() {
+  const dateValue = document.getElementById('finderDate').value;
+  const timeValue = document.getElementById('finderTime').value;
+  const dateBtn = document.getElementById('finderDateBtn');
+  const timeBtn = document.getElementById('finderTimeBtn');
+
+  if (dateValue) {
+    dateBtn.textContent = formatDate(dateValue);
+    dateBtn.classList.remove('empty');
+  } else {
+    dateBtn.textContent = 'בחירת יום';
+    dateBtn.classList.add('empty');
+  }
+
+  if (timeValue) {
+    timeBtn.textContent = timeValue;
+    timeBtn.classList.remove('empty');
+  } else {
+    timeBtn.textContent = 'בחירת שעה';
+    timeBtn.classList.add('empty');
+  }
+}
+
+function applyFinderDateTime() {
+  const date = document.getElementById('finderDate').value;
+  const time = document.getElementById('finderTime').value;
+  if (!date) {
+    toast('יש לבחור תאריך');
+    return;
+  }
+
+  if (isDateTimeInPast(date, time)) {
+    showAppAlert(PAST_TIME_WARNING_MESSAGE);
+    return;
+  }
+
+  finderState.date = date;
+  finderState.time = time;
+  showFinderStep(4);
+  updateFinderPickerLabels();
+  renderRides();
+}
+
+function resetFinderSelection() {
+  finderState.tripType = null;
+  finderState.airport = null;
+  finderState.date = '';
+  finderState.time = '';
+
+  document.getElementById('finderDate').value = '';
+  document.getElementById('finderTime').value = '';
+  updateFinderPickerLabels();
+  updateFinderTitlesByTripType('from_airport');
+  document.querySelectorAll('#finderWizard .finder-card').forEach((card) => card.classList.remove('active'));
+  updateTimeContextUi();
+  showFinderStep(1);
+  document.getElementById('ridesList').innerHTML = '';
+}
+
+function goFindRide() {
+  navigate('home');
+  resetFinderSelection();
+}
+
+function handleHomeNavClick() {
+  if (STATE.role === 'passenger') {
+    goFindRide();
+    return;
+  }
+  goWelcome();
+}
+
+function goWelcome() {
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('entryScreen').classList.remove('hidden');
+  document.getElementById('entryScreen').classList.add('active');
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('hidden');
+  ensureEntryAnimationVisible();
+}
+
+function finderSummaryText() {
+  const trip = finderState.tripType === 'to_airport' ? '🛫 נסיעה לשדה' : '🛬 חזרה מהשדה';
+  const airport = finderState.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
+  const timePart = finderState.time
+    ? finderState.tripType === 'to_airport'
+      ? `, משעת המראה ${finderState.time}`
+      : `, משעת נחיתה ${finderState.time}`
+    : '';
+  return `${trip} • ${airport} • ${finderState.date}${timePart}`;
+}
+
+function setupWizardGestures(wizardId, getCurrentStep, onPrev, onNext) {
+  const wizard = document.getElementById(wizardId);
+  if (!wizard) return;
+
+  let startX = 0;
+  let startY = 0;
+  let startTarget = null;
+
+  wizard.addEventListener('touchstart', (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    startX = touch.clientX;
+    startY = touch.clientY;
+    startTarget = event.target;
+  }, { passive: true });
+
+  wizard.addEventListener('touchend', (event) => {
+    const touch = event.changedTouches?.[0];
+    if (!touch) return;
+    if (startTarget?.closest('input,select,textarea,button,.autocomplete-list,#ridesList')) {
+      return;
+    }
+
+    const deltaX = touch.clientX - startX;
+    const absX = Math.abs(deltaX);
+    const threshold = 52;
+
+    if (absX < threshold) return;
+
+    const current = getCurrentStep();
+    if (!current) return;
+
+    if (deltaX < -threshold) {
+      onNext();
+    } else if (deltaX > threshold) {
+      onPrev();
+    }
+  }, { passive: true });
+}
+
+function applyRoleUi() {
+  const app = document.getElementById('mainApp');
+  if (!app) return;
+  app.classList.toggle('driver-mode', STATE.role === 'driver');
+  app.classList.toggle('passenger-mode', STATE.role === 'passenger');
+  const navHome = document.getElementById('navHome');
+  const navHomeIcon = navHome?.querySelector('.icon');
+  const navHomeText = navHome?.querySelector('span:not(.icon)');
+  if (navHomeIcon) {
+    navHomeIcon.textContent = STATE.role === 'driver' ? '🏠' : '🚗';
+  }
+  if (navHomeText) {
+    navHomeText.textContent = STATE.role === 'driver' ? 'בית' : 'לחפש נסיעה';
+  }
+  document.querySelectorAll('.js-user-avatar-btn').forEach((btn) => {
+    btn.classList.toggle('hidden', STATE.role !== 'driver');
+  });
+  updateSideNavVisibility();
+}
+
+function sideStepNav(direction) {
+  const activeScreen = document.querySelector('#mainApp .screen.active')?.id;
+  if (activeScreen === 'homeScreen') {
+    if (direction === 'prev') {
+      goFinderPrevStep();
+    } else {
+      goFinderNextStep();
+    }
+    return;
+  }
+  if (activeScreen === 'addScreen') {
+    if (direction === 'prev') {
+      goAddPrevStep();
+    } else {
+      goAddNextStep();
+    }
+  }
+}
+
+function updateSideNavVisibility() {
+  const activeScreen = document.querySelector('#mainApp .screen.active')?.id;
+  const homeNav = document.getElementById('homeSideNav');
+  const addNav = document.getElementById('addSideNav');
+
+  if (homeNav) homeNav.classList.add('hidden');
+  if (addNav) addNav.classList.add('hidden');
+
+  if (activeScreen === 'homeScreen') {
+    const current = currentFinderStepNumber();
+    const prev = document.getElementById('homeSidePrev');
+    const next = document.getElementById('homeSideNext');
+    if (homeNav) homeNav.classList.remove('hidden');
+    if (prev) prev.classList.toggle('hidden', current <= 1);
+    if (next) next.classList.toggle('hidden', current >= 4);
+    return;
+  }
+
+  if (activeScreen === 'addScreen' && STATE.role === 'driver') {
+    const current = currentAddStepNumber();
+    const prev = document.getElementById('addSidePrev');
+    const next = document.getElementById('addSideNext');
+    if (addNav) addNav.classList.remove('hidden');
+    if (prev) prev.classList.toggle('hidden', current <= 1);
+    if (next) next.classList.toggle('hidden', current >= 4);
+  }
+}
+
+function switchToDriverMode() {
+  chooseUserRole('driver');
+  toast('עברת למצב נהג 🚗');
+}
+
+function switchAuthTab(tab, eventRef) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  if (eventRef?.target) {
+    eventRef.target.classList.add('active');
+  }
+  document.getElementById('loginForm').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('registerForm').classList.toggle('hidden', tab !== 'register');
+}
+
+async function doLogin() {
+  const username = document.getElementById('loginName').value.trim();
+  const password = document.getElementById('loginPass').value;
+  if (!username || !password) {
+    toast('נא למלא שם משתמש וסיסמה');
+    return;
+  }
+
+  try {
+    const data = await apiPost('/api/login', { username, password });
+    STATE.session = data.user.username;
+    STATE.currentUser = data.user;
+    localStorage.setItem('cy_session', STATE.session);
+    const firstEntry = !isProfileSetupDone(data.user.username);
+    enterApp({ firstEntry });
+    toast('ברוך הבא 👋');
+  } catch (err) {
+    toast(`שגיאת התחברות: ${err.message}`);
+  }
+}
+
+async function doRegister() {
+  const username = document.getElementById('regUsername').value.trim();
+  const name = document.getElementById('regName').value.trim();
+  const password = document.getElementById('regPass').value;
+  const phone = document.getElementById('regPhone').value.trim();
+  const address = document.getElementById('regAddress').value.trim();
+
+  if (!username || !name || !password || !phone || !address) {
+    toast('נא למלא את כל השדות');
+    return;
+  }
+  if (password.length < 6) {
+    toast('הסיסמה חייבת להכיל לפחות 6 תווים');
+    return;
+  }
+
+  try {
+    const data = await apiPost('/api/register', { username, password, name, phone, address });
+    STATE.session = data.user.username;
+    STATE.currentUser = data.user;
+    localStorage.setItem('cy_session', STATE.session);
+    enterApp({ firstEntry: true });
+    toast('נרשמת בהצלחה 🎉');
+  } catch (err) {
+    toast(`שגיאת הרשמה: ${err.message}`);
+  }
+}
+
+function enterApp({ firstEntry = false, targetScreen = 'home' } = {}) {
+  ensureGuestUser();
+  document.getElementById('entryScreen').classList.remove('active');
+  document.getElementById('entryScreen').classList.add('hidden');
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+  renderHeaderAvatar();
+  syncAddDefaultsFromProfile();
+  resetFinderSelection();
+  renderProfile();
+  applyRoleUi();
+  navigate(firstEntry ? 'profile' : targetScreen);
+  if (firstEntry) {
+    toast('ברוכים הבאים! קודם משלימים הגדרת פרופיל 👤');
+  }
+}
+
+function clearDriverVerificationCache() {
+  localStorage.removeItem('cy_driver_phone');
+}
+
+function logout() {
+  const username = STATE.currentUser?.username || STATE.session;
+  STATE.session = null;
+  STATE.currentUser = null;
+  STATE.role = null;
+  STATE.driverPhone = '';
+  localStorage.removeItem('cy_session');
+  localStorage.removeItem('cy_role');
+  localStorage.removeItem('cy_driver_phone');
+  if (username) {
+    localStorage.removeItem(profileSetupKey(username));
+  }
+  clearDriverVerificationCache();
+  clearPublishSession();
+  document.getElementById('mainApp').classList.add('hidden');
+  document.getElementById('entryScreen').classList.remove('hidden');
+  document.getElementById('entryScreen').classList.add('active');
+  document.getElementById('loginScreen').classList.remove('active');
+  document.getElementById('loginScreen').classList.add('hidden');
+  toast('יצאת מהאפליקציה 👋');
+}
+
+function navigate(screen) {
+  if (screen === 'profile' && STATE.role !== 'driver') {
+    screen = 'home';
+  }
+  if (screen === 'myrides' && STATE.role !== 'driver') {
+    screen = 'home';
+  }
+  if (screen === 'available' && STATE.role !== 'passenger') {
+    screen = 'home';
+  }
+  document.querySelectorAll('#mainApp .screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(screen + 'Screen').classList.add('active');
+  const navBtn = document.getElementById('nav' + screen.charAt(0).toUpperCase() + screen.slice(1));
+  if (navBtn) {
+    navBtn.classList.add('active');
+  }
+  if (screen === 'profile') {
+    renderProfile();
+  }
+  if (screen === 'add') {
+    resetAddWizard();
+    syncAddDefaultsFromProfile();
+  }
+  if (screen === 'myrides') {
+    renderMyRides();
+  }
+  if (screen === 'available') {
+    renderAvailableRides();
+  }
+  updateSideNavVisibility();
+}
+
+function goProfile() {
+  if (STATE.role !== 'driver') {
+    return;
+  }
+  navigate('profile');
+}
+
+function normalizePhone(phone) {
+  return String(phone || '').replace(/[^\d+]/g, '');
+}
+
+let otpModalResolver = null;
+let otpModalState = null;
+
+function normalizeEmail(email) {
+  return String(email || '').trim().toLowerCase();
+}
+
+function openOtpModal({ subtitle = '', contactName = '', contactPhone = '', email = '' } = {}) {
+  const modal = document.getElementById('otpModal');
+  const codeModal = document.getElementById('otpCodeModal');
+  const subtitleEl = document.getElementById('otpSubtitle');
+  const nameEl = document.getElementById('otpContactName');
+  const phoneEl = document.getElementById('otpContactPhone');
+  const emailInput = document.getElementById('otpEmailInput');
+  const codeInput = document.getElementById('otpCodeInput');
+
+  subtitleEl.textContent = subtitle;
+  nameEl.textContent = contactName || '-';
+  phoneEl.textContent = contactPhone || '-';
+  emailInput.value = email;
+  if (codeInput) {
+    codeInput.value = '';
+  }
+  if (codeModal) {
+    codeModal.classList.remove('open');
+  }
+  modal.classList.add('open');
+
+  otpModalState = {
+    contactName: String(contactName || '').trim(),
+    contactPhone: String(contactPhone || '').trim(),
+    email: normalizeEmail(email),
+    codeSent: false,
+  };
+
+  setTimeout(() => emailInput.focus(), 30);
+
+  return new Promise((resolve) => {
+    otpModalResolver = resolve;
+  });
+}
+
+function finalizeOtpFlow(confirm) {
+  const modal = document.getElementById('otpModal');
+  const codeModal = document.getElementById('otpCodeModal');
+  if (modal) {
+    modal.classList.remove('open');
+  }
+  if (codeModal) {
+    codeModal.classList.remove('open');
+  }
+  otpModalState = null;
+
+  if (!otpModalResolver) {
+    return;
+  }
+
+  const resolve = otpModalResolver;
+  otpModalResolver = null;
+  resolve(confirm ? true : false);
+}
+
+function closeOtpModal(confirm) {
+  if (confirm) {
+    finalizeOtpFlow(true);
+    return;
+  }
+  finalizeOtpFlow(false);
+}
+
+function openOtpCodeModal(email) {
+  const modal = document.getElementById('otpModal');
+  const codeModal = document.getElementById('otpCodeModal');
+  const subtitleEl = document.getElementById('otpCodeSubtitle');
+  const codeInput = document.getElementById('otpCodeInput');
+
+  modal.classList.remove('open');
+  subtitleEl.textContent = `הקוד נשלח ל־${email}. הזינו קוד חד-פעמי להמשך פרסום.`;
+  codeInput.value = '';
+  codeModal.classList.add('open');
+  setTimeout(() => codeInput.focus(), 30);
+}
+
+function closeOtpCodeModal(confirm) {
+  if (confirm) {
+    finalizeOtpFlow(true);
+    return;
+  }
+  finalizeOtpFlow(false);
+}
+
+async function sendEmailVerifyCode() {
+  if (!otpModalState) {
+    return;
+  }
+
+  const emailInput = document.getElementById('otpEmailInput');
+  const email = normalizeEmail(emailInput?.value);
+  if (!email || !email.includes('@')) {
+    toast('נא להזין כתובת אימייל תקינה');
+    return;
+  }
+
+  const sendBtn = document.querySelector('#otpModal .btn-primary');
+  if (sendBtn) {
+    sendBtn.disabled = true;
+    sendBtn.textContent = 'שולח...';
+  }
+
+  try {
+    await apiPost('/api/driver/email/send-code', {
+      name: otpModalState.contactName,
+      phone: otpModalState.contactPhone,
+      email,
+    });
+    if (otpModalState) {
+      otpModalState.email = email;
+      otpModalState.codeSent = true;
+    }
+    openOtpCodeModal(email);
+    toast('קוד אימות נשלח לאימייל ✅');
+  } catch (err) {
+    toast(`שגיאה בשליחת קוד: ${err.message}`);
+  } finally {
+    if (sendBtn) {
+      sendBtn.disabled = false;
+      sendBtn.textContent = 'שלח קוד לאימייל';
+    }
+  }
+}
+
+async function confirmEmailVerification() {
+  if (!otpModalState) {
+    return;
+  }
+  if (!otpModalState.codeSent) {
+    toast('יש לשלוח קודם קוד אימות לאימייל');
+    return;
+  }
+
+  const code = String(document.getElementById('otpCodeInput')?.value || '').trim();
+  if (!/^\d{4}$/.test(code)) {
+    toast('נא להזין קוד בן 4 ספרות');
+    return;
+  }
+
+  const verifyBtn = document.querySelector('#otpCodeModal .btn-primary');
+  if (verifyBtn) {
+    verifyBtn.disabled = true;
+    verifyBtn.textContent = 'מאמת...';
+  }
+
+  try {
+    const data = await apiPost('/api/driver/email/verify-code', {
+      email: otpModalState.email,
+      code,
+    });
+
+    storePublishSession({
+      token: data.token,
+      ttlSeconds: data.ttlSeconds,
+      name: data.name || (otpModalState ? otpModalState.contactName : ''),
+      phone: data.phone || (otpModalState ? otpModalState.contactPhone : ''),
+    });
+    STATE.driverPhone = normalizePhone(data.phone || (otpModalState ? otpModalState.contactPhone : ''));
+    localStorage.setItem('cy_driver_phone', STATE.driverPhone);
+    finalizeOtpFlow(true);
+    toast('האימות הצליח ✅');
+  } catch (err) {
+    toast(`שגיאה באימות: ${err.message}`);
+  } finally {
+    if (verifyBtn) {
+      verifyBtn.disabled = false;
+      verifyBtn.textContent = 'אמת והמשך פרסום';
+    }
+  }
+}
+
+async function ensureFirstPublishEmailVerified({ name, phone }) {
+  const existingToken = getStoredPublishSessionToken();
+  if (existingToken) {
+    return true;
+  }
+
+  const ok = await openOtpModal({
+    subtitle: 'לפני פרסום ראשון צריך אימות אימייל חד-פעמי',
+    contactName: String(name || '').trim(),
+    contactPhone: String(phone || '').trim(),
+  });
+
+  if (!ok) {
+    toast('האימות בוטל.');
+    return false;
+  }
+
+  return !!getStoredPublishSessionToken();
+}
+
+async function fetchRidesFromApi() {
+  const params = new URLSearchParams({
+    tripType: finderState.tripType,
+    airport: finderState.airport,
+    date: finderState.date,
+  });
+
+  if (finderState.time) {
+    params.set('time', finderState.time);
+  }
+
+  const data = await apiGet(`/api/rides?${params.toString()}`);
+  STATE.rides = Array.isArray(data.rides) ? data.rides : [];
+  return STATE.rides;
+}
+
+async function fetchAvailableRidesByDate(date) {
+  const requests = [
+    apiGet(`/api/rides?tripType=from_airport&airport=larnaca&date=${encodeURIComponent(date)}`),
+    apiGet(`/api/rides?tripType=from_airport&airport=paphos&date=${encodeURIComponent(date)}`),
+    apiGet(`/api/rides?tripType=to_airport&airport=larnaca&date=${encodeURIComponent(date)}`),
+    apiGet(`/api/rides?tripType=to_airport&airport=paphos&date=${encodeURIComponent(date)}`),
+  ];
+
+  const settled = await Promise.allSettled(requests);
+  const ridesById = new Map();
+
+  settled.forEach((entry) => {
+    if (entry.status !== 'fulfilled') {
+      return;
+    }
+    const rides = Array.isArray(entry.value?.rides) ? entry.value.rides : [];
+    rides.forEach((ride) => {
+      ridesById.set(Number(ride.id), ride);
+    });
+  });
+
+  return Array.from(ridesById.values()).sort((a, b) => (a.time > b.time ? 1 : -1));
+}
+
+async function renderAvailableRides() {
+  const dateInput = document.getElementById('availableDate');
+  const summary = document.getElementById('availableSummary');
+  const container = document.getElementById('availableRidesList');
+  const prevBtn = document.getElementById('availablePrevBtn');
+  if (!dateInput || !summary || !container) return;
+
+  const today = isoTodayDate();
+  const requestedDate = STATE.availableDate || dateInput.value || today;
+  const date = requestedDate < today ? today : requestedDate;
+  STATE.availableDate = date;
+  dateInput.min = today;
+  dateInput.value = date;
+  if (prevBtn) {
+    prevBtn.disabled = date <= today;
+  }
+  summary.textContent = `נסיעות זמינות ליום ${formatDate(date)}`;
+  container.innerHTML = '<div class="empty-state"><span class="emoji">⏳</span><p>טוען נסיעות...</p></div>';
+
+  let rides = [];
+  try {
+    rides = await fetchAvailableRidesByDate(date);
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><span class="emoji">⚠️</span><p>${escapeHtml(err.message || 'שגיאה בטעינת נסיעות')}</p></div>`;
+    return;
+  }
+
+  if (!rides.length) {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">🗓️</span><p>לא נמצאו נסיעות ליום הזה</p></div>';
+    return;
+  }
+
+  STATE.rides = rides;
+
+  container.innerHTML = rides.map((r) => {
+    const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
+    const tripClass = r.tripType === 'to_airport' ? 'trip-to' : 'trip-from';
+    const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
+    const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
+    const tripTypeLine = r.tripType === 'to_airport' ? 'נסיעה לשדה' : 'חזרה מהשדה';
+    const isPastRide = isRidePast(r);
+    const trunkHtml = r.trunkSpace
+      ? '<span class="trunk-badge yes">🧳 עם מזוודה</span>'
+      : '<span class="trunk-badge no">🚫 בלי מזוודה</span>';
+    const dogsHtml = r.dogsAllowed
+      ? '<span class="dogs-badge yes">🐶 עם כלבים</span>'
+      : '<span class="dogs-badge no">🚫 בלי כלבים</span>';
+
+    return `
+      <div class="ride-card ${isPastRide ? 'past-ride' : ''}" onclick="openContact(${r.id})">
+        <div class="ride-header">
+          <span class="airport-badge ${tripClass}">${tripTypeLine}</span>
+          <span class="seats-badge">👥 ${seatsAvailableLabel(r.seats)}</span>
+        </div>
+        <div class="ride-dest route-flow"><span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span></div>
+        <div class="ride-meta">
+          <span>🕐 ${escapeHtml(r.time)}</span>
+          <span>${trunkHtml}</span>
+          <span>${dogsHtml}</span>
+        </div>
+        <div class="ride-footer">
+          <span class="price-tag">€${r.price}</span>
+          <div class="driver-info">
+            <div class="driver-avatar">${escapeHtml((r.driver || '?').charAt(0))}</div>
+            <span>${escapeHtml(r.driver)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function shiftAvailableDate(deltaDays) {
+  const base = STATE.availableDate || isoTodayDate();
+  const dateObj = new Date(`${base}T00:00:00`);
+  dateObj.setDate(dateObj.getDate() + deltaDays);
+  const nextRaw = toLocalIsoDate(dateObj);
+  const today = isoTodayDate();
+  const next = nextRaw < today ? today : nextRaw;
+  setAvailableDate(next);
+}
+
+function setAvailableDate(date) {
+  if (!date) return;
+  const today = isoTodayDate();
+  STATE.availableDate = date < today ? today : date;
+  renderAvailableRides();
+}
+
+async function fetchMyRides() {
+  const fallbackPhone = normalizePhone(document.getElementById('addContactPhone')?.value || '');
+  const profilePhone = normalizePhone(STATE.currentUser?.phone || '');
+  let phone = STATE.driverPhone || profilePhone || fallbackPhone;
+
+  if (!phone) {
+    return { rides: [], missingPhone: true };
+  }
+
+  STATE.driverPhone = phone;
+  localStorage.setItem('cy_driver_phone', phone);
+
+  const data = await apiGet(`/api/rides/mine?phone=${encodeURIComponent(phone)}`);
+  return { rides: Array.isArray(data.rides) ? data.rides : [], missingPhone: false };
+}
+
+async function renderMyRides() {
+  const container = document.getElementById('myRidesList');
+  if (!container) return;
+
+  if (STATE.role !== 'driver') {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">🚫</span><p>מסך זה זמין לנהגים בלבד</p></div>';
+    return;
+  }
+
+  container.innerHTML = '<div class="empty-state"><span class="emoji">⏳</span><p>טוען נסיעות שלך...</p></div>';
+  let rides = [];
+  let missingPhone = false;
+
+  try {
+    const data = await fetchMyRides();
+    rides = data.rides;
+    missingPhone = data.missingPhone;
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><span class="emoji">⚠️</span><p>${escapeHtml(err.message || 'שגיאה בטעינת נסיעות')}</p></div>`;
+    return;
+  }
+
+  if (missingPhone) {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">📱</span><p>פרטי איש הקשר נשמרים במכשיר לאחר אימות ראשון.<br>אפשר לפרסם נסיעה חדשה בלי אימות חוזר.</p></div>';
+    return;
+  }
+
+  if (!rides.length) {
+    container.innerHTML = '<div class="empty-state"><span class="emoji">🗂️</span><p>עדיין לא פרסמת נסיעות</p></div>';
+    return;
+  }
+
+  STATE.rides = rides;
+
+  container.innerHTML = rides.map((r) => {
+    const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
+    const tripTypeLine = r.tripType === 'to_airport' ? '🛫 נסיעה לשדה' : '🛬 חזרה מהשדה';
+    const tripClass = r.tripType === 'to_airport' ? 'trip-to' : 'trip-from';
+    const isPast = isRidePast(r);
+    const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
+    const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
+    const dateStr = formatDate(r.date);
+    return `
+      <div class="ride-card ${isPast ? 'past-ride' : ''}">
+        <div class="ride-header">
+          <span class="airport-badge ${tripClass}">${tripTypeLine}</span>
+          <span class="seats-badge">👥 ${seatsAvailableLabel(r.seats)}</span>
+        </div>
+        <div class="ride-dest route-flow"><span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span></div>
+        <div class="ride-meta">
+          <span>🕐 ${escapeHtml(r.time)}</span>
+          <span>📅 ${dateStr}</span>
+          <span>💶 €${r.price}</span>
+        </div>
+        <div class="my-ride-actions">
+          <button class="btn btn-sm btn-primary" onclick="editMyRide(${r.id})">ערוך</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteMyRide(${r.id})">מחק</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+async function editMyRide(rideId) {
+  const current = STATE.rides.find((r) => r.id === rideId) || {};
+  const phone = STATE.driverPhone || normalizePhone(current.phone);
+  if (!phone) {
+    toast('חסר טלפון נהג מאומת לעריכה');
+    return;
+  }
+
+  STATE.driverPhone = phone;
+  localStorage.setItem('cy_driver_phone', phone);
+  openEditRideModal(current, phone);
+}
+
+let editingRideId = null;
+let editingRidePhone = '';
+
+function openEditRideModal(ride, phone) {
+  editingRideId = ride?.id || null;
+  editingRidePhone = phone || '';
+  document.getElementById('editRideTripType').value = ride?.tripType || 'from_airport';
+  document.getElementById('editRideAirport').value = ride?.airport || 'larnaca';
+  document.getElementById('editRideDest').value = String(ride?.dest || '').trim();
+  document.getElementById('editRideDate').value = String(ride?.date || '').trim();
+  document.getElementById('editRideTime').value = String(ride?.time || '').trim();
+  document.getElementById('editRideDriver').value = String(ride?.driver || '').trim();
+  document.getElementById('editRidePhone').value = String(ride?.phone || '').trim();
+  document.getElementById('editRidePrice').value = Number.isFinite(Number(ride?.price)) ? Number(ride.price) : 0;
+  document.getElementById('editRideSeats').value = Number.isFinite(Number(ride?.seats)) ? String(ride.seats) : '3';
+
+  const trunkInput = document.getElementById('editRideTrunkSpace');
+  const trunkBtn = document.getElementById('editRideTrunkBtn');
+  trunkInput.value = ride?.trunkSpace ? 'yes' : 'no';
+  trunkBtn.textContent = trunkInput.value === 'yes' ? '🧳 עם מזוודה' : '🚫 בלי מזוודה';
+  trunkBtn.classList.toggle('active', trunkInput.value === 'yes');
+
+  const dogsInput = document.getElementById('editRideDogsAllowed');
+  const dogsBtn = document.getElementById('editRideDogsBtn');
+  dogsInput.value = ride?.dogsAllowed ? 'yes' : 'no';
+  dogsBtn.textContent = dogsInput.value === 'yes' ? '🐶 עם כלבים' : '🚫 בלי כלבים';
+  dogsBtn.classList.toggle('active', dogsInput.value === 'yes');
+
+  updateEditRideTripTypeUi();
+  document.getElementById('editRideModal').classList.add('open');
+}
+
+function updateEditRideTripTypeUi() {
+  const tripType = document.getElementById('editRideTripType')?.value || 'from_airport';
+  const destLabel = document.getElementById('editRideDestLabel');
+  const timeLabel = document.getElementById('editRideTimeLabel');
+  if (destLabel) {
+    destLabel.textContent = tripType === 'to_airport' ? 'מאיפה יוצאים לשדה' : 'יעד הנסיעה (מהשדה)';
+  }
+  if (timeLabel) {
+    timeLabel.textContent = tripType === 'to_airport' ? 'שעת המראה' : 'שעת נחיתה';
+  }
+}
+
+function closeEditRideModal(event) {
+  if (event && event.target !== document.getElementById('editRideModal')) {
+    return;
+  }
+  document.getElementById('editRideModal').classList.remove('open');
+}
+
+async function submitEditRide() {
+  const rideId = Number(editingRideId);
+  if (!rideId || !editingRidePhone) {
+    toast('לא נמצאו פרטי עריכה תקינים');
+    return;
+  }
+
+  const tripType = String(document.getElementById('editRideTripType').value || '').trim();
+  const airport = String(document.getElementById('editRideAirport').value || '').trim();
+  const dest = String(document.getElementById('editRideDest').value || '').trim();
+  const date = String(document.getElementById('editRideDate').value || '').trim();
+  const time = String(document.getElementById('editRideTime').value || '').trim();
+  const driver = String(document.getElementById('editRideDriver').value || '').trim();
+  const contactPhone = String(document.getElementById('editRidePhone').value || '').trim();
+  const price = Number(document.getElementById('editRidePrice').value);
+  const seats = Number(document.getElementById('editRideSeats').value);
+  const trunkSpace = document.getElementById('editRideTrunkSpace').value === 'yes';
+  const dogsAllowed = document.getElementById('editRideDogsAllowed').value === 'yes';
+
+  if (!tripType || !airport || !dest || !date || !driver || !contactPhone) {
+    toast('נא להשלים את כל פרטי הנסיעה');
+    return;
+  }
+
+  if (!time) {
+    toast('יש להזין שעת נסיעה');
+    return;
+  }
+  if (!Number.isFinite(price) || price < 0) {
+    toast('מחיר לא תקין');
+    return;
+  }
+  if (!Number.isFinite(seats) || seats < 1) {
+    toast('מספר מקומות לא תקין');
+    return;
+  }
+
+  try {
+    await apiPut(`/api/rides/${rideId}`, {
+      authPhone: editingRidePhone,
+      driver,
+      phone: contactPhone,
+      tripType,
+      airport,
+      dest,
+      date,
+      time,
+      trunkSpace,
+      dogsAllowed,
+      price,
+      seats,
+    });
+    STATE.driverPhone = normalizePhone(contactPhone);
+    localStorage.setItem('cy_driver_phone', STATE.driverPhone);
+    await persistDriverProfileFromRide(driver, contactPhone);
+    closeEditRideModal();
+    toast('הנסיעה עודכנה ✅');
+    await renderMyRides();
+    if (finderState.tripType && finderState.airport && finderState.date) {
+      renderRides();
+    }
+  } catch (err) {
+    toast(`שגיאה בעדכון נסיעה: ${err.message}`);
+  }
+}
+
+async function deleteMyRide(rideId) {
+  const current = STATE.rides.find((r) => r.id === rideId) || {};
+  const phone = STATE.driverPhone || normalizePhone(current.phone);
+  if (!phone) {
+    toast('חסר טלפון נהג מאומת למחיקה');
+    return;
+  }
+
+  const ok = window.confirm('למחוק את הנסיעה הזו?');
+  if (!ok) return;
+
+  try {
+    await apiDelete(`/api/rides/${rideId}`, { phone });
+    toast('הנסיעה נמחקה ✅');
+    await renderMyRides();
+    if (finderState.tripType && finderState.airport && finderState.date) {
+      renderRides();
+    }
+  } catch (err) {
+    toast(`שגיאה במחיקת נסיעה: ${err.message}`);
+  }
+}
+
+async function renderRides() {
+  const container = document.getElementById('ridesList');
+
+  if (!finderState.tripType || !finderState.airport || !finderState.date) {
+    container.innerHTML = `<div class="empty-state"><span class="emoji">🧭</span><p>בחרו כיוון, שדה, תאריך ושעה<br>כדי לראות נסיעות זמינות</p></div>`;
+    return;
+  }
+
+  document.getElementById('resultsSummary').textContent = finderSummaryText();
+
+  container.innerHTML = `<div class="empty-state"><span class="emoji">⏳</span><p>טוען נסיעות זמינות...</p></div>`;
+
+  let rides = [];
+  try {
+    rides = await fetchRidesFromApi();
+  } catch (err) {
+    container.innerHTML = `<div class="empty-state"><span class="emoji">⚠️</span><p>שגיאה בטעינת נסיעות<br>${escapeHtml(err.message || 'נסה שוב')}</p></div>`;
+    return;
+  }
+
+  rides.sort((a, b) => (a.date + a.time) > (b.date + b.time) ? 1 : -1);
+
+  if (rides.length === 0) {
+    container.innerHTML = `<div class="empty-state"><span class="emoji">🌴</span><p>לא נמצאו נסיעות<br>לפי הסינון הנבחר</p></div>`;
+    return;
+  }
+
+  container.innerHTML = rides.map(r => {
+    const airportName = r.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
+    const tripClass = r.tripType === 'to_airport' ? 'trip-to' : 'trip-from';
+    const isPast = isRidePast(r);
+    const routeStart = r.tripType === 'to_airport' ? escapeHtml(r.dest) : `שדה ${airportName}`;
+    const routeEnd = r.tripType === 'to_airport' ? `שדה ${airportName}` : escapeHtml(r.dest);
+    const routeLine = r.tripType === 'to_airport'
+      ? `<span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span>`
+      : `<span>${routeStart}</span><span class="route-arrow">←</span><span>${routeEnd}</span>`;
+    const tripTypeLine = r.tripType === 'to_airport' ? 'נסיעה לשדה' : 'חזרה מהשדה';
+    const priceHtml = r.price == 0
+      ? `<span class="price-tag free">🆓 חינם</span>`
+      : `<span class="price-tag">€${r.price}</span>`;
+    const dateStr = formatDate(r.date);
+    const trunkSpace = r.trunkSpace === true;
+    const dogsAllowed = r.dogsAllowed === true;
+    const trunkHtml = trunkSpace
+      ? '<span class="trunk-badge yes">🧳 עם מזוודה</span>'
+      : '<span class="trunk-badge no">🚫 בלי מזוודה</span>';
+    const dogsHtml = dogsAllowed
+      ? '<span class="dogs-badge yes">🐶 עם כלבים</span>'
+      : '<span class="dogs-badge no">🚫 בלי כלבים</span>';
+    const driverAvatar = r.driverAvatar
+      ? `<img src="${escapeHtml(r.driverAvatar)}" alt="avatar" width="28" height="28">`
+      : escapeHtml((r.driver || '?').charAt(0));
+
+    return `
+      <div class="ride-card ${isPast ? 'past-ride' : ''}" onclick="openContact(${r.id})">
+        <div class="ride-header">
+          <span class="airport-badge ${tripClass}">${tripTypeLine}</span>
+          <span class="seats-badge">👥 ${seatsAvailableLabel(r.seats)}</span>
+        </div>
+        <div class="ride-dest route-flow">${routeLine}</div>
+        <div class="ride-meta">
+          <span>🕐 ${escapeHtml(r.time)}</span>
+          <span>📅 ${dateStr}</span>
+          <span>${trunkHtml}</span>
+          <span>${dogsHtml}</span>
+        </div>
+        <div class="ride-footer">
+          ${priceHtml}
+          <div class="driver-info">
+            <div class="driver-avatar">${driverAvatar}</div>
+            <span>${escapeHtml(r.driver)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function formatDate(d) {
+  const days = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+  const dt = new Date(d + 'T00:00:00');
+  const today = isoTodayDate();
+  const tomorrowDateObj = new Date();
+  tomorrowDateObj.setDate(tomorrowDateObj.getDate() + 1);
+  const tom = toLocalIsoDate(tomorrowDateObj);
+  if (d === today) return 'היום';
+  if (d === tom) return 'מחר';
+  const [y, m, day] = d.split('-');
+  return `${day}/${m}/${y} (${days[dt.getDay()]})`;
+}
+
+async function addRide() {
+  const user = getCurrentUser();
+  const data = getAddFormData();
+
+  if (!data.contactName || !data.contactPhone || !data.tripType || !data.airport || !data.date || !data.time || !data.dest) {
+    toast('נא למלא את כל שדות החובה ⚠️');
+    return;
+  }
+
+  try {
+    const ok = await ensureFirstPublishEmailVerified({
+      name: data.contactName,
+      phone: data.contactPhone,
+    });
+    if (!ok) return;
+
+    const publishSessionToken = getStoredPublishSessionToken();
+    if (!publishSessionToken) {
+      toast('נדרש אימות אימייל לפני פרסום הנסיעה');
+      return;
+    }
+
+    await apiPost('/api/rides', {
+      driver: data.contactName,
+      phone: data.contactPhone,
+      tripType: data.tripType,
+      airport: data.airport,
+      date: data.date,
+      time: data.time,
+      dest: data.dest,
+      seats: data.seats,
+      trunkSpace: data.trunkSpace,
+      dogsAllowed: data.dogsAllowed,
+      price: data.price,
+      publishSessionToken,
+      uid: user?.username || 'guest',
+      driverAvatar: user?.avatarDataUrl || '',
+    });
+
+    STATE.driverPhone = normalizePhone(data.contactPhone);
+    localStorage.setItem('cy_driver_phone', STATE.driverPhone);
+    await persistDriverProfileFromRide(data.contactName, data.contactPhone);
+
+    toast('הנסיעה פורסמה בהצלחה! 🎉');
+    navigate('myrides');
+    resetAddWizard();
+    renderRides();
+  } catch (err) {
+    toast(`שגיאה בפרסום נסיעה: ${err.message}`);
+  }
+}
+
+function renderProfile() {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  document.getElementById('profileAvatarLetter').innerHTML = avatarMarkup(user, 80);
+  document.getElementById('profileName').textContent = user.name;
+  document.getElementById('profileFullName').textContent = user.name;
+  document.getElementById('profilePhone').textContent = user.phone;
+  document.getElementById('profileInlineName').value = user.name || '';
+  document.getElementById('profileInlinePhone').value = user.phone || '';
+  resetInlineProfileEdit();
+  renderHeaderAvatar();
+}
+
+const profileInlineState = {
+  field: null,
+};
+
+function showProfileInlineMsg(message, isError = false) {
+  const messageEl = document.getElementById('profileInlineMsg');
+  if (!messageEl) return;
+  messageEl.textContent = message;
+  messageEl.classList.remove('hidden', 'error');
+  if (isError) {
+    messageEl.classList.add('error');
+  }
+}
+
+function resetInlineProfileEdit() {
+  profileInlineState.field = null;
+  document.getElementById('profileRowName')?.classList.remove('editing');
+  document.getElementById('profileRowPhone')?.classList.remove('editing');
+  document.getElementById('profileInlineName')?.classList.add('hidden');
+  document.getElementById('profileInlinePhone')?.classList.add('hidden');
+  document.getElementById('profileFullName')?.classList.remove('hidden');
+  document.getElementById('profilePhone')?.classList.remove('hidden');
+  document.getElementById('profileInlineActions')?.classList.add('hidden');
+}
+
+function startInlineProfileEdit(field) {
+  if (STATE.role !== 'driver') {
+    return;
+  }
+  resetInlineProfileEdit();
+  profileInlineState.field = field;
+
+  const rowName = document.getElementById('profileRowName');
+  const rowPhone = document.getElementById('profileRowPhone');
+  const nameValue = document.getElementById('profileFullName');
+  const phoneValue = document.getElementById('profilePhone');
+  const nameInput = document.getElementById('profileInlineName');
+  const phoneInput = document.getElementById('profileInlinePhone');
+
+  if (field === 'name') {
+    rowName?.classList.add('editing');
+    nameValue?.classList.add('hidden');
+    nameInput?.classList.remove('hidden');
+    nameInput?.focus();
+  }
+
+  if (field === 'phone') {
+    rowPhone?.classList.add('editing');
+    phoneValue?.classList.add('hidden');
+    phoneInput?.classList.remove('hidden');
+    phoneInput?.focus();
+  }
+
+  document.getElementById('profileInlineActions')?.classList.remove('hidden');
+  document.getElementById('profileInlineMsg')?.classList.add('hidden');
+}
+
+function cancelInlineProfileEdit() {
+  const user = getCurrentUser();
+  if (!user) return;
+  document.getElementById('profileInlineName').value = user.name || '';
+  document.getElementById('profileInlinePhone').value = user.phone || '';
+  resetInlineProfileEdit();
+  document.getElementById('profileInlineMsg')?.classList.add('hidden');
+}
+
+async function saveInlineProfileEdit() {
+  const user = getCurrentUser();
+  if (!user || user.username === 'guest') {
+    showProfileInlineMsg('כדי לערוך פרופיל צריך להתחבר עם משתמש רשום', true);
+    return;
+  }
+
+  const name = document.getElementById('profileInlineName').value.trim();
+  const phone = document.getElementById('profileInlinePhone').value.trim();
+  if (!name || !phone) {
+    showProfileInlineMsg('נא להזין שם מלא וטלפון', true);
+    return;
+  }
+
+  try {
+    const data = await apiPost('/api/user/profile', {
+      currentUsername: user.username,
+      username: user.username,
+      name,
+      phone,
+      address: user.address || '',
+    });
+
+    const previousUsername = user.username;
+    STATE.currentUser = data.user;
+    STATE.session = data.user.username;
+    localStorage.setItem('cy_session', STATE.session);
+    setProfileSetupDone(data.user.username);
+    if (previousUsername && previousUsername !== data.user.username) {
+      localStorage.removeItem(profileSetupKey(previousUsername));
+    }
+    renderProfile();
+    syncAddDefaultsFromProfile();
+    showProfileInlineMsg('הפרופיל עודכן ✅');
+  } catch (err) {
+    showProfileInlineMsg(`שגיאה בעדכון פרופיל: ${err.message}`, true);
+  }
+}
+
+async function saveProfile() {
+  return saveInlineProfileEdit();
+}
+
+async function persistDriverProfileFromRide(name, phone) {
+  const user = getCurrentUser();
+  if (!user) return;
+
+  const nextName = String(name || '').trim();
+  const nextPhone = String(phone || '').trim();
+  if (!nextName || !nextPhone) return;
+
+  STATE.currentUser = {
+    ...user,
+    name: nextName,
+    phone: nextPhone,
+  };
+
+  if (user.username && user.username !== 'guest') {
+    try {
+      const data = await apiPost('/api/user/profile', {
+        currentUsername: user.username,
+        username: user.username,
+        name: nextName,
+        phone: nextPhone,
+        address: user.address || '',
+      });
+      STATE.currentUser = data.user;
+    } catch {
+      // keep local profile fallback
+    }
+  }
+
+  renderProfile();
+  syncAddDefaultsFromProfile();
+}
+
+async function uploadAvatar(event) {
+  const file = event.target.files?.[0];
+  const user = getCurrentUser();
+  if (!file || !user) {
+    return;
+  }
+  if (user.username === 'guest') {
+    toast('כדי להעלות תמונת פרופיל צריך להתחבר עם משתמש רשום');
+    event.target.value = '';
+    return;
+  }
+  if (!file.type.startsWith('image/')) {
+    toast('ניתן להעלות רק קובץ תמונה');
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const avatarDataUrl = reader.result;
+      const data = await apiPost('/api/user/avatar', {
+        username: user.username,
+        avatarDataUrl,
+      });
+      STATE.currentUser = data.user;
+      setProfileSetupDone(user.username);
+      renderProfile();
+      toast('תמונת הפרופיל עודכנה ✅');
+    } catch (err) {
+      toast(`שגיאה בהעלאת תמונה: ${err.message}`);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+function openContact(rideId) {
+  const ride = STATE.rides.find(r => r.id === rideId);
+  if (!ride) return;
+  if (isRidePast(ride)) {
+    showAppAlert('חלף המועד של הנסיעה הזאת. נא לבחור נסיעה עדכנית.');
+    return;
+  }
+  const airportLabel = ride.airport === 'larnaca' ? 'לרנקה' : 'פאפוס';
+  const rideRoute = ride.tripType === 'to_airport'
+    ? `${ride.dest} ← שדה ${airportLabel}`
+    : `שדה ${airportLabel} ← ${ride.dest}`;
+  const tripKind = ride.tripType === 'to_airport' ? 'נסיעה לשדה' : 'חזרה מהשדה';
+  const priceText = ride.price == 0 ? 'חינם' : `€${ride.price}`;
+  const dateStr = formatDate(ride.date);
+
+  document.getElementById('modalInfo').innerHTML = `
+    <div style="font-size:16px;font-weight:700;margin-bottom:6px;">${tripKind}: ${escapeHtml(rideRoute)}</div>
+    <div style="font-size:13px;color:var(--muted);">🕐 ${escapeHtml(ride.time)} | 📅 ${dateStr} | 👥 ${seatsAvailableLabel(ride.seats)} | 💰 ${priceText}</div>
+    <div style="font-size:13px;margin-top:6px;">🚗 נהג: <strong>${escapeHtml(ride.driver)}</strong></div>
+  `;
+
+  const waMsg = encodeURIComponent(
+    `שלום ${ride.driver}! 👋\nראיתי את הנסיעה שלך באפליקציית נסיעות קפריסין.\n✈️ שדה: ${airportLabel}\n📅 תאריך: ${dateStr} בשעה ${ride.time}\n📍 יעד: ${ride.dest}\n\nאשמח לצרף אותי אם יש מקום! 🙏`
+  );
+
+  document.getElementById('whatsappBtn').onclick = () => {
+    window.open(`https://wa.me/972${ride.phone.replace(/^0/, '')}?text=${waMsg}`, '_blank');
+  };
+  document.getElementById('callBtn').onclick = () => {
+    window.location.href = `tel:${ride.phone}`;
+  };
+
+  document.getElementById('contactModal').classList.add('open');
+}
+
+function closeModal(e) {
+  if (!e || e.target === document.getElementById('contactModal')) {
+    document.getElementById('contactModal').classList.remove('open');
+  }
+}
+
+function seatsAvailableLabel(value) {
+  const seats = Number(value);
+  if (!Number.isFinite(seats) || seats <= 0) {
+    return '0 מקומות פנויים';
+  }
+  if (seats === 1) {
+    return '1 מקום פנוי';
+  }
+  return `${seats} מקומות פנויים`;
+}
+
+function isRidePast(ride) {
+  const rideDate = String(ride?.date || '').trim();
+  const rideTime = String(ride?.time || '').trim();
+  if (!rideDate || !rideTime) return false;
+  const rideDateTime = new Date(`${rideDate}T${rideTime}:00`);
+  return Number.isFinite(rideDateTime.getTime()) && rideDateTime.getTime() < Date.now();
+}
+
+let acCounter = 0;
+const CYPRUS_LOCAL_PLACES = [
+  'Paphos, Universal',
+  'Paphos, Kato Paphos',
+  'Paphos, Chloraka',
+  'Paphos, Tala',
+  'Paphos, Geroskipou',
+  'Larnaca, Finikoudes',
+  'Larnaca, Mackenzie',
+  'Larnaca, Livadia',
+  'Limassol, Germasogeia',
+  'Limassol, Agios Athanasios',
+  'Nicosia, Strovolos',
+  'Nicosia, Engomi',
+  'Ayia Napa',
+  'Protaras',
+  'Polis',
+  'Deryneia',
+  'Paralimni',
+  'פאפוס, יוניברסל',
+  'פאפוס, קאטו פאפוס',
+  'פאפוס, כלורקה',
+  'פאפוס, טלה',
+  'פאפוס, ירוסקיפו',
+  'לרנקה, פיניקודס',
+  'לרנקה, מקנזי',
+  'לרנקה, ליבדיה',
+  'לימסול, גרמסוגיה',
+  'לימסול, אגיוס אתנסיוס',
+  'ניקוסיה, סטרובולוס',
+  'ניקוסיה, אנגומי',
+  'איה נאפה',
+  'פרוטאראס',
+  'פוליס',
+  'דריניה',
+  'פאראלימני',
+  'Nicosia',
+  'Limassol',
+  'Larnaca',
+  'Paphos',
+  'Nicosia, City Center',
+  'Nicosia, Old City',
+  'Limassol, City Center',
+  'Larnaca, City Center',
+  'Paphos, City Center',
+  'Paphos, Peyia',
+  'Paphos, Kissonerga',
+  'Paphos, Konia',
+  'Paphos, Tsada',
+  'Paphos, Polemi',
+  'Larnaca, Aradippou',
+  'Larnaca, Oroklini',
+  'Larnaca, Pyla',
+  'Limassol, Ypsonas',
+  'Limassol, Kolossi',
+  'Aglantzia',
+  'Lakatamia',
+  'Ayios Tychonas',
+  'Kiti Village',
+  'Peyia Village',
+  'Tala Village',
+  'Kissonerga Village',
+  'Tsada Village',
+  'Polemi Village',
+  'Stroumpi Village',
+  'Kathikas Village',
+  'Omodos Village',
+  'Platres Village',
+  'Lefkara Village',
+  'ניקוסיה',
+  'לימסול',
+  'לרנקה',
+  'פאפוס',
+  'ניקוסיה, מרכז העיר',
+  'ניקוסיה, העיר העתיקה',
+  'לימסול, מרכז העיר',
+  'לרנקה, מרכז העיר',
+  'פאפוס, מרכז העיר',
+  'פאפוס, פייה',
+  'פאפוס, קיסונרגה',
+  'פאפוס, קוניה',
+  'פאפוס, צדה',
+  'פאפוס, פולמי',
+  'לרנקה, אראדיפו',
+  'לרנקה, אורוקליני',
+  'לרנקה, פילה',
+  'לימסול, איפסונס',
+  'לימסול, קולוסי',
+  'אגלנדזיה',
+  'לקטמיה',
+  'אגיוס טיכונס',
+  'כפר קיטי',
+  'כפר פייה',
+  'כפר טלה',
+  'כפר קיסונרגה',
+  'כפר צדה',
+  'כפר פולמי',
+  'כפר סטרומפי',
+  'כפר קתיקאס',
+  'כפר אומודוס',
+  'כפר פלטראס',
+  'כפר לפקרה'
+];
+
+function normalizePlaceText(value) {
+  return String(value || '').trim().toLowerCase();
+}
+
+function mergePlaceMatches(localMatches, apiMatches) {
+  const merged = [];
+  const seen = new Set();
+
+  [...localMatches, ...apiMatches].forEach((place) => {
+    const key = normalizePlaceText(place);
+    if (!key || seen.has(key)) return;
+    seen.add(key);
+    merged.push(place);
+  });
+
+  return merged;
+}
+
+async function acInput(input, listId) {
+  const val = input.value.trim();
+  const list = document.getElementById(listId);
+
+  if (!val || val.length < 1) {
+    list.classList.add('hidden');
+    return;
+  }
+
+  const normalizedQuery = normalizePlaceText(val);
+  const localMatches = CYPRUS_LOCAL_PLACES.filter((place) => normalizePlaceText(place).includes(normalizedQuery));
+  const currentReq = ++acCounter;
+  let apiMatches = [];
+
+  try {
+    const data = await apiGet(`/api/places?query=${encodeURIComponent(val)}`);
+    apiMatches = data.places || [];
+  } catch {
+    apiMatches = [];
+  }
+
+  if (currentReq !== acCounter) return;
+
+  const matches = mergePlaceMatches(localMatches, apiMatches);
+  if (!matches.length) {
+    list.classList.add('hidden');
+    return;
+  }
+
+  list.innerHTML = matches.map(p =>
+    `<div class="autocomplete-item" onclick="selectAC(this,'${input.id}','${listId}')">${escapeHtml(p)}</div>`
+  ).join('');
+  list.classList.remove('hidden');
+}
+
+function selectAC(el, inputId, listId) {
+  const input = document.getElementById(inputId);
+  input.value = el.textContent;
+  document.getElementById(listId).classList.add('hidden');
+}
+
+document.addEventListener('click', e => {
+  document.querySelectorAll('.autocomplete-list').forEach(l => {
+    if (!l.closest('.autocomplete-wrap').contains(e.target)) l.classList.add('hidden');
+  });
+});
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+async function restoreSession() {
+  if (!STATE.session) return false;
+  try {
+    const data = await apiGet(`/api/user?username=${encodeURIComponent(STATE.session)}`);
+    STATE.currentUser = data.user;
+    const firstEntry = !isProfileSetupDone(data.user.username);
+    enterApp({ firstEntry });
+    return true;
+  } catch {
+    localStorage.removeItem('cy_session');
+    STATE.session = null;
+    return false;
+  }
+}
+
+const addDateInputEl = document.getElementById('addDate');
+if (addDateInputEl) {
+  const todayIso = isoTodayDate();
+  addDateInputEl.dataset.iso = todayIso;
+  addDateInputEl.value = formatDate(todayIso);
+}
+const otpCodeInputEl = document.getElementById('otpCodeInput');
+if (otpCodeInputEl) {
+  otpCodeInputEl.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      confirmEmailVerification();
+    }
+  });
+  otpCodeInputEl.addEventListener('input', (event) => {
+    event.target.value = event.target.value.replace(/\D/g, '').slice(0, 4);
+  });
+}
+updateWizardProgress('finderProgress', 1, 4);
+updateWizardProgress('addProgress', 1, 4);
+setupWizardGestures('finderWizard', currentFinderStepNumber, goFinderPrevStep, goFinderNextStep);
+setupWizardGestures('addWizard', currentAddStepNumber, goAddPrevStep, goAddNextStep);
+initEntryAnimation({ force: true });
+updateTripTypeUi();
+updateFinderPickerLabels();
+</script>
+</body>
+</html>
