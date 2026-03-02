@@ -1010,42 +1010,32 @@
     gap: 6px;
   }
 
-  .screen-side-nav {
-    position: absolute;
-    top: 78px;
-    left: 0;
-    right: 0;
-    pointer-events: none;
-    z-index: 55;
+  .top-bar-nav-arrows {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    padding: 0 6px;
+    gap: 2px;
   }
   .side-arrow {
-    pointer-events: auto;
     width: 28px;
     height: 28px;
     border-radius: 50%;
     border: none;
     background: transparent;
     color: var(--muted);
-    font-size: 20px;
-    font-weight: 300;
+    font-size: 18px;
+    font-weight: 400;
     font-family: 'Heebo', sans-serif;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    opacity: 0.55;
+    opacity: 0.5;
     transition: opacity 0.2s;
+    padding: 0;
+    line-height: 1;
   }
   .side-arrow:hover {
     opacity: 1;
-  }
-  .side-arrow.left {
-  }
-  .side-arrow.right {
   }
   #addStep3 {
     height: 100%;
@@ -1986,15 +1976,15 @@
     <!-- ── HOME SCREEN ── -->
     <div id="homeScreen" class="screen active">
       <div class="top-bar">
+        <div class="top-bar-nav-arrows" id="homeSideNav">
+          <button class="side-arrow" id="homeSideNext" onclick="sideStepNav('next')">&lt;</button>
+          <button class="side-arrow" id="homeSidePrev" onclick="sideStepNav('prev')">&gt;</button>
+        </div>
         <h1 class="top-title"><span class="title-icon">🚗</span>לחפש נסיעה</h1>
         <div style="display:flex;align-items:center;gap:8px;">
           <button class="mini-btn home-circle-btn" id="topHomeBtn" onclick="goWelcome()">🏠</button>
           <button class="avatar-btn js-user-avatar-btn" id="userAvatarBtn" onclick="goProfile()"></button>
         </div>
-      </div>
-      <div class="screen-side-nav" id="homeSideNav" aria-hidden="true">
-        <button class="side-arrow right" id="homeSideNext" onclick="sideStepNav('next')">&lt;</button>
-        <button class="side-arrow left" id="homeSidePrev" onclick="sideStepNav('prev')">&gt;</button>
       </div>
 
       <div id="finderWizard" class="finder-wizard">
@@ -2063,12 +2053,12 @@
     <!-- ── ADD RIDE SCREEN ── -->
     <div id="addScreen" class="screen">
       <div class="top-bar">
+        <div class="top-bar-nav-arrows" id="addSideNav">
+          <button class="side-arrow" id="addSideNext" onclick="sideStepNav('next')">&lt;</button>
+          <button class="side-arrow" id="addSidePrev" onclick="sideStepNav('prev')">&gt;</button>
+        </div>
         <h1 class="top-title"><span class="title-icon">➕</span>הוספת נסיעה</h1>
         <button class="avatar-btn js-user-avatar-btn" onclick="goProfile()"></button>
-      </div>
-      <div class="screen-side-nav" id="addSideNav" aria-hidden="true">
-        <button class="side-arrow right" id="addSideNext" onclick="sideStepNav('next')">&lt;</button>
-        <button class="side-arrow left" id="addSidePrev" onclick="sideStepNav('prev')">&gt;</button>
       </div>
 
       <div class="add-wizard" id="addWizard">
@@ -3504,12 +3494,17 @@ function clearDriverVerificationCache() {
 }
 
 function logout() {
+  const username = STATE.currentUser?.username || STATE.session;
   STATE.session = null;
   STATE.currentUser = null;
   STATE.role = null;
+  STATE.driverPhone = '';
   localStorage.removeItem('cy_session');
   localStorage.removeItem('cy_role');
   localStorage.removeItem('cy_driver_phone');
+  if (username) {
+    localStorage.removeItem(profileSetupKey(username));
+  }
   clearDriverVerificationCache();
   clearPublishSession();
   document.getElementById('mainApp').classList.add('hidden');
