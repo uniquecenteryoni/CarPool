@@ -1903,7 +1903,10 @@
   <div id="entryScreen" class="screen active">
     <div class="entry-hero">
       <div id="entryAnimation" aria-hidden="true"></div>
-      <h1>ברוכים הבאים ל<span style="color:#1d9bf0">גייט מייט</span></h1>
+      <div style="margin:8px 0 4px">
+        <div style="font-size:1.3rem;font-weight:600;color:var(--text)">ברוכים הבאים</div>
+        <div style="font-size:2.2rem;font-weight:800;color:#1d9bf0;letter-spacing:1px">GateMate</div>
+      </div>
       <p>מוצאים נסיעה משותפת מהשדה. פשוט.</p>
     </div>
     <div class="entry-role-grid">
@@ -2929,6 +2932,11 @@ function nextAddStep(stepNumber) {
     if (!data.contactName || !data.contactPhone || !data.seats) {
       toast('נא להשלים פרטי קשר, מקומות ומחיר');
       return
+    }
+    const rawPhone = data.contactPhone.replace(/[^\d+]/g, '');
+    if (rawPhone.length < 9 || rawPhone.length > 15) {
+      toast('מספר טלפון לא תקין — נא להזין מספר בן 9-15 ספרות');
+      return;
     }
     renderAddConfirm(data)
   }
