@@ -2466,7 +2466,7 @@ const API_BASE = (() => {
   if (explicitBase) {
     return explicitBase.replace(/\/$/, '');
   }
-  if (location.hostname.endsWith('pages.dev')) {
+  if (location.hostname.endsWith('pages.dev') || location.hostname === 'gatemate.site' || location.hostname.endsWith('.gatemate.site')) {
     return 'https://carpool-api.unique-center-yoni.workers.dev';
   }
   if (location.protocol === 'file:') {
